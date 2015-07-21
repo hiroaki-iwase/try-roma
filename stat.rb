@@ -3,7 +3,7 @@ class Roma
     attr_accessor :list
 
     def initialize()
-      @list = Hash.new { |hash,key| hash[key] = Hash.new {} }
+      @list = Hash.new
       @list = {
         "version" => "1.2.0",
         "config.DEFAULT_LOST_ACTION" => "auto_assign",
