@@ -1,16 +1,17 @@
 require 'sinatra'
-require 'pathname'
+require_relative 'stat'
+require_relative 'balse'
+require_relative 'tryroma_api'
+include TryRomaAPI
 
-base_path = Pathname(__FILE__).dirname
-$LOAD_PATH.unshift("#{base_path}/")
-require 'stat'
-require 'balse'
-
-get '/' do # debug
+# debug 
+get '/' do
+  logger.info "version : [#{TryRomaAPI::VERSION}]"
   erb :stats
 end
 
-get '/stats/?:regexp?' do |regexp|
+# stat/stats [regexp]
+get '/?:regexp?' do |regexp|
   stat = Roma::Stat.new
 
   list = stat.list
@@ -22,6 +23,7 @@ get '/stats/?:regexp?' do |regexp|
   erb :stats
 end
 
+# balse, shutdown, shutdown_self
 delete '/' do
   params[:killCmd]
   list = Roma::ProcessDown.new.kill_cmd
@@ -30,7 +32,7 @@ delete '/' do
     if res = list[params[:killCmd]]
       @res = res
     else
-      raise # toDO raise NoRomaCommandError
+      raise TryRomaAPIError
     end
   erb :stats
 end
