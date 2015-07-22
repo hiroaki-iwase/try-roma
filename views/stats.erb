@@ -1,3 +1,6 @@
+debug screen
+<hr>
+
 DELETE
 <form method="post" action="/">
     <input type="text" name="killCmd">
@@ -5,5 +8,24 @@ DELETE
     <input type="submit" value="delete!!">
 </form>
 
+<hr>
+
+POST<br>
+
+<form method="post" action="/">
+    Commad:<input type="text" name="command"><br>
+    Key:<input type="text" name="key"><br>
+    exptime<input type="text" name="exptime"><br>
+    bytes<input type="text" name="bytes"><br>
+    <input type="text" name="casid"><br>
+    value<input type="text" name="value"><br>
+    <input type="text" name="size"><br>
+    <input type="text" name="digit"><br>
 <br>
+    <input type="submit" value="Post!">
+</form>
+<br>
+
+<hr>
+response<br>
 <%= @res %>
