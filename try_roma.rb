@@ -5,24 +5,15 @@ require_relative 'balse'
 #require_relative 'post_cmd'
 include TryRomaAPI
 
-configure do
-  enable :sessions
-end
-
 # debug 
 get '/' do
   #logger.info "version : [#{TryRomaAPI::VERSION}]"
-
-  response.set_cookie(:foo, :value => "111", :expires => Time.now + 5)
-  response.set_cookie(:bar, :value => "222", :expires => Time.now + 100)
-  logger.info request.cookies['foo']
-  logger.info request.cookies['bar']
 
   erb :stats
 end
 
 # stat/stats [regexp]
-get '/stats/?:regexp?' do |regexp|
+get %r{/stat[s]*/?(.*)?} do |regexp|
   stat = Roma::Stat.new
 
   res_list = stat.list
@@ -34,14 +25,13 @@ get '/stats/?:regexp?' do |regexp|
   erb :stats
 end
 
+# get/gets <key>
 get %r{/(get[s]*)/(.*)}  do |i, k|
-  session['hoge'] = "test_value" #debug
-
-  if session[k]
+  if request.cookies[k]
     logical_clock = 5 if i == 'gets' # toDO
-    @res = "VALUE #{k} 0 #{session[k].size} #{logical_clock}<br>#{session[k]}<br>END<br>"
+    @res = "VALUE #{k} 0 #{request.cookies[k].size} #{logical_clock}<br>#{request.cookies[k]}<br>END<br>"
   else
-    @res = ""
+    @res = "END<br>"
   end
 
   erb :stats
@@ -79,22 +69,25 @@ post '/' do
   cmd = params[:command]
   k = params[:key]
   #params[:flags] = 0
-  params[:exptime]
+  exp = params[:exptime].to_i
   val_size = params[:bytes].to_i
   #params[:casid]
   v = params[:value]
   #params[:size]
   #params[:digit]
 
-  #post = Roma::PostCommand.new(params[:command])
+  exptime = check_exp_time(exp)
+
   if can_i_set?(cmd, k)
     case cmd
     when /^(set|add|replace)$/
-      session[k] = v.slice(0, val_size)
+      response.set_cookie(k, :value => v.slice(0, val_size), :expires => exptime)
     when 'append'
-      session[k].concat(v.slice(0, val_size))
+      pre_v = request.cookies[k]
+      response.set_cookie(k, :value => pre_v.concat(v.slice(0, val_size)), :expires => exptime)
     when 'prepend'
-      session[k].prepend(v.slice(0, val_size))
+      pre_v = request.cookies[k]
+      response.set_cookie(k, :value => pre_v.prepend(v.slice(0, val_size)), :expires => exptime)
     end
     @res = "STORED"
   else
@@ -108,12 +101,18 @@ private
 
 def can_i_set?(command, key)
   if command =~ /^(add)$/
-    return false if session[key]
+    return false if request.cookies[key]
   elsif command =~ /^(replace|append|prepend)$/
-    return false unless session[key]
+    return false unless request.cookies[key]
   end
   true
 end
 
-
+def check_exp_time(time)
+  if time > 60 * 60
+    return Time.now + (60 * 60)
+  else
+    return Time.now + time
+  end
+end
 
