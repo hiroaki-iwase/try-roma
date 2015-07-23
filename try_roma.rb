@@ -82,14 +82,14 @@ post '/' do
   cas = params[:casid].to_i
   v = params[:value]
   #params[:size]
-  #params[:digit]
+  digit = params[:digit].to_i
 
   case cmd
   when /^(set|add|replace|append|prepend)$/
-    if can_i_set?(cmd, k)
+    if can_i_set?($1, k)
       exptime = check_exp_time(exp)
 
-      value_hash = value_setting(cmd, k, v, val_size)
+      value_hash = value_setting($1, k, v, val_size)
       response.set_cookie(k, :value => value_hash, :expires => exptime)
 
       @res = "STORED"
@@ -104,12 +104,12 @@ post '/' do
     else
       @res = "NOT_STORED"
     end
-  when /^cas$/
+  when /^(cas)$/
     if request.cookies[k]
       h = revert_hash_from_string(request.cookies[k])
       if cas == h['clk']
         exptime = check_exp_time(exp)
-        value_hash = value_setting(cmd, k, v, val_size)
+        value_hash = value_setting($1, k, v, val_size)
         response.set_cookie(k, :value => value_hash, :expires => exptime)
         @res = "STORED"
       else
@@ -119,6 +119,29 @@ post '/' do
       @res = "NOT_FOUND"
     end
   when /^(incr|decr)$/
+    if request.cookies[k]
+      h = revert_hash_from_string(request.cookies[k])
+
+      digit = -digit if $1 == 'decr'
+      if !digit.kind_of?(Integer)
+        if digit =~ /^(\d+).+/
+          digit = $1
+        else
+          digit = 0
+        end
+      end
+
+      if h['value'].kind_of?(Integer)  
+        sum = h['value'] + digit
+      else
+        sum = digit
+      end
+      sum = 0 if sum < 0
+      response.set_cookie(k, :value => {'value' => sum, 'clk' => h['clk'] + 1})
+      @res = sum
+    else
+      @res = "NOT_FOUND"
+    end
   end
 
   erb :stats
@@ -175,7 +198,7 @@ end
 
 def revert_hash_from_string(str)
   if str[0] != '{'
-    raise "Unexpected style : #{str}"
+    raise TryRomaAPIError "Unexpected style : #{str}"
   end
 
   str = str.chomp.gsub(/"|^{|}$/, '')
