@@ -79,7 +79,7 @@ post '/' do
   #params[:flags] = 0
   exp = params[:exptime].to_i
   val_size = params[:bytes].to_i
-  #params[:casid]
+  cas = params[:casid].to_i
   v = params[:value]
   #params[:size]
   #params[:digit]
@@ -105,6 +105,19 @@ post '/' do
       @res = "NOT_STORED"
     end
   when /^cas$/
+    if request.cookies[k]
+      h = revert_hash_from_string(request.cookies[k])
+      if cas == h['clk']
+        exptime = check_exp_time(exp)
+        value_hash = value_setting(cmd, k, v, val_size)
+        response.set_cookie(k, :value => value_hash, :expires => exptime)
+        @res = "STORED"
+      else
+        @res = "EXISTS"
+      end
+    else
+      @res = "NOT_FOUND"
+    end
   when /^(incr|decr)$/
   end
 
@@ -112,6 +125,10 @@ post '/' do
 end
 
 private
+
+# set_data(:set)
+#def set_data(:method)
+#end
 
 def value_setting(cmd, k, v, val_size)
   if request.cookies[k]
@@ -121,7 +138,7 @@ def value_setting(cmd, k, v, val_size)
   end
 
   case cmd
-  when /^(set|add|replace)$/
+  when /^(set|add|replace|cas)$/
     value = v.slice(0, val_size)
   when 'append'
     value = pre_v.concat(v.slice(0, val_size))
