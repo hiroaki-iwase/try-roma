@@ -55,33 +55,14 @@ delete '/' do
   erb :stats
 end
 
-# set, add, delete, replace, append, prepend, cas, set_expt, set_size_of_zredundant, incr, decr, delete
-# Res Style
-#   STORED/NOT_STORED => set, add, replace, append, prepend, 
-#   STORED/NOT_STORED/EXISTS => cas
-#   STORED/NOT_STORED/SERVER_ERROR  => set_expt
-#   STORED/usage:set_set_size_of_zredundant <n>\r\n  => set_size_of_zredundant
-#   DELETED/NOT_FOUND => delete
-#   <digit>/NOT_FOUND => incr, decr
-#
-# Argument Style
-#   <key> <flags> <exptime> <bytes>\r\n<value> :set, add, replace, append, prepend, 
-#   <key> <flags> <exptime> <bytes> <casid>\r\n<value> : cas
-#   <key> <exptime> : set_expt
-#   <size> : set_size_of_zredundant
-#   <key> : delete
-#   <key> <digit> : incr, decr
-#
-# set, add, replace, append, prepend, set_expt, cas, incr, decr
+# set, add, delete, replace, append, prepend, cas, set_expt, incr, decr, delete
 post '/' do
   cmd = params[:command]
   k = params[:key]
-  #params[:flags] = 0
   exp = params[:exptime].to_i
   val_size = params[:bytes].to_i
   cas = params[:casid].to_i
   v = params[:value]
-  #params[:size]
   digit = params[:digit].to_i
 
   case cmd
@@ -139,6 +120,13 @@ post '/' do
       sum = 0 if sum < 0
       response.set_cookie(k, :value => {'value' => sum, 'clk' => h['clk'] + 1})
       @res = sum
+    else
+      @res = "NOT_FOUND"
+    end
+  when /^(delete)$/
+    if request.cookies[k]
+      response.delete_cookie k
+      @res = "DELETED"
     else
       @res = "NOT_FOUND"
     end
