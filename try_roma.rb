@@ -30,7 +30,7 @@ end
 # get/gets <key>
 get %r{/(get[s]*)/(.*)}  do |i, k|
   if request.cookies[k]
-    h = revert_hash_from_string(request.cookies['hoge'])
+    h = revert_hash_from_string(request.cookies[k])
     value = h['value']
     clk   = h['clk'] if i == 'gets'
     logger.info "clk = #{clk}"
@@ -43,7 +43,7 @@ get %r{/(get[s]*)/(.*)}  do |i, k|
   erb :stats
 end
 
-# balse, shutdown, shutdown_self
+# balse, shutdown, shutdown_self, (rbalse)
 delete '/' do
   params[:killCmd]
   res_list = Roma::ProcessDown.new.kill_cmd
@@ -71,6 +71,8 @@ end
 #   <size> : set_size_of_zredundant
 #   <key> : delete
 #   <key> <digit> : incr, decr
+#
+# set, add, replace, append, prepend, set_expt, cas, incr, decr
 post '/' do
   cmd = params[:command]
   k = params[:key]
@@ -82,15 +84,28 @@ post '/' do
   #params[:size]
   #params[:digit]
 
-  if can_i_set?(cmd, k)
-    exptime = check_exp_time(exp)
+  case cmd
+  when /^(set|add|replace|append|prepend)$/
+    if can_i_set?(cmd, k)
+      exptime = check_exp_time(exp)
 
-    value_hash = value_setting(cmd, k, v, val_size)
-    response.set_cookie(k, :value => value_hash, :expires => exptime)
+      value_hash = value_setting(cmd, k, v, val_size)
+      response.set_cookie(k, :value => value_hash, :expires => exptime)
 
-    @res = "STORED"
-  else
-    @res = "NOT_STORED"
+      @res = "STORED"
+    else
+      @res = "NOT_STORED"
+    end
+  when /^set_expt$/
+    if request.cookies[k]
+      exptime = check_exp_time(exp)
+      response.set_cookie(k, :value => request.cookies[k], :expires => exptime)
+      @res = "STORED"
+    else
+      @res = "NOT_STORED"
+    end
+  when /^cas$/
+  when /^(incr|decr)$/
   end
 
   erb :stats
@@ -100,7 +115,7 @@ private
 
 def value_setting(cmd, k, v, val_size)
   if request.cookies[k]
-    h = revert_hash_from_string(request.cookies['hoge'])
+    h = revert_hash_from_string(request.cookies[k])
     pre_v = h['value']
     pre_clk = h['clk']
   end
