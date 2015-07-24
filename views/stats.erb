@@ -3,7 +3,7 @@ debug screen
 
 DELETE
 <form method="post" action="/">
-    <input type="text" name="killCmd">
+    <input type="text" name="command">
     <input type="hidden" name="_method" value="DELETE">
     <input type="submit" value="delete!!">
 </form>
@@ -28,4 +28,4 @@ POST<br>
 
 <hr>
 response<br>
-<%= @res %>
+<%= h @res %>

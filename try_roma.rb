@@ -1,20 +1,24 @@
 require 'sinatra'
 require_relative 'tryroma_api'
-require_relative 'stat'
-require_relative 'balse'
-#require_relative 'post_cmd'
+
 include TryRomaAPI
 
-configure do
+#configure do
+#end
+
+helpers do
+  include Rack::Utils
+  alias_method :h, :escape_html
 end
 
-###[GET action]============================================================================================================
+
 # debug 
 get '/' do
 
   erb :stats
 end
 
+###[GET]============================================================================================================
 # stat/stats [regexp]
 get %r{/stat[s]*/?(.*)?} do |regexp|
   stat = Roma::Stat.new
@@ -28,59 +32,12 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
   erb :stats
 end
 
-
-# whoami/nodelist
-get %r{^/(whoami|nodelist)$} do |i|
-  stat = Roma::Stat.new
-  res_list = stat.list
-  case i
-  when 'whoami'
-    @res = res_list['stats.name']
-  when 'nodelist'
-    nodelist = res_list['routing.nodes']
-    @res = nodelist.chomp.gsub(/"|\[|\]|\,/, '')
-  end
-  erb :stats
-end
-
-# version
-get %r{^/(version)$} do |i|
-    case i
-    when 'version'
-      @res = 'VERSION ROMA-1.2.0'
-    end
-
-  erb :stats
-end
-
-#get '/set_latency_avg_calc_rule/:bool/:time/*' do
-get '/set_latency_avg_calc_rule/:bool/?:time?/?*?' do |bool, time, cmds|
-  stat = Roma::Stat.new
-  res_list = stat.list
-  if bool == 'on'
-    if !time || cmds.empty?
-      @res = 'CLIENT_ERROR number of arguments (0 for 3) and <count> must be greater than zero'
-    else
-      @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"ACTIVATED"')
-    end
-  elsif bool == 'off'
-    if time || !cmds.empty?
-      @res ='CLIENT_ERROR number of arguments (0 for 1, or more 3)'
-    else
-      @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"DEACTIVATED"')
-    end
-  else
-    @res = 'CLIENT_ERROR argument 1: please input "on" or "off"'
-  end
-end
-
 # get/gets <key>
-get %r{/(get[s]*)/(.*)}  do |i, k|
-  if request.cookies[k]
-    h = revert_hash_from_string(request.cookies[k])
+get %r{/(get[s]*)/(.*)}  do |cmd, k|
+  if v = request.cookies[k]
+    h = revert_hash_from_string(v)
     value = h['value']
-    clk   = h['clk'] if i == 'gets'
-    logger.info "clk = #{clk}"
+    clk   = h['clk'] if cmd == 'gets'
 
     @res = "VALUE #{k} 0 #{value.size} #{clk}<br>#{value}<br>END<br>"
   else
@@ -90,16 +47,87 @@ get %r{/(get[s]*)/(.*)}  do |i, k|
   erb :stats
 end
 
+# whoami/nodelist/version
+get %r{^/(whoami|nodelist|version)$} do |cmd|
+  stat = Roma::Stat.new
+  res_list = stat.list
+
+  case cmd
+  when 'whoami'
+    @res = res_list['stats.name']
+  when 'nodelist'
+    nodelist = res_list['routing.nodes']
+    @res = nodelist.chomp.gsub(/"|\[|\]|\,/, '')
+  when 'version'
+    @res = "VERSION ROMA-#{res_list['version']}"
+  end
+
+  erb :stats
+end
+
+
+# set_latency_avg_calc_rule <on|off> [time] [command1] [command2]....
+#get '/set_latency_avg_calc_rule/:bool/?:time?/?*?' do |bool, time, cmds|
+#get '/set_latency_avg_calc_rule/:bool/?:time?/?*?' do |bool, time, cmds|
+#
+#  logger.info "enter else"
+#  stat = Roma::Stat.new
+#
+#  res_list = stat.list
+#
+#  if bool == 'on' && time && !cmds.empty?
+#    @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"ACTIVATED"')
+#  elsif bool == 'off' && !time && cmds.empty?
+#    @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"DEACTIVATED"')
+#  else
+#    logger.info "enter else"
+#    if bool == 'on' 
+#      if !time || cmds.empty?
+#        error_message = 'number of arguments (0 for 3) and <count> must be greater than zero'
+#      end
+#    elsif bool == 'off' 
+#      if time || !cmds.empty?
+#        error_message = 'number of arguments (0 for 1, or more 3)'
+#      end
+#    else
+#      error_message = 'argument 1: please input "on" or "off"'
+#    end
+#    @res = "CLIENT_ERROR #{error_message}"
+#  end
+#
+#
+#
+#  #if bool == 'on' # if bool = 'on' && time && !cms.empty?
+#  #  if !time || cmds.empty?
+#  #    error_message = 'number of arguments (0 for 3) and <count> must be greater than zero'
+#  #    @res = "CLIENT_ERROR #{error_message}"
+#  #  else
+#  #    #success
+#  #    @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"ACTIVATED"')
+#  #  end
+#  #elsif bool == 'off'
+#  #  if time || !cmds.empty?
+#  #    error_message = 'number of arguments (0 for 1, or more 3)'
+#  #    @res = "CLIENT_ERROR #{error_message}"
+#  #  else # if bool == 'off' && !time && cmds.empty?
+#  #    # success
+#  #    @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"DEACTIVATED"')
+#  #  end
+#  #else
+#  #  error_message = 'argument 1: please input "on" or "off"'
+#  #  @res = "CLIENT_ERROR #{error_message}"
+#  #end
+#end
+
 ###[DELETE action]============================================================================================================
 # balse, shutdown, shutdown_self, (rbalse)
 delete '/' do
-  params[:killCmd]
-  res_list = Roma::ProcessDown.new.kill_cmd
-  if res = res_list[params[:killCmd]]
+  if res = Roma::FinishCommand.new.list[params[:command]]
     @res = res
   else
-    raise TryRomaAPIError
+    raise TryRomaAPINoCommandError.new(params[:command])
   end
+
   erb :stats
 end
 
@@ -114,45 +142,26 @@ post '/' do
   v = params[:value]
   digit = params[:digit].to_i
 
-  case cmd
-  when /^(set|add|replace|append|prepend)$/
-    if can_i_set?($1, k)
-      exptime = check_exp_time(exp)
-
-      value_hash = value_setting($1, k, v, val_size)
-      response.set_cookie(k, :value => value_hash, :expires => exptime)
-
+  if can_i_set?(cmd, k)
+    case cmd
+    when /^(set|add|replace|append|prepend)$/
+      set_data(cmd, k, v, exp, val_size)
       @res = "STORED"
-    else
-      @res = "NOT_STORED"
-    end
-  when /^set_expt$/
-    if request.cookies[k]
-      exptime = check_exp_time(exp)
-      response.set_cookie(k, :value => request.cookies[k], :expires => exptime)
+
+    when /^set_expt$/
+      set_data(cmd, k, request.cookies[k], exp)
       @res = "STORED"
-    else
-      @res = "NOT_STORED"
-    end
-  when /^(cas)$/
-    if request.cookies[k]
+
+    when /^(cas)$/
       h = revert_hash_from_string(request.cookies[k])
       if cas == h['clk']
-        exptime = check_exp_time(exp)
-        value_hash = value_setting($1, k, v, val_size)
-        response.set_cookie(k, :value => value_hash, :expires => exptime)
+        set_data(cmd, k, v, exp, val_size)
         @res = "STORED"
       else
         @res = "EXISTS"
       end
-    else
-      @res = "NOT_FOUND"
-    end
-  when /^(incr|decr)$/
-    if request.cookies[k]
-      h = revert_hash_from_string(request.cookies[k])
 
-      digit = -digit if $1 == 'decr'
+    when /^(incr|decr)$/
       if !digit.kind_of?(Integer)
         if digit =~ /^(\d+).+/
           digit = $1
@@ -160,25 +169,31 @@ post '/' do
           digit = 0
         end
       end
+      digit = -digit if $1 == 'decr'
 
-      if h['value'].kind_of?(Integer)  
+      h = revert_hash_from_string(request.cookies[k])
+      if h['value'].kind_of?(Integer)
         sum = h['value'] + digit
       else
         sum = digit
       end
       sum = 0 if sum < 0
-      response.set_cookie(k, :value => {'value' => sum, 'clk' => h['clk'] + 1})
+
+      set_data(cmd, k, {'value' => sum, 'clk' => h['clk'] + 1})
       @res = sum
-    else
-      @res = "NOT_FOUND"
+
+    when /^(delete)$/
+      if request.cookies[k]
+        response.delete_cookie k
+        @res = "DELETED"
+      else
+        @res = "NOT_FOUND"
+      end
     end
-  when /^(delete)$/
-    if request.cookies[k]
-      response.delete_cookie k
-      @res = "DELETED"
-    else
-      @res = "NOT_FOUND"
-    end
+
+  else
+    @res = "NOT_STORED" if cmd =~ /(add|replace|append|prepend)$/
+    @res = "NOT_FOUND" if cmd =~ /^(delete|incr|decr|cas)$/
   end
 
   erb :stats
@@ -186,15 +201,45 @@ end
 
 ###PUT action]============================================================================================================
 
-
-
-
-
 private
 
-# set_data(:set)
-#def set_data(:method)
-#end
+def can_i_set?(command, key)
+  if command =~ /^(add)$/
+    return false if request.cookies[key]
+  elsif command =~ /^(replace|append|prepend|cas|incr|decr|delete)$/
+    return false unless request.cookies[key]
+  elsif command =~ /^(set)$/
+    return true
+  end
+  true
+end
+
+def set_data(cmd, key, value, exptime=(10 * 60), val_size=nil)
+
+  exptime = check_exp_time(exptime) 
+
+  if cmd =~ /^(set_expt|incr|decr)$/
+    value_hash = value
+  else
+    value_hash = value_setting(cmd, key, value, val_size)
+  end
+
+  case cmd
+  when /^(incr|decr)$/
+    response.set_cookie(key, :value => value_hash)
+  else
+    response.set_cookie(key, :value => value_hash, :expires => exptime)
+  end
+  true
+end
+
+def check_exp_time(time)
+  if time <= 0 || time > 10 * 60
+    return Time.now + (10 * 60)
+  else
+    return Time.now + time
+  end
+end
 
 def value_setting(cmd, k, v, val_size)
   if request.cookies[k]
@@ -221,27 +266,11 @@ def value_setting(cmd, k, v, val_size)
   return h 
 end
 
-
-def can_i_set?(command, key)
-  if command =~ /^(add)$/
-    return false if request.cookies[key]
-  elsif command =~ /^(replace|append|prepend)$/
-    return false unless request.cookies[key]
-  end
-  true
-end
-
-def check_exp_time(time)
-  if time <= 0 || time > 10 * 60
-    return Time.now + (10 * 60)
-  else
-    return Time.now + time
-  end
-end
-
 def revert_hash_from_string(str)
-  if str[0] != '{'
-    raise TryRomaAPIError "Unexpected style : #{str}"
+  if !str.kind_of?(String)
+    raise TryRomaAPINoMethodError.new("undefined method `#{__method__}' for '#{str}':#{str.class}")
+  elsif str[0] != '{'
+    raise TryRomaAPIUnexpectedStyleError.new("'#{str}' is NOT start from '{'")
   end
 
   str = str.chomp.gsub(/"|^{|}$/, '')

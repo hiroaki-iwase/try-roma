@@ -1,10 +1,10 @@
 class Roma
-  class ProcessDown
-    attr_accessor :kill_cmd
+  class FinishCommand
+    attr_accessor :list
 
     def initialize()
-      @kill_cmd = Hash.new
-      @kill_cmd = {
+      @list = Hash.new
+      @list = {
         "balse" => "Are you sure?(yes/no)",
         "shutdown" => "*** ARE YOU REALLY SURE TO SHUTDOWN? *** (yes/no)",
         "rbalse" => "rbalse is deprecated command, please use [shutdown_self] command",
