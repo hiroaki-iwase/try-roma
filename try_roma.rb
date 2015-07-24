@@ -8,6 +8,7 @@ include TryRomaAPI
 configure do
 end
 
+###[GET action]============================================================================================================
 # debug 
 get '/' do
 
@@ -27,6 +28,52 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
   erb :stats
 end
 
+
+# whoami/nodelist
+get %r{^/(whoami|nodelist)$} do |i|
+  stat = Roma::Stat.new
+  res_list = stat.list
+  case i
+  when 'whoami'
+    @res = res_list['stats.name']
+  when 'nodelist'
+    nodelist = res_list['routing.nodes']
+    @res = nodelist.chomp.gsub(/"|\[|\]|\,/, '')
+  end
+  erb :stats
+end
+
+# version
+get %r{^/(version)$} do |i|
+    case i
+    when 'version'
+      @res = 'VERSION ROMA-1.2.0'
+    end
+
+  erb :stats
+end
+
+#get '/set_latency_avg_calc_rule/:bool/:time/*' do
+get '/set_latency_avg_calc_rule/:bool/?:time?/?*?' do |bool, time, cmds|
+  stat = Roma::Stat.new
+  res_list = stat.list
+  if bool == 'on'
+    if !time || cmds.empty?
+      @res = 'CLIENT_ERROR number of arguments (0 for 3) and <count> must be greater than zero'
+    else
+      @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"ACTIVATED"')
+    end
+  elsif bool == 'off'
+    if time || !cmds.empty?
+      @res ='CLIENT_ERROR number of arguments (0 for 1, or more 3)'
+    else
+      @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"DEACTIVATED"')
+    end
+  else
+    @res = 'CLIENT_ERROR argument 1: please input "on" or "off"'
+  end
+end
+
 # get/gets <key>
 get %r{/(get[s]*)/(.*)}  do |i, k|
   if request.cookies[k]
@@ -43,6 +90,7 @@ get %r{/(get[s]*)/(.*)}  do |i, k|
   erb :stats
 end
 
+###[DELETE action]============================================================================================================
 # balse, shutdown, shutdown_self, (rbalse)
 delete '/' do
   params[:killCmd]
@@ -55,6 +103,7 @@ delete '/' do
   erb :stats
 end
 
+###[POST action]============================================================================================================
 # set, add, delete, replace, append, prepend, cas, set_expt, incr, decr, delete
 post '/' do
   cmd = params[:command]
@@ -134,6 +183,12 @@ post '/' do
 
   erb :stats
 end
+
+###PUT action]============================================================================================================
+
+
+
+
 
 private
 
