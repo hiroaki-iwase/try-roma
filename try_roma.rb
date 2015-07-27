@@ -1,10 +1,18 @@
 require 'sinatra'
 require_relative 'tryroma_api'
 
+
+require 'thread'
+
 include TryRomaAPI
 
 configure do
   enable :sessions
+  @@routing_primary = 0
+  @@routing_secondary1 = 0
+  @@routing_secondary2 = 0
+
+  @@flag = {}
 end
 
 helpers do
@@ -23,16 +31,22 @@ end
 # stat/stats [regexp]
 get %r{/stat[s]*/?(.*)?} do |regexp|
   stat = Roma::Stat.new
-
   res_list = stat.list
+
   @res = res_list.select{|k, v| k =~ /#{regexp}/}
 
-  if keys = search_key?(session, regexp)
-    keys.reject{|item| item =~ /^(session_id|csrf|tracking)$/}
-    keys.each{|k|
-      @res[k] = session[k]
-    }
+
+  if @@flag[:release]
+    @res['routing.primary'] = @@routing_primary
+    @res['routing.secondary1'] = @@routing_secondary1
+    @res['routing.secondary2'] = @@routing_secondary2
   end
+  #if keys = search_key?(session, regexp)
+  #  keys.reject{|item| item =~ /^(session_id|csrf|tracking)$/}
+  #  keys.each{|k|
+  #    @res[k] = session[k]
+  #  }
+  #end
 
   erb :stats
 end
@@ -205,18 +219,58 @@ post '/' do
 end
 
 ###PUT action]============================================================================================================
-put '/release' do
+put '/' do
+  cmd = params[:command]
+  case cmd
+  when 'release'
+    stat = Roma::Stat.new
+    res_list = stat.list
 
-  # thread使う
-  session['stats.run_release'] = true
+    logger.info 'release process has been started.'
+    session['stats.run_release'] = 'true'
+    @@flag[:release] = true
 
-  session['routing.primary'] = 0
-  session['routing.secondary1'] = 0
-  session['routing.secondary2'] = 0
+    @@routing_primary = res_list['routing.primary'].to_i
+    @@routing_secondary1 = res_list['routing.secondary1'].to_i
+    @@routing_secondary2 = res_list['routing.secondary2'].to_i
 
-  session['stats.run_release'] = false
+    primary_finish_flag = false
+    secondary1_finish_flag = false
+    secondary2_finish_flag = false
 
-  erb :stats
+    Thread.new do
+      begin
+        loop{
+          @@routing_primary -= 5 unless primary_finish_flag
+          @@routing_secondary1 -= 5 unless secondary1_finish_flag
+          @@routing_secondary2 -= 5 unless secondary2_finish_flag
+
+         primary_finish_flag = @@routing_primary = 0 if @@routing_primary <= 0
+         secondary1_finish_flag = @@routing_secondary1 = 0 if @@routing_secondary1 <= 0
+         secondary2_finish_flag = @@routing_secondary2 = 0 if @@routing_secondary2 <= 0
+
+
+          if primary_finish_flag && secondary1_finish_flag && secondary2_finish_flag
+            break
+          else
+            logger.info "#{@@routing_primary}, #{@@routing_secondary1}, #{@@routing_secondary2}"
+          end
+
+          sleep 2
+        }
+        
+      rescue => e
+        logger.info e
+      ensure
+
+        session['stats.run_release'] = 'false'
+        logger.info 'release processs has been finished.'
+      end
+    end
+
+    @res = 'STRTED'
+    erb :stats
+  end
 end
 
 
