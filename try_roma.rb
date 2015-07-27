@@ -1,13 +1,16 @@
 require 'sinatra'
 require_relative 'tryroma_api'
 
-
 require 'thread'
 
 include TryRomaAPI
 
 configure do
-  enable :sessions
+  #enable :sessions
+  #set :session_secret, 'super secret'
+
+use Rack::Session::Pool, :expire_after => 2592000
+
   @@routing_primary = 0
   @@routing_secondary1 = 0
   @@routing_secondary2 = 0
@@ -20,27 +23,38 @@ helpers do
   alias_method :h, :escape_html
 end
 
+before do
+  session[:stat] = Roma::Stat.new  unless session[:stat]
+end
 
 # debug 
 get '/' do
-
-  erb :stats
+"
+  #{session[:stat]}<br>
+  #{session[:stat].class}<br>
+  #{session[:stat].list}
+"
+  #erb :stats
 end
 
 ###[GET]============================================================================================================
 # stat/stats [regexp]
 get %r{/stat[s]*/?(.*)?} do |regexp|
-  stat = Roma::Stat.new
-  res_list = stat.list
+  #stat = Roma::Stat.new
+  #res_list = stat.list
+  #@res = res_list.select{|k, v| k =~ /#{regexp}/}
 
-  @res = res_list.select{|k, v| k =~ /#{regexp}/}
+
+  logger.info session[:stat].list['routing.primary']
+
+  @res = session[:stat].list.select{|k, v| k =~ /#{regexp}/}
 
 
-  if @@flag[:release]
-    @res['routing.primary'] = @@routing_primary
-    @res['routing.secondary1'] = @@routing_secondary1
-    @res['routing.secondary2'] = @@routing_secondary2
-  end
+  #if @@flag[:release]
+  #  @res['routing.primary'] = @@routing_primary
+  #  @res['routing.secondary1'] = @@routing_secondary1
+  #  @res['routing.secondary2'] = @@routing_secondary2
+  #end
   #if keys = search_key?(session, regexp)
   #  keys.reject{|item| item =~ /^(session_id|csrf|tracking)$/}
   #  keys.each{|k|
@@ -50,6 +64,28 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
 
   erb :stats
 end
+
+# whoami/nodelist/version
+get %r{^/(whoami|nodelist|version)$} do |cmd|
+  #stat = Roma::Stat.new
+  #res_list = stat.list
+
+  stat_list = session[:stat].list
+
+  case cmd
+  when 'whoami'
+    @res = stat_list['stats.name']
+  when 'nodelist'
+    nodelist = stat_list['routing.nodes']
+    @res = nodelist.chomp.gsub(/"|\[|\]|\,/, '')
+  when 'version'
+    @res = "VERSION ROMA-#{stat_list['version']}"
+  end
+
+  erb :stats
+end
+
+
 
 # get/gets <key>
 get %r{/(get[s]*)/(.*)}  do |cmd, k|
@@ -66,23 +102,7 @@ get %r{/(get[s]*)/(.*)}  do |cmd, k|
   erb :stats
 end
 
-# whoami/nodelist/version
-get %r{^/(whoami|nodelist|version)$} do |cmd|
-  stat = Roma::Stat.new
-  res_list = stat.list
 
-  case cmd
-  when 'whoami'
-    @res = res_list['stats.name']
-  when 'nodelist'
-    nodelist = res_list['routing.nodes']
-    @res = nodelist.chomp.gsub(/"|\[|\]|\,/, '')
-  when 'version'
-    @res = "VERSION ROMA-#{res_list['version']}"
-  end
-
-  erb :stats
-end
 
 
 # set_latency_avg_calc_rule <on|off> [time] [command1] [command2]....
@@ -218,42 +238,48 @@ post '/' do
   erb :stats
 end
 
-###PUT action]============================================================================================================
+###[PUT action]============================================================================================================
 put '/' do
   cmd = params[:command]
   case cmd
   when 'release'
-    stat = Roma::Stat.new
-    res_list = stat.list
-
     logger.info 'release process has been started.'
-    session['stats.run_release'] = 'true'
-    @@flag[:release] = true
+    #stat = Roma::Stat.new
+    #res_list = stat.list
 
-    @@routing_primary = res_list['routing.primary'].to_i
-    @@routing_secondary1 = res_list['routing.secondary1'].to_i
-    @@routing_secondary2 = res_list['routing.secondary2'].to_i
+    #stat_list = session[:stat]
 
-    primary_finish_flag = false
-    secondary1_finish_flag = false
-    secondary2_finish_flag = false
+    #session['stats.run_release'] = 'true'
+    #@@flag[:release] = true
+
+    #@@routing_primary = res_list['routing.primary'].to_i
+    #@@routing_secondary1 = res_list['routing.secondary1'].to_i
+    #@@routing_secondary2 = res_list['routing.secondary2'].to_i
+
+    session[:stat].list['stats.run_release'] = true
+
+    run_pri = true
 
     Thread.new do
       begin
         loop{
-          @@routing_primary -= 5 unless primary_finish_flag
-          @@routing_secondary1 -= 5 unless secondary1_finish_flag
-          @@routing_secondary2 -= 5 unless secondary2_finish_flag
 
-         primary_finish_flag = @@routing_primary = 0 if @@routing_primary <= 0
-         secondary1_finish_flag = @@routing_secondary1 = 0 if @@routing_secondary1 <= 0
-         secondary2_finish_flag = @@routing_secondary2 = 0 if @@routing_secondary2 <= 0
+          # decreasing
+          if run_pri
+            session[:stat].list['routing.primary'] -= 5
+          end
+
+          # check value
+          if session[:stat].list['routing.primary'] <= 0
+            session[:stat].list['routing.primary'] = 0
+            run_pri = false
+          end
 
 
-          if primary_finish_flag && secondary1_finish_flag && secondary2_finish_flag
+          if !run_pri
             break
           else
-            logger.info "#{@@routing_primary}, #{@@routing_secondary1}, #{@@routing_secondary2}"
+            logger.info "primary: #{session[:stat].list['routing.primary']}"
           end
 
           sleep 2
@@ -262,8 +288,7 @@ put '/' do
       rescue => e
         logger.info e
       ensure
-
-        session['stats.run_release'] = 'false'
+        session[:stat].list['stats.run_release'] = false
         logger.info 'release processs has been finished.'
       end
     end
