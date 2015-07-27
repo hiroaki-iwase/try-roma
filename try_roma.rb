@@ -3,8 +3,9 @@ require_relative 'tryroma_api'
 
 include TryRomaAPI
 
-#configure do
-#end
+configure do
+  enable :sessions
+end
 
 helpers do
   include Rack::Utils
@@ -24,11 +25,15 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
   stat = Roma::Stat.new
 
   res_list = stat.list
-  if regexp
-    @res = res_list.select{|k, v| k =~ /#{regexp}/}
-  else
-    @res = res_list
+  @res = res_list.select{|k, v| k =~ /#{regexp}/}
+
+  if keys = search_key?(session, regexp)
+    keys.reject{|item| item =~ /^(session_id|csrf|tracking)$/}
+    keys.each{|k|
+      @res[k] = session[k]
+    }
   end
+
   erb :stats
 end
 
@@ -200,8 +205,34 @@ post '/' do
 end
 
 ###PUT action]============================================================================================================
+put '/release' do
+
+  # thread使う
+  session['stats.run_release'] = true
+
+  session['routing.primary'] = 0
+  session['routing.secondary1'] = 0
+  session['routing.secondary2'] = 0
+
+  session['stats.run_release'] = false
+
+  erb :stats
+end
+
+
+
+
+
+
+
 
 private
+
+def search_key?(session, regexp)
+  res = session.keys.grep(/#{regexp}/)
+  res = nil if res.empty?
+  res
+end
 
 def can_i_set?(command, key)
   if command =~ /^(add)$/

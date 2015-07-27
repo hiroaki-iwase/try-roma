@@ -26,6 +26,15 @@ POST<br>
 </form>
 <br>
 
+PUT
+<form method="post" action="/">
+    <input type="text" name="command">
+    <input type="hidden" name="_method" value="PUT">
+    <input type="submit" value="put!!">
+</form>
+
+<hr>
 <hr>
 response<br>
+<%#= h @res %>
 <%= h @res %>
