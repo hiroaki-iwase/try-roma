@@ -1,21 +1,11 @@
 require 'sinatra'
 require_relative 'tryroma_api'
-
 require 'thread'
 
 include TryRomaAPI
 
 configure do
-  #enable :sessions
-  #set :session_secret, 'super secret'
-
-use Rack::Session::Pool, :expire_after => 2592000
-
-  @@routing_primary = 0
-  @@routing_secondary1 = 0
-  @@routing_secondary2 = 0
-
-  @@flag = {}
+  use Rack::Session::Pool, :expire_after => 3600 # 10min
 end
 
 helpers do
@@ -24,47 +14,73 @@ helpers do
 end
 
 before do
-  session[:stat] = Roma::Stat.new  unless session[:stat]
+  session[:version]      = Roma::Version.new      unless session[:version]
+  session[:config]       = Roma::Config.new       unless session[:config]
+  session[:stat]         = Roma::Stats.new        unless session[:stats]
+  session[:storage]      = Roma::Storage.new      unless session[:storage]
+  session[:write_behind] = Roma::WriteBehind.new  unless session[:write_behind]
+  session[:routing]      = Roma::Routing.new      unless session[:routing]
+  session[:connection]   = Roma::Connection.new   unless session[:connetion]
+  session[:others]       = Roma::Others.new       unless session[:others]
 end
 
 # debug 
 get '/' do
 "
+  #{session[:version]}<br>
+  #{session[:version].class}<br>
+  #{session[:version].get_stat}<br>
+  ==============================================================================================<br>
+  #{session[:config]}<br>
+  #{session[:config].class}<br>
+  #{session[:config].get_stat}<br>
+  ==============================================================================================<br>
   #{session[:stat]}<br>
   #{session[:stat].class}<br>
-  #{session[:stat].list}
+  #{session[:stat].get_stat.class}<br>
+  #{session[:stat].get_stat.size}<br>
+  #{session[:stat].get_stat}<br>
+  ===============================================================================================<br>
+  #{session[:storage]}<br>
+  #{session[:storage].class}<br>
+  #{session[:storage].get_stat}<br>
+  ===============================================================================================<br>
+  #{session[:write_behind]}<br>
+  #{session[:write_behind].class}<br>
+  #{session[:write_behind].get_stat}<br>
+  ===============================================================================================<br>
+  #{session[:routing]}<br>
+  #{session[:routing].class}<br>
+  #{session[:routing].get_stat}<br>
+  ===============================================================================================<br>
+  #{session[:connection]}<br>
+  #{session[:connection].class}<br>
+  #{session[:connection].get_stat}<br>
+  ===============================================================================================<br>
+  #{session[:others]}<br>
+  #{session[:others].class}<br>
+  #{session[:others].get_stat}<br>
 "
-  #erb :stats
 end
 
 ###[GET]============================================================================================================
 # stat/stats [regexp]
 get %r{/stat[s]*/?(.*)?} do |regexp|
-  #stat = Roma::Stat.new
-  #res_list = stat.list
-  #@res = res_list.select{|k, v| k =~ /#{regexp}/}
-
-
-  logger.info session[:stat].list['routing.primary']
-
-  @res = session[:stat].list.select{|k, v| k =~ /#{regexp}/}
-
-
-  #if @@flag[:release]
-  #  @res['routing.primary'] = @@routing_primary
-  #  @res['routing.secondary1'] = @@routing_secondary1
-  #  @res['routing.secondary2'] = @@routing_secondary2
-  #end
-  #if keys = search_key?(session, regexp)
-  #  keys.reject{|item| item =~ /^(session_id|csrf|tracking)$/}
-  #  keys.each{|k|
-  #    @res[k] = session[k]
-  #  }
-  #end
-
+  #@res = session[:stats].list.select{|k, v| k =~ /#{regexp}/}
+  @res = session[:version].get_stat\
+           .merge(session[:config].get_stat)\
+           .merge(session[:stat].get_stat)\
+           .merge(session[:storage].get_stat)\
+           .merge(session[:write_behind].get_stat)\
+           .merge(session[:routing].get_stat)\
+           .merge(session[:connection].get_stat)\
+           .merge(session[:others].get_stat)
+ 
   erb :stats
 end
 
+
+=begin
 # whoami/nodelist/version
 get %r{^/(whoami|nodelist|version)$} do |cmd|
   #stat = Roma::Stat.new
@@ -392,3 +408,5 @@ def revert_hash_from_string(str)
   Hash[*str]
 end
 
+
+=end

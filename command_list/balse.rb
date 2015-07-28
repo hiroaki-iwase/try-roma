@@ -1,4 +1,5 @@
-class Roma
+#class Roma
+module Roma
   class FinishCommand
     attr_accessor :list
 
