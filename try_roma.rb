@@ -250,82 +250,92 @@ post '/' do
   erb :stats
 end
 
-=begin
 ###[PUT action]============================================================================================================
 put '/' do
   cmd = params[:command]
+
   case cmd
   when 'release'
-    logger.info 'release process has been started.'
-    #stat = Roma::Stat.new
-    #res_list = stat.list
+    if can_i_release?(session[:stats].run_release, session[:routing])
+      logger.info 'release process has been started.'
+      session[:stats].run_release = true
 
-    #stat_list = session[:stat]
+      run_pri = true
+      run_sec1 = true
+      run_sec2 = true
+      Thread.new do
+        begin
+          loop{
+            # decreasing
+            session[:routing].primary -= 5 if run_pri
+            session[:routing].secondary1 -= 5 if run_sec1
+            session[:routing].secondary2 -= 5 if run_sec2
 
-    #session['stats.run_release'] = 'true'
-    #@@flag[:release] = true
+            # check value
+            if session[:routing].primary <= 0
+              session[:routing].primary = 0
+              run_pri = false
+            end
+            if session[:routing].secondary1 <= 0
+              session[:routing].secondary1 = 0
+              run_sec1 = false
+            end
+            if session[:routing].secondary2 <= 0
+              session[:routing].secondary2 = 0
+              run_sec2 = false
+            end
 
-    #@@routing_primary = res_list['routing.primary'].to_i
-    #@@routing_secondary1 = res_list['routing.secondary1'].to_i
-    #@@routing_secondary2 = res_list['routing.secondary2'].to_i
+            # debug
+            if run_pri || run_sec1 || run_sec2
+              logger.info "primary:    #{session[:routing].primary}" 
+              logger.info "secondary1: #{session[:routing].secondary1}"
+              logger.info "secondary2: #{session[:routing].secondary2}"
+            end
+            break if !run_pri && !run_sec1 && !run_sec2
 
-    session[:stat].list['stats.run_release'] = true
-
-    run_pri = true
-
-    Thread.new do
-      begin
-        loop{
-
-          # decreasing
-          if run_pri
-            session[:stat].list['routing.primary'] -= 5
-          end
-
-          # check value
-          if session[:stat].list['routing.primary'] <= 0
-            session[:stat].list['routing.primary'] = 0
-            run_pri = false
-          end
-
-
-          if !run_pri
-            break
-          else
-            logger.info "primary: #{session[:stat].list['routing.primary']}"
-          end
-
-          sleep 2
-        }
-        
-      rescue => e
-        logger.info e
-      ensure
-        session[:stat].list['stats.run_release'] = false
-        logger.info 'release processs has been finished.'
+            sleep 2
+          }
+         
+        rescue => e
+          logger.info e
+        ensure
+          session[:stats].run_release = false
+          logger.info 'release processs has been finished.'
+        end
       end
+      @res = 'STRTED'
+    else
+      @res = "release:Sufficient nodes do not found."
     end
 
-    @res = 'STRTED'
     erb :stats
+
+  #when
+
+  #when
+
+
+  else
+    raise TryRomaAPINoCommandError.new(params[:command])
   end
 end
 
 
 
 
-=end
 
 
 
 
 private
+def can_i_release?(run_release, routing_stat)
+  if !run_release && (routing_stat.nodes.length > routing_stat.redundant)
+    return true
+  end
 
-#def search_key?(session, regexp)
-#  res = session.keys.grep(/#{regexp}/)
-#  res = nil if res.empty?
-#  res
-#end
+  false
+end
+
 
 def can_i_set?(command, key)
   if command =~ /^(add)$/

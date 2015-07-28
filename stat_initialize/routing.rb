@@ -1,8 +1,13 @@
 module Roma
   class Routing
 
-      attr_accessor :redundaunt
+      attr_accessor :redundant
       attr_accessor :nodes
+      attr_accessor :primary
+      attr_accessor :secondary1
+      attr_accessor :secondary2
+      attr_accessor :short_vnodes
+      attr_accessor :lost_vnodes
       attr_accessor :lost_action
       attr_accessor :auto_recover
       attr_accessor :auto_recover_status
@@ -13,6 +18,11 @@ module Roma
       def initialize
         @redundant = 3
         @nodes = ["192.168.33.12_10001", "192.168.33.12_10002", "192.168.33.12_10003", "192.168.33.12_10004"]
+        @primary = 123#toDO
+        @secondary1 = 114 # toDO
+        @secondary2 = 143 # toDO
+        @short_vnodes = 0
+        @lost_vnodes = 0
         @lost_action=:no_action
         @auto_recover=false
         @auto_recover_status="waiting"
