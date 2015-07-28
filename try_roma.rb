@@ -354,9 +354,23 @@ put '/' do
 
     erb :stats
 
-  #when
+  when 'set_auto_recover'
+    bool = params[:bool]
+    session[:routing].auto_recover = bool.to_boolean
 
+    sec = params[:sec]
+    unless sec.empty?
+      raise TryRomaAPIArgumentError if sec !~ /^\d+$/
+      session[:routing].auto_recover_time = sec.to_i
+    end
 
+    node_list = session[:routing].version_of_nodes
+    node_list.each{|k, v|
+      node_list[k] = 'STORED'
+    }
+    @res = node_list
+
+    erb :stats
   else
     raise TryRomaAPINoCommandError.new(params[:command])
   end
@@ -368,6 +382,19 @@ end
 
 
 private
+
+class String
+  def to_boolean
+    return "ERROR: #{self} is already Bool type" if self.class.kind_of?(TrueClass) || self.class.kind_of?(FalseClass)
+
+    if self =~ /^(true|false)$/
+      return true if $1 == 'true'
+      return false if $1 == 'false'
+    else
+      return "ERROR: #{self} is Unexpected Style."
+    end
+  end
+end
 
 def can_i_recover?(run_recover, routing_stat)
 
