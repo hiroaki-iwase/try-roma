@@ -393,6 +393,17 @@ put '/' do
 
     erb :stats
 
+  when 'set_log_level'
+    log_level = params[:level]
+    if log_level =~ /^(debug|info|warn|error)$/
+      session[:stats].log_level = log_level.to_sym
+      @res = 'STORED'
+    else
+      raise TryRomaAPIArgumentError.new('CLIENT_ERROR no match log-level string')
+    end
+
+    erb :stats
+
   else
     raise TryRomaAPINoCommandError.new(params[:command])
   end
