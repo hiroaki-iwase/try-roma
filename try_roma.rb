@@ -310,7 +310,49 @@ put '/' do
 
     erb :stats
 
-  #when
+  when 'recover'
+    if can_i_recover?(session[:stats].run_recover, session[:routing])
+
+      logger.info 'recover process has been starteda.'
+      session[:stats].run_recover = true
+
+      run_short = true
+      Thread.new do
+        begin
+          loop{
+            # decreasing
+            session[:routing].short_vnodes -= 5 if run_short
+
+            # check value
+            if session[:routing].short_vnodes <= 0
+              session[:routing].short_vnodes = 0
+              run_short = false
+            end
+
+            # debug
+            if run_short
+              logger.info "short_vnodes:    #{session[:routing].short_vnodes}" 
+            end
+            break if !run_short
+
+            sleep 2
+          }
+         
+        rescue => e
+          logger.info e
+        ensure
+          session[:stats].run_recover = false
+          logger.info 'recover processs has been finished.'
+        end
+      end
+      node_list = session[:routing].version_of_nodes
+      node_list.each{|k, v|
+        node_list[k] = 'STARTED'
+      }
+      @res = node_list
+    end
+
+    erb :stats
 
   #when
 
@@ -325,15 +367,27 @@ end
 
 
 
-
-
 private
-def can_i_release?(run_release, routing_stat)
-  if !run_release && (routing_stat.nodes.length > routing_stat.redundant)
-    return true
+
+def can_i_recover?(run_recover, routing_stat)
+
+  if run_recover
+    @res = 'SERVER_ERROR Recover process is already running.'
+    return false
+  elsif routing_stat.nodes.length < routing_stat.redundant
+    @res = 'SERVER_ERROR nodes num < redundant num'
+    return false
   end
 
-  false
+  true
+end
+
+def can_i_release?(run_release, routing_stat)
+  if run_release || (routing_stat.nodes.length <= routing_stat.redundant)
+    return false
+  end
+
+  true
 end
 
 
