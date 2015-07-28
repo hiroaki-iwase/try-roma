@@ -14,6 +14,7 @@ helpers do
 end
 
 before do
+  # response of stat command
   session[:version]      = Roma::Version.new      unless session[:version]
   session[:config]       = Roma::Config.new       unless session[:config]
   session[:stats]         = Roma::Stats.new        unless session[:stats]
@@ -22,6 +23,9 @@ before do
   session[:routing]      = Roma::Routing.new      unless session[:routing]
   session[:connection]   = Roma::Connection.new   unless session[:connetion]
   session[:others]       = Roma::Others.new       unless session[:others]
+
+  # others
+  
 end
 
 # debug 
@@ -167,8 +171,9 @@ end
 #  #  @res = "CLIENT_ERROR #{error_message}"
 #  #end
 #end
+=end
 
-###[DELETE action]============================================================================================================
+###[DELETE]============================================================================================================
 # balse, shutdown, shutdown_self, (rbalse)
 delete '/' do
   if res = Roma::FinishCommand.new.list[params[:command]]
@@ -180,6 +185,7 @@ delete '/' do
   erb :stats
 end
 
+=begin
 ###[POST action]============================================================================================================
 # set, add, delete, replace, append, prepend, cas, set_expt, incr, decr, delete
 post '/' do
@@ -401,6 +407,5 @@ def revert_hash_from_string(str)
 
   Hash[*str]
 end
-
 
 =end
