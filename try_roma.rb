@@ -371,6 +371,28 @@ put '/' do
     @res = node_list
 
     erb :stats
+
+  when 'set_lost_action'
+    action = params[:lost]
+
+    if session[:routing].lost_action !~ /^(auto_assign|shutdown)$/
+      @res = 'CLIENT_ERROR can use this command only current lost action is auto_assign or shutdwn mode'
+    else
+      if action !~ /^(auto_assign|shutdown)$/
+        @res = 'CLIENT_ERROR changing lost_action must be auto_assign or shutdown' if action !~ /^(auto_assign|shutdown)$/
+      else
+        session[:routing].lost_action = action
+
+        node_list = session[:routing].version_of_nodes
+        node_list.each{|k, v|
+          node_list[k] = 'STORED'
+        }
+        @res = node_list
+      end
+    end
+
+    erb :stats
+
   else
     raise TryRomaAPINoCommandError.new(params[:command])
   end

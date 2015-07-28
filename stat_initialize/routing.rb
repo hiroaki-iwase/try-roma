@@ -17,18 +17,18 @@ module Roma
 
       def initialize
         @redundant = 3
-        @nodes = ["192.168.33.12_10001", "192.168.33.12_10002", "192.168.33.12_10003", "192.168.33.12_10004"]
-        @primary = 123#toDO
-        @secondary1 = 114 # toDO
-        @secondary2 = 143 # toDO
+        @nodes = ["localhost_10001", "localhost_10002", "localhost_10003", "localhost_10004", "localhost_10005"]
+        @primary = 103
+        @secondary1 = 102
+        @secondary2 = 102
         @short_vnodes = 0
         @lost_vnodes = 0
-        @lost_action=:no_action
+        @lost_action=:auto_assign
         @auto_recover=false
         @auto_recover_status="waiting"
         @auto_recover_time=1800
         @event = []
-        @version_of_nodes = {"192.168.33.12_10001"=>66048, "192.168.33.12_10002"=>66048, "192.168.33.12_10003"=>66048, "192.168.33.12_10004"=>66048}
+        @version_of_nodes = {"localhost_10001"=>66048, "localhost_10002"=>66048, "localhost_10003"=>66048, "localhost_10004"=>66048, "localhost_10005"=>66048}
       end
 
       def get_stat()
