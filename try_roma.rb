@@ -16,7 +16,7 @@ end
 before do
   session[:version]      = Roma::Version.new      unless session[:version]
   session[:config]       = Roma::Config.new       unless session[:config]
-  session[:stat]         = Roma::Stats.new        unless session[:stats]
+  session[:stats]         = Roma::Stats.new        unless session[:stats]
   session[:storage]      = Roma::Storage.new      unless session[:storage]
   session[:write_behind] = Roma::WriteBehind.new  unless session[:write_behind]
   session[:routing]      = Roma::Routing.new      unless session[:routing]
@@ -35,11 +35,11 @@ get '/' do
   #{session[:config].class}<br>
   #{session[:config].get_stat}<br>
   ==============================================================================================<br>
-  #{session[:stat]}<br>
-  #{session[:stat].class}<br>
-  #{session[:stat].get_stat.class}<br>
-  #{session[:stat].get_stat.size}<br>
-  #{session[:stat].get_stat}<br>
+  #{session[:stats]}<br>
+  #{session[:stats].class}<br>
+  #{session[:stats].get_stat.class}<br>
+  #{session[:stats].get_stat.size}<br>
+  #{session[:stats].get_stat}<br>
   ===============================================================================================<br>
   #{session[:storage]}<br>
   #{session[:storage].class}<br>
@@ -68,7 +68,7 @@ end
 get %r{/stat[s]*/?(.*)?} do |regexp|
   all_list = session[:version].get_stat\
            .merge(session[:config].get_stat)\
-           .merge(session[:stat].get_stat)\
+           .merge(session[:stats].get_stat)\
            .merge(session[:storage].get_stat)\
            .merge(session[:write_behind].get_stat)\
            .merge(session[:routing].get_stat)\
@@ -80,22 +80,15 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
 end
 
 
-=begin
 # whoami/nodelist/version
 get %r{^/(whoami|nodelist|version)$} do |cmd|
-  #stat = Roma::Stat.new
-  #res_list = stat.list
-
-  stat_list = session[:stat].list
-
   case cmd
   when 'whoami'
-    @res = stat_list['stats.name']
+    @res = session[:stats].get_stat['stats.name']
   when 'nodelist'
-    nodelist = stat_list['routing.nodes']
-    @res = nodelist.chomp.gsub(/"|\[|\]|\,/, '')
+    @res = session[:routing].get_stat['routing.nodes'].join(' ')
   when 'version'
-    @res = "VERSION ROMA-#{stat_list['version']}"
+    @res = "VERSION ROMA-#{session[:version].get_stat['version']}"
   end
 
   erb :stats
@@ -103,6 +96,7 @@ end
 
 
 
+=begin
 # get/gets <key>
 get %r{/(get[s]*)/(.*)}  do |cmd, k|
   if v = request.cookies[k]
