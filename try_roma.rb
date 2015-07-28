@@ -17,7 +17,7 @@ before do
   # response of stat command
   session[:version]      = Roma::Version.new      unless session[:version]
   session[:config]       = Roma::Config.new       unless session[:config]
-  session[:stats]         = Roma::Stats.new        unless session[:stats]
+  session[:stats]        = Roma::Stats.new        unless session[:stats]
   session[:storage]      = Roma::Storage.new      unless session[:storage]
   session[:write_behind] = Roma::WriteBehind.new  unless session[:write_behind]
   session[:routing]      = Roma::Routing.new      unless session[:routing]
@@ -83,7 +83,6 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
   erb :stats
 end
 
-
 # whoami/nodelist/version
 get %r{^/(whoami|nodelist|version)$} do |cmd|
   case cmd
@@ -98,9 +97,6 @@ get %r{^/(whoami|nodelist|version)$} do |cmd|
   erb :stats
 end
 
-
-
-=begin
 # get/gets <key>
 get %r{/(get[s]*)/(.*)}  do |cmd, k|
   if v = request.cookies[k]
@@ -117,6 +113,7 @@ get %r{/(get[s]*)/(.*)}  do |cmd, k|
 end
 
 
+=begin
 
 
 # set_latency_avg_calc_rule <on|off> [time] [command1] [command2]....
@@ -185,7 +182,6 @@ delete '/' do
   erb :stats
 end
 
-=begin
 ###[POST action]============================================================================================================
 # set, add, delete, replace, append, prepend, cas, set_expt, incr, decr, delete
 post '/' do
@@ -254,6 +250,7 @@ post '/' do
   erb :stats
 end
 
+=begin
 ###[PUT action]============================================================================================================
 put '/' do
   cmd = params[:command]
@@ -317,17 +314,18 @@ end
 
 
 
+=end
 
 
 
 
 private
 
-def search_key?(session, regexp)
-  res = session.keys.grep(/#{regexp}/)
-  res = nil if res.empty?
-  res
-end
+#def search_key?(session, regexp)
+#  res = session.keys.grep(/#{regexp}/)
+#  res = nil if res.empty?
+#  res
+#end
 
 def can_i_set?(command, key)
   if command =~ /^(add)$/
@@ -408,4 +406,3 @@ def revert_hash_from_string(str)
   Hash[*str]
 end
 
-=end
