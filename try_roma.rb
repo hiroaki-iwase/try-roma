@@ -66,8 +66,7 @@ end
 ###[GET]============================================================================================================
 # stat/stats [regexp]
 get %r{/stat[s]*/?(.*)?} do |regexp|
-  #@res = session[:stats].list.select{|k, v| k =~ /#{regexp}/}
-  @res = session[:version].get_stat\
+  all_list = session[:version].get_stat\
            .merge(session[:config].get_stat)\
            .merge(session[:stat].get_stat)\
            .merge(session[:storage].get_stat)\
@@ -76,6 +75,7 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
            .merge(session[:connection].get_stat)\
            .merge(session[:others].get_stat)
  
+  @res = all_list.select{|k, v| k =~ /#{regexp}/}
   erb :stats
 end
 
