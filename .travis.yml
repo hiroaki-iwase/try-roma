@@ -3,13 +3,48 @@ rvm:
   - 2.1.2
   #- 2.2.1
 before_install:
+  - echo ===================before_install_area============================
+  # 注意する点として、Travisがテストをする環境はUbuntu 12.04 LTS Server Edition 64 bit
+  # apt-get -y ****
 install:
+  - echo ===================install_area============================
+  # ここで自動でgit cloneしている？
+env:
+  - a=1 # この行を1行進むと、毎回scriptの全てを実行する
+  - b=1
+  # a=1 b=1 # 上を避けるためには、1行にまとめるか、
+  # global: # globalという項目を作ってそれの中にまとめる
+  #   - a=1
+  #   - b=1
 script:
+  - echo ===================script_area============================
   - ruby --version
   - echo test1
-  - echo test2
+  - a=$a
+  - echo a=$a b=$b # a=1 b=
+  - echo a=$a b=$b # a=1 b=1
+
+  # インタラクティブに入力を求める様なコマンドは使えない
+  # => もしいれた場合は、10分待って反応がないとfailにされる
+  # => -y オプションとかをつけて止まらないるように気をつけないといけない
+
+  # 4MB以上のログを出力するコマンドはfailedになる
+
+  # sudo はパスワードなしで使える(?)
+  
 after_success:
+  - echo ===================after_sucess_area============================
 
 after_failure:
+  - echo ===================after_failure_area============================
 
 after_script:
+  - echo ===================after_script_area============================
+
+notifications:
+  email:
+    recipients: hiroaki-iwase
+    on_success: change
+    on_failure: always # 常にメールする
+    on_failure: never  # 常にメールしない
+    on_failure: change # 前の実行時とステータスが変わった時のみ送る
