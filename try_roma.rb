@@ -413,10 +413,9 @@ put '/' do
   end
 end
 
-
-
-
-
+not_found do
+  @res = "TryRomaAPI do NOT support this commad."
+end
 
 private
 
@@ -480,7 +479,6 @@ def can_i_release?(run_release, routing_stat)
 
   true
 end
-
 
 def can_i_set?(command, key)
   if command =~ /^(add)$/
