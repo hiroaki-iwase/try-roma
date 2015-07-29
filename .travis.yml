@@ -12,8 +12,8 @@ install:
   # もしbundle以外でいれたいlibraryがある場合は、installコマンドを使う
   # install: gem install rails
 env:
-  - a=1 # この行を1行進むと、毎回scriptの全てを実行する
-  - b=1
+  #- a=1 # この行を1行進むと、毎回scriptの全てを実行する
+  #- b=1
   # a=1 b=1 # 上を避けるためには、1行にまとめるか、
   # global: # globalという項目を作ってそれの中にまとめる
   #   - a=1

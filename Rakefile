@@ -1,3 +1,4 @@
+task :default => [:test]
 task :test do
   puts 'Hello! form Rake File!!'
 end
