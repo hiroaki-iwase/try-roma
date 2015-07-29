@@ -1,8 +1,7 @@
 require 'sinatra'
-require_relative 'tryroma_api'
 require 'thread'
 require 'time'
-
+require_relative 'base'
 include TryRomaAPI
 
 configure do
@@ -24,9 +23,6 @@ before do
   session[:routing]      = Roma::Routing.new      unless session[:routing]
   session[:connection]   = Roma::Connection.new   unless session[:connetion]
   session[:others]       = Roma::Others.new       unless session[:others]
-
-  # others
-  
 end
 
 # debug 
@@ -113,94 +109,40 @@ get %r{/(get[s]*)/(.*)}  do |cmd, k|
   erb :stats
 end
 
-
-=begin
-
-
-# set_latency_avg_calc_rule <on|off> [time] [command1] [command2]....
-#get '/set_latency_avg_calc_rule/:bool/?:time?/?*?' do |bool, time, cmds|
-#get '/set_latency_avg_calc_rule/:bool/?:time?/?*?' do |bool, time, cmds|
-#
-#  logger.info "enter else"
-#  stat = Roma::Stat.new
-#
-#  res_list = stat.list
-#
-#  if bool == 'on' && time && !cmds.empty?
-#    @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"ACTIVATED"')
-#  elsif bool == 'off' && !time && cmds.empty?
-#    @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"DEACTIVATED"')
-#  else
-#    logger.info "enter else"
-#    if bool == 'on' 
-#      if !time || cmds.empty?
-#        error_message = 'number of arguments (0 for 3) and <count> must be greater than zero'
-#      end
-#    elsif bool == 'off' 
-#      if time || !cmds.empty?
-#        error_message = 'number of arguments (0 for 1, or more 3)'
-#      end
-#    else
-#      error_message = 'argument 1: please input "on" or "off"'
-#    end
-#    @res = "CLIENT_ERROR #{error_message}"
-#  end
-#
-#
-#
-#  #if bool == 'on' # if bool = 'on' && time && !cms.empty?
-#  #  if !time || cmds.empty?
-#  #    error_message = 'number of arguments (0 for 3) and <count> must be greater than zero'
-#  #    @res = "CLIENT_ERROR #{error_message}"
-#  #  else
-#  #    #success
-#  #    @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"ACTIVATED"')
-#  #  end
-#  #elsif bool == 'off'
-#  #  if time || !cmds.empty?
-#  #    error_message = 'number of arguments (0 for 1, or more 3)'
-#  #    @res = "CLIENT_ERROR #{error_message}"
-#  #  else # if bool == 'off' && !time && cmds.empty?
-#  #    # success
-#  #    @res = res_list['routing.version_of_nodes'].gsub(/=>\d+/, '=>"DEACTIVATED"')
-#  #  end
-#  #else
-#  #  error_message = 'argument 1: please input "on" or "off"'
-#  #  @res = "CLIENT_ERROR #{error_message}"
-#  #end
-#end
-=end
-
 ###[DELETE]============================================================================================================
 # balse, shutdown, shutdown_self, (rbalse)
 delete '/' do
   cmd = params[:command]
   confirm = params[:confirmation]
 
-  if res = Roma::FinishCommand.new.list[cmd]
-    if confirm.empty?
-      @res = res
-      @res = res.concat("<br>(TryRomaAPI : if you wanna execute, please send request with 'yes' or 'no' in the :confimation parameters.)") unless cmd == 'rbalse'
-    elsif confirm != 'yes'
-      @res = 'Connection closed by foreign host.'
-    elsif confirm == 'yes'
-      case cmd
-      when /^(shutdown_self)$/
-        @res = 'BYE<br>Connection closed by foreign host.'
-        kill_instance(:single)
-      when /^(balse|shutdown)$/
-        @res = make_response_of_nodelist('BYE').to_s + '<br>Connection closed by foreign host.'
-        kill_instance(:all)
+  unless cmd.empty?  
+    if res = Roma::FinishCommand.new.list[cmd]
+      if confirm == 'yes'
+        case cmd
+        when /^(shutdown_self)$/
+          @res = 'BYE<br>Connection closed by foreign host.'
+          kill_instance(:single)
+        when /^(balse|shutdown)$/
+          @res = make_response_of_nodelist('BYE').to_s + '<br>Connection closed by foreign host.'
+          kill_instance(:all)
+        end
+      elsif confirm.empty?
+        @res = res
+        @res = res.concat("<br>(TryRomaAPI : if you wanna execute, please send request with 'yes' or 'no' in the :confimation parameters.)") unless cmd == 'rbalse'
+      else
+        @res = 'Connection closed by foreign host.'
       end
+    else
+      raise TryRomaAPINoCommandError.new(params[:command])
     end
   else
-    raise TryRomaAPINoCommandError.new(params[:command])
+    raise TryRomaAPIArgumentError.new(params[:command])
   end
 
   erb :stats
 end
 
-###[POST action]============================================================================================================
+###[POST]============================================================================================================
 # set, add, delete, replace, append, prepend, cas, set_expt, incr, decr, delete
 post '/' do
   cmd = params[:command]
@@ -214,14 +156,17 @@ post '/' do
   if can_i_set?(cmd, k)
     case cmd
     when /^(set|add|replace|append|prepend)$/
+      raise TryRomaAPIArgumentError unless argumentcheck(k, v, exp, val_size)
       set_data(cmd, k, v, exp, val_size)
       @res = "STORED"
 
     when /^set_expt$/
+      raise TryRomaAPIArgumentError unless argumentcheck(k, v, exp)
       set_data(cmd, k, request.cookies[k], exp)
       @res = "STORED"
 
     when /^(cas)$/
+      raise TryRomaAPIArgumentError unless argumentcheck(k, v, exp, val_size)
       h = revert_hash_from_string(request.cookies[k])
       if cas == h['clk']
         set_data(cmd, k, v, exp, val_size)
@@ -230,7 +175,8 @@ post '/' do
         @res = "EXISTS"
       end
 
-    when /^(incr|decr)$/
+    when /^(incr|decr)$/ 
+      raise TryRomaAPIArgumentError unless argumentcheck(k, digit)
       if !digit.kind_of?(Integer)
         if digit =~ /^(\d+).+/
           digit = $1
@@ -252,6 +198,7 @@ post '/' do
       @res = sum
 
     when /^(delete)$/
+      raise TryRomaAPIArgumentError unless argumentcheck(k)
       if request.cookies[k]
         response.delete_cookie k
         @res = "DELETED"
@@ -259,7 +206,6 @@ post '/' do
         @res = "NOT_FOUND"
       end
     end
-
   else
     @res = "NOT_STORED" if cmd =~ /(add|replace|append|prepend)$/
     @res = "NOT_FOUND" if cmd =~ /^(delete|incr|decr|cas)$/
@@ -268,13 +214,14 @@ post '/' do
   erb :stats
 end
 
-###[PUT action]============================================================================================================
+###[PUT]============================================================================================================
 put '/' do
   cmd = params[:command]
+  raise TryRomaAPINoCommandError unless argumentcheck(cmd)
 
   case cmd
   when 'release'
-    if can_i_release?(session[:stats].run_release, session[:routing])
+    if can_i_release?
       logger.info 'release process has been started.'
       session[:stats].run_release = true
 
@@ -329,8 +276,7 @@ put '/' do
     erb :stats
 
   when 'recover'
-    if can_i_recover?(session[:stats].run_recover, session[:routing])
-
+    if can_i_recover?
       logger.info 'recover process has been starteda.'
       session[:stats].run_recover = true
 
@@ -370,19 +316,22 @@ put '/' do
 
   when 'set_auto_recover'
     bool = params[:bool]
-    session[:routing].auto_recover = bool.to_boolean
-
     sec = params[:sec]
-    unless sec.empty?
-      raise TryRomaAPIArgumentError if sec !~ /^\d+$/
+
+    raise TryRomaAPIArgumentError unless argumentcheck(bool)
+
+    if argumentcheck(sec)
+      raise TryRomaAPIArgumentError.new(sec) if  sec !~ /^\d+$/
       session[:routing].auto_recover_time = sec.to_i
     end
+    session[:routing].auto_recover = bool.to_bool
     @res = make_response_of_nodelist('STORED')
 
     erb :stats
 
   when 'set_lost_action'
     action = params[:lost]
+    raise TryRomaAPIArgumentError unless argumentcheck(action)
 
     if session[:routing].lost_action !~ /^(auto_assign|shutdown)$/
       @res = 'CLIENT_ERROR can use this command only current lost action is auto_assign or shutdwn mode'
@@ -399,6 +348,8 @@ put '/' do
 
   when 'set_log_level'
     log_level = params[:level]
+    raise TryRomaAPIArgumentError unless argumentcheck(log_level)
+
     if log_level =~ /^(debug|info|warn|error)$/
       session[:stats].log_level = log_level.to_sym
       @res = 'STORED'
@@ -418,18 +369,25 @@ not_found do
 end
 
 private
-
 class String
-  def to_boolean
-    return "ERROR: #{self} is already Bool type" if self.class.kind_of?(TrueClass) || self.class.kind_of?(FalseClass)
+  def to_bool
+    return self if self.class.kind_of?(TrueClass) || self.class.kind_of?(FalseClass)
 
     if self =~ /^(true|false)$/
       return true if $1 == 'true'
       return false if $1 == 'false'
     else
-      return "ERROR: #{self} is Unexpected Style."
+      raise TryRomaAPIArgumentError.new("ERROR: #{self} is Unexpected Style.")
     end
   end
+end
+
+def argumentcheck(*array)
+logger.info array
+  array.each{|i|
+    return false if i.to_s.empty?
+  }
+  true
 end
 
 def make_response_of_nodelist(res)
@@ -459,12 +417,11 @@ def kill_instance(type)
   end
 end
 
-def can_i_recover?(run_recover, routing_stat)
-
-  if run_recover
+def can_i_recover?
+  if session[:stats].run_recover
     @res = 'SERVER_ERROR Recover process is already running.'
     return false
-  elsif routing_stat.nodes.length < routing_stat.redundant
+  elsif session[:routing].nodes.length < session[:routing].redundant
     @res = 'SERVER_ERROR nodes num < redundant num'
     return false
   end
@@ -472,8 +429,8 @@ def can_i_recover?(run_recover, routing_stat)
   true
 end
 
-def can_i_release?(run_release, routing_stat)
-  if run_release || (routing_stat.nodes.length <= routing_stat.redundant)
+def can_i_release?
+  if session[:stats].run_release || (session[:routing].nodes.length <= session[:routing].redundant)
     return false
   end
 
@@ -492,7 +449,6 @@ def can_i_set?(command, key)
 end
 
 def set_data(cmd, key, value, exptime=(10 * 60), val_size=nil)
-
   exptime = check_exp_time(exptime) 
 
   if cmd =~ /^(set_expt|incr|decr)$/
