@@ -3,12 +3,14 @@ rvm:
   - 2.1.2
   #- 2.2.1
 before_install:
-  - echo ===================before_install_area============================
+  - ===================before_install_area============================
   # 注意する点として、Travisがテストをする環境はUbuntu 12.04 LTS Server Edition 64 bit
   # apt-get -y ****
 install:
-  - echo ===================install_area============================
-  # ここで自動でgit cloneしている？
+  - ===================install_area============================
+  # bundleも自動で実行してくれる(bundle install --jobs=3 --retry=3)
+  # もしbundle以外でいれたいlibraryがある場合は、installコマンドを使う
+  # install: gem install rails
 env:
   - a=1 # この行を1行進むと、毎回scriptの全てを実行する
   - b=1
@@ -31,15 +33,18 @@ script:
   # 4MB以上のログを出力するコマンドはfailedになる
 
   # sudo はパスワードなしで使える(?)
+
+  # rakeは自動でrunしてくれる
+  # => :testグループを作っておこう
   
 after_success:
-  - echo ===================after_sucess_area============================
+  - ===================after_sucess_area============================
 
 after_failure:
-  - echo ===================after_failure_area============================
+  - ===================after_failure_area============================
 
 after_script:
-  - echo ===================after_script_area============================
+  - ===================after_script_area============================
 
 notifications:
   email:
