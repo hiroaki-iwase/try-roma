@@ -1,0 +1,15 @@
+language: ruby
+rvm:
+  - 2.1.2
+  #- 2.2.1
+before_install:
+install:
+script:
+  - ruby --version
+  - echo test1
+  - echo test2
+after_success:
+
+after_failure:
+
+after_script:
