@@ -3,11 +3,11 @@ rvm:
   - 2.1.2
   #- 2.2.1
 before_install:
-  - echo ===================before_install_area============================
+  #- echo ===================before_install_area============================
   # 注意する点として、Travisがテストをする環境はUbuntu 12.04 LTS Server Edition 64 bit
   # apt-get -y ****
 install:
-  - echo ===================install_area============================
+  #- echo ===================install_area============================
   # bundleも自動で実行してくれる(bundle install --jobs=3 --retry=3)
   # もしbundle以外でいれたいlibraryがある場合は、installコマンドを使う
   # install: gem install rails
@@ -19,12 +19,12 @@ env:
   #   - a=1
   #   - b=1
 script:
-  - echo ===================script_area============================
-  - ruby --version
-  - echo test1
-  - a=$a
-  - echo a=$a b=$b # a=1 b=
-  - echo a=$a b=$b # a=1 b=1
+  #- echo ===================script_area============================
+  #- ruby --version
+  #- echo test1
+  #- a=$a
+  #- echo a=$a b=$b # a=1 b=
+  #- echo a=$a b=$b # a=1 b=1
 
   # インタラクティブに入力を求める様なコマンドは使えない
   # => もしいれた場合は、10分待って反応がないとfailにされる
@@ -36,6 +36,10 @@ script:
 
   # rakeは自動でrunしてくれる
   # => :testグループを作っておこう
+  # => languageをrubyにした場合
+  # => gemファイルがある場合
+  # => このscriptエリアに処理がない場合はdefaultでrakeを実行してくれる
+  # => つまりここに何か書いてある場合は実行されない
   
 after_success:
   - echo ===================after_sucess_area============================
