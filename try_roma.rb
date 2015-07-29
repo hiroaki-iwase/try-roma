@@ -1,6 +1,7 @@
 require 'sinatra'
 require_relative 'tryroma_api'
 require 'thread'
+require 'time'
 
 include TryRomaAPI
 
@@ -173,8 +174,25 @@ end
 ###[DELETE]============================================================================================================
 # balse, shutdown, shutdown_self, (rbalse)
 delete '/' do
-  if res = Roma::FinishCommand.new.list[params[:command]]
-    @res = res
+  cmd = params[:command]
+  confirm = params[:confirmation]
+
+  if res = Roma::FinishCommand.new.list[cmd]
+    if confirm.empty?
+      @res = res
+      @res = res.concat("<br>(TryRomaAPI : if you wanna execute, please send request with 'yes' or 'no' in the :confimation parameters.)") unless cmd == 'rbalse'
+    elsif confirm != 'yes'
+      @res = 'Connection closed by foreign host.'
+    elsif confirm == 'yes'
+      case cmd
+      when /^(shutdown_self)$/
+        @res = 'BYE<br>Connection closed by foreign host.'
+        kill_instance(:single)
+      when /^(balse|shutdown)$/
+        @res = make_response_of_nodelist('BYE').to_s + '<br>Connection closed by foreign host.'
+        kill_instance(:all)
+      end
+    end
   else
     raise TryRomaAPINoCommandError.new(params[:command])
   end
@@ -345,11 +363,7 @@ put '/' do
           logger.info 'recover processs has been finished.'
         end
       end
-      node_list = session[:routing].version_of_nodes
-      node_list.each{|k, v|
-        node_list[k] = 'STARTED'
-      }
-      @res = node_list
+      @res = make_response_of_nodelist('STARTED')
     end
 
     erb :stats
@@ -363,12 +377,7 @@ put '/' do
       raise TryRomaAPIArgumentError if sec !~ /^\d+$/
       session[:routing].auto_recover_time = sec.to_i
     end
-
-    node_list = session[:routing].version_of_nodes
-    node_list.each{|k, v|
-      node_list[k] = 'STORED'
-    }
-    @res = node_list
+    @res = make_response_of_nodelist('STORED')
 
     erb :stats
 
@@ -382,12 +391,7 @@ put '/' do
         @res = 'CLIENT_ERROR changing lost_action must be auto_assign or shutdown' if action !~ /^(auto_assign|shutdown)$/
       else
         session[:routing].lost_action = action
-
-        node_list = session[:routing].version_of_nodes
-        node_list.each{|k, v|
-          node_list[k] = 'STORED'
-        }
-        @res = node_list
+        @res = make_response_of_nodelist('STORED')
       end
     end
 
@@ -426,6 +430,33 @@ class String
     else
       return "ERROR: #{self} is Unexpected Style."
     end
+  end
+end
+
+def make_response_of_nodelist(res)
+  node_list = session[:routing].version_of_nodes
+  node_list.each{|k, v|
+    node_list[k] = res
+  }
+  node_list 
+end
+
+def kill_instance(type)
+  if type == :single
+    session[:stats].port.shift
+    session[:routing].version_of_nodes.shift
+    session[:routing].event.push("#{Time.now.iso8601} leave #{session[:routing].nodes.shift}")
+    session[:routing].short_vnodes += session[:routing].primary + session[:routing].secondary1 + session[:routing].secondary2
+    session[:routing].short_vnodes = 512 if session[:routing].short_vnodes > 512
+    if session[:stats].port.empty?
+      logger.info 'All ROMA instance have Stopped!'
+      session.clear
+    end
+  elsif type == :all
+    logger.info 'All ROMA instance have Stopped!'
+    session.clear
+  else
+    raise TryRomaAPIArgumentError.new('Unexpected type argument was sent.')
   end
 end
 

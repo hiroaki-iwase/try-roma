@@ -22,7 +22,7 @@ module Roma
       attr_accessor :log_level
 
     def initialize
-      @port = [10001, 10002, 10003, 10004]
+      @port = [10001, 10002, 10003, 10004, 10005]
       @run_recover = false
       @run_release = false
       @run_join = false
