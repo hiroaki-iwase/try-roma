@@ -1,4 +1,4 @@
-task :default => [:test]
+task :default => [:spec]
 #begin
 #  require 'rspec/core/rake_task'
 #  RSpec::Core::RakeTask.new(:spec) do |spec|
@@ -8,21 +8,6 @@ task :default => [:test]
 #rescue LoadError => e
 #end
 
-#task :spec do
-task :test do
+task :spec do
   puts 'Hello from Rake File!'
 end
-#require 'rake'
-#
-#unless ENV['RACK_ENV'] == 'production'
-#  task default: :spec
-#
-#  require 'rspec/core'
-#  require 'rspec/core/rake_task'
-#
-#  desc "Run all specs in spec directory"
-#  RSpec::Core::RakeTask.new(:spec) do |t|
-#    ENV['RACK_ENV'] = 'test'
-#    t.pattern = "spec/**/*_spec.rb"
-#  end
-#end
