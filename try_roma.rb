@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'thread'
 require 'time'
+require 'json'
 require_relative 'base'
 include TryRomaAPI
 
@@ -76,8 +77,9 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
            .merge(session[:connection].get_stat)\
            .merge(session[:others].get_stat)
  
-  @res = all_list.select{|k, v| k =~ /#{regexp}/}
-  erb :stats
+  #@res = all_list.select{|k, v| k =~ /#{regexp}/}
+  #erb :stats
+  all_list.select{|k, v| k =~ /#{regexp}/}.to_json
 end
 
 # whoami/nodelist/version
