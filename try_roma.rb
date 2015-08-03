@@ -241,7 +241,8 @@ put '/' do
       @res = "release:Sufficient nodes do not found."
     end
 
-    erb :stats
+    #erb :stats
+    return @res
 
   when 'recover'
     if can_i_recover?
@@ -280,7 +281,8 @@ put '/' do
       @res = make_response_of_nodelist('STARTED')
     end
 
-    erb :stats
+    #erb :stats
+    return @res.to_json
 
   when 'set_auto_recover'
     bool = params[:bool]
@@ -295,7 +297,8 @@ put '/' do
     session[:routing].auto_recover = bool.to_bool
     @res = make_response_of_nodelist('STORED')
 
-    erb :stats
+    #erb :stats
+    @res.to_json
 
   when 'set_lost_action'
     action = params[:lost]
@@ -312,7 +315,8 @@ put '/' do
       end
     end
 
-    erb :stats
+    #erb :stats
+    @res.to_json
 
   when 'set_log_level'
     log_level = params[:level]
@@ -325,7 +329,8 @@ put '/' do
       raise TryRomaAPIArgumentError.new('CLIENT_ERROR no match log-level string')
     end
 
-    erb :stats
+    #erb :stats
+    @res
 
   else
     raise TryRomaAPINoCommandError.new(params[:command])

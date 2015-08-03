@@ -75,16 +75,58 @@ PUT
                   var ENTER = 13;
                   if(e.keyCode == ENTER){
                       switch (true) {
-                          case /^(stat|stats|whoami|nodelist|version|get|gets)$/.test(e.target.value) :
+                          case /^(stat|stats|whoami|nodelist|version)$/.test(e.target.value) :
                               $.get("../"+RegExp.$1, function(res){
                                   this.setState({result: res});
                                }.bind(this));
                               break;
-                          case /^(get|gets)\s(.+)$/.test(e.target.value) :
+                          case /^(stat|stats|get|gets)\s(.+)$/.test(e.target.value) :
                               $.get("../"+RegExp.$1+"/"+RegExp.$2, function(res){
                                   this.setState({result: res});
                                }.bind(this));
                               break;
+                          case /^(release|recover)$/.test(e.target.value) :
+                              $.ajax({
+                                  url: "../",
+                                  type: 'PUT',
+                                  data: {command: RegExp.$1},
+                                  //datatype: ''.
+                                  cache: false,
+                              }).done(function(res){
+                                  this.setState({result: res})
+                              }.bind(this)).fail(function(){
+                                  this.setState({result: 'API CONNECTION ERROR'})
+                              }.bind(this));
+                              break;
+
+                          case /^(set_lost_action|set_log_level)\s(.+)$/.test(e.target.value) :
+                              $.ajax({
+                                  url: "../",
+                                  type: 'PUT',
+                                  data: {command: RegExp.$1, level: RegExp.$2, lost: RegExp.$2},
+                                  //datatype: ''.
+                                  cache: false,
+                              }).done(function(res){
+                                  this.setState({result: res})
+                              }.bind(this)).fail(function(){
+                                  this.setState({result: 'API CONNECTION ERROR'})
+                              }.bind(this));
+                              break;
+
+                          case /^(set_auto_recover)\s([a-z]+)\s*([0-9]*)$/.test(e.target.value) :
+                              $.ajax({
+                                  url: "../",
+                                  type: 'PUT',
+                                  data: {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3},
+                                  //datatype: ''.
+                                  cache: false,
+                              }).done(function(res){
+                                  this.setState({result: res})
+                              }.bind(this)).fail(function(){
+                                  this.setState({result: 'API CONNECTION ERROR'})
+                              }.bind(this));
+                              break;
+
                           case '':
                               this.setState({cmd: "please input command"});
                                   this.setState({result: ''});
