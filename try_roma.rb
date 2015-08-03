@@ -28,41 +28,7 @@ end
 
 # debug 
 get '/' do
-"
-  #{session[:version]}<br>
-  #{session[:version].class}<br>
-  #{session[:version].get_stat}<br>
-  ==============================================================================================<br>
-  #{session[:config]}<br>
-  #{session[:config].class}<br>
-  #{session[:config].get_stat}<br>
-  ==============================================================================================<br>
-  #{session[:stats]}<br>
-  #{session[:stats].class}<br>
-  #{session[:stats].get_stat.class}<br>
-  #{session[:stats].get_stat.size}<br>
-  #{session[:stats].get_stat}<br>
-  ===============================================================================================<br>
-  #{session[:storage]}<br>
-  #{session[:storage].class}<br>
-  #{session[:storage].get_stat}<br>
-  ===============================================================================================<br>
-  #{session[:write_behind]}<br>
-  #{session[:write_behind].class}<br>
-  #{session[:write_behind].get_stat}<br>
-  ===============================================================================================<br>
-  #{session[:routing]}<br>
-  #{session[:routing].class}<br>
-  #{session[:routing].get_stat}<br>
-  ===============================================================================================<br>
-  #{session[:connection]}<br>
-  #{session[:connection].class}<br>
-  #{session[:connection].get_stat}<br>
-  ===============================================================================================<br>
-  #{session[:others]}<br>
-  #{session[:others].class}<br>
-  #{session[:others].get_stat}<br>
-"
+  erb :stats
 end
 
 ###[GET]============================================================================================================
@@ -93,7 +59,7 @@ get %r{^/(whoami|nodelist|version)$} do |cmd|
     @res = "VERSION ROMA-#{session[:version].get_stat['version']}"
   end
 
-  erb :stats
+  @res
 end
 
 # get/gets <key>
@@ -108,7 +74,7 @@ get %r{/(get[s]*)/(.*)}  do |cmd, k|
     @res = "END<br>"
   end
 
-  erb :stats
+  @res
 end
 
 ###[DELETE]============================================================================================================

@@ -8,7 +8,7 @@
   </head>
   <body>
 
-
+<!--
 debug screen
 <hr>
 
@@ -48,89 +48,74 @@ PUT
     <input type="hidden" name="_method" value="PUT">
     <input type="submit" value="put!!">
 </form>
+-->
 
-<hr>
-<hr>
-response<br>
-<%#= h @res %>
-<%= @res %>
+<!--
+  response<br>
+  <%#= h @res %>
+  <%#= @res %>
 
+-->
 
-<br>
-<br>
+<hr><br>
 
-<hr>
+<div id="reactArea" />
 
-    <div id="reactArea" />
-    <script type="text/jsx">
-
-
-var Test = React.createClass(
-    {
-        getInitialState() {
-            return {
-                cmd: "please input command"
-            };
-        },
-        sendCommand(e) {
-            var ENTER = 13;
-            if(e.keyCode == ENTER){
-                switch (e.target.value) {
-                    case 'stat':
-                        //$.get('http://192.168.33.81:4567/stat', function(res){
-                        $.get('../stat', function(res){
-                            alert(res); 
-                            //this.setState({cmd: res.body});
-                         }.bind(this));
-                        //request.get('localhost:4567/stat', (res) => {
-                        //    this.setState({cmd: res.body});
-                        //});
-                        //this.setState({cmd: e.target.value});
-                        break;
-                    case '':
-                        this.setState({cmd: "please input command"});
-                        break;
-                    default:
-                        this.setState({cmd: "No Support"});
-                        break;
-                }
-            }
-        },
-        render() {
-          return (
-            <div>
-              Send Command is {this.state.cmd}
-              <br /> 
-              <input type="text" placeholder={this.state.cmd} onChange={this.changeText}  onKeyDown={this.sendCommand} />
-            </div>
-          );
-        }
-    }
-);
-
-
-
-
-
-
-React.render(<Test />, document.getElementById("reactArea"));
-
-
-
-
+  <script type="text/jsx">
+      var Test = React.createClass(
+          {
+              getInitialState() {
+                  return {
+                      explanation: "please input command",
+                      cmd: "please input command",
+                      result: ""
+                  };
+              },
+              sendCommand(e) {
+                  var ENTER = 13;
+                  if(e.keyCode == ENTER){
+                      switch (true) {
+                          case /^(stat|stats|whoami|nodelist|version|get|gets)$/.test(e.target.value) :
+                              $.get("../"+RegExp.$1, function(res){
+                                  this.setState({result: res});
+                               }.bind(this));
+                              break;
+                          case /^(get|gets)\s(.+)$/.test(e.target.value) :
+                              $.get("../"+RegExp.$1+"/"+RegExp.$2, function(res){
+                                  this.setState({result: res});
+                               }.bind(this));
+                              break;
+                          case '':
+                              this.setState({cmd: "please input command"});
+                                  this.setState({result: ''});
+                              break;
+                          default:
+                              this.setState({cmd: "No Support"});
+                              this.setState({result: ''});
+                              break;
+                      }
+                  }
+              },
+              render() {
+                return (
+                  <div>
+                    <div>
+                      Send Command is {this.state.cmd}
+                    </div>
+                    <input type="text" placeholder={this.state.cmd} onChange={this.changeText}  onKeyDown={this.sendCommand} />
+                    <div>
+                      result is<br />
+                      {this.state.result}
+                    </div>
+                  </div>
+                );
+              }
+          }
+      );
+      
+      
+      React.render(<Test />, document.getElementById("reactArea"));
     </script>
-
 
   </body>
 </html>
-
-
-
-
-
-<hr>
-
-
-
-
-
