@@ -26,8 +26,19 @@ before do
   session[:others]       = Roma::Others.new       unless session[:others]
 end
 
+after do
+  if params[:command]
+    session[:lastcmd] = params[:command]
+  else
+    if request.path_info =~ /^\/([a-z]+).*/
+      session[:lastcmd] = $1
+    end
+  end
+end
+
 # debug 
 get '/' do
+  logger.info session[:lastcmd]
   erb :stats
 end
 
@@ -58,6 +69,8 @@ get %r{^/(whoami|nodelist|version)$} do |cmd|
   when 'version'
     @res = "VERSION ROMA-#{session[:version].get_stat['version']}"
   end
+
+  session[:lastcmd] = cmd
 
   @res
 end
