@@ -107,7 +107,8 @@ delete '/' do
     raise TryRomaAPIArgumentError.new(params[:command])
   end
 
-  erb :stats
+  #erb :stats
+  @res
 end
 
 ###[POST]============================================================================================================
@@ -179,7 +180,8 @@ post '/' do
     @res = "NOT_FOUND" if cmd =~ /^(delete|incr|decr|cas)$/
   end
 
-  erb :stats
+  #erb :stats
+  @res
 end
 
 ###[PUT]============================================================================================================

@@ -8,60 +8,64 @@
   </head>
   <body>
 
-<!--
-debug screen
-<hr>
+  <hr><br>
 
-DELETE
-<form method="post" action="/">
-    command<input type="text" name="command"><br>
-    confimation:<input type="text" name="confirmation"><br>
-    <input type="hidden" name="_method" value="DELETE">
-    <input type="submit" value="delete!!">
-</form>
-
-<hr>
-
-POST<br>
-
-<form method="post" action="/">
-    Commad:<input type="text" name="command"><br>
-    Key:<input type="text" name="key"><br>
-    exptime<input type="text" name="exptime"><br>
-    bytes<input type="text" name="bytes"><br>
-    CASid<input type="text" name="casid"><br>
-    value<input type="text" name="value"><br>
-    <input type="text" name="size"><br>
-    digit<input type="text" name="digit"><br>
-<br>
-    <input type="submit" value="Post!">
-</form>
-<br>
-
-PUT
-<form method="post" action="/">
-    Command:<input type="text" name="command"><br>
-    Bool:<input type="text" name="bool"><br>
-    second:<input type="text" name="sec"><br>
-    lost action:<input type="text" name="lost"><br>
-    log level:<input type="text" name="level"><br>
-    <input type="hidden" name="_method" value="PUT">
-    <input type="submit" value="put!!">
-</form>
--->
-
-<!--
-  response<br>
-  <%#= h @res %>
-  <%#= @res %>
-
--->
-
-<hr><br>
-
-<div id="reactArea" />
+  <div id="reactArea" />
 
   <script type="text/jsx">
+
+     //function sendQuery(action, cmd, bool) {
+     //    $.ajax({
+     //        url: "../",
+     //        type: action,
+     //        data: { command: cmd, confirmation: bool },
+     //        cache: false,
+     //    }).done(function(res){
+     //        this.setState({result: res})
+     //    }.bind(this)).fail(function(){
+     //        this.setState({result: 'API Request was failed '})
+     //    }.bind(this));
+
+     //}
+
+
+//function nextForm()
+//{
+//	if (event.keyCode == 13)
+//	{
+//		currentFNo++;
+//		currentFNo %= document.myFORM.elements.length;
+//		document.myFORM[currentFNo].focus();
+//	}
+//}
+//window.document.onkeydown = nextForm;
+
+
+     function waitValue(action, cmd) {
+         console.log('wait balue')
+         document.onkeydown = function (e){
+             if (e.keyCode != 13) {
+                 setTimeout(function() { waitValue(action, cmd) }, 3000);
+             } else {
+                 console.log(e.target.value);
+                 $.ajax({
+                     url: "../",
+                     type: action,
+                     //data: { command: cmd, confirmation: bool },
+                     data: { command: cmd, confirmation: e.target.value },
+                     cache: false,
+                 }).done(function(res){
+                     console.log(res);
+                     //this.setState({result: res})
+                 }).fail(function(){
+                     console.log('fail');
+                     //this.setState({result: 'API Request was failed '})
+                 });
+             }
+         };
+         //setTimeout(function() { waitValue(action, cmd) }, 1000);
+     }
+
       var Test = React.createClass(
           {
               getInitialState() {
@@ -75,16 +79,92 @@ PUT
                   var ENTER = 13;
                   if(e.keyCode == ENTER){
                       switch (true) {
+                          // GET =========================================================================
                           case /^(stat|stats|whoami|nodelist|version)$/.test(e.target.value) :
                               $.get("../"+RegExp.$1, function(res){
                                   this.setState({result: res});
                                }.bind(this));
                               break;
+
                           case /^(stat|stats|get|gets)\s(.+)$/.test(e.target.value) :
                               $.get("../"+RegExp.$1+"/"+RegExp.$2, function(res){
                                   this.setState({result: res});
                                }.bind(this));
                               break;
+
+
+                          // DELETE =========================================================================
+                          case /^(balse|shutdown|shutdown_self|rbalse)\s*([a-z]*)$/.test(e.target.value) :
+                              var cmd = RegExp.$1;
+
+                              if (cmd =~ /balse|shutdown|shutdown_self/) {
+                                  //this.setState({explanation: 'Please input Value'});
+                                  $.ajax({
+                                      url: "../",
+                                      type: 'DELETE',
+                                      //data: { command: RegExp.$1, confirmation: RegExp.$2 },
+                                      data: { command: RegExp.$1, confirmation: RegExp.$2 },
+                                      //datatype: ''.
+                                      cache: false,
+                                  }).done(function(res){
+                                      this.setState({explanation: res})
+                                  }.bind(this)).fail(function(){
+                                      this.setState({result: 'API Request was failed '})
+                                  }.bind(this));
+
+                                  //setTimeout(function() { waitValue('DELETE', RegExp.$1, RegExp.$2) }, 5000);
+                                  //setTimeout(function() { waitValue('DELETE', RegExp.$1) }, 1000);
+                                  //console.log(e.target.value);
+                                  var cmd = e.target.value;
+                                  setTimeout(function() { waitValue('DELETE', cmd) }, 1000);
+                                  //setTimeout(function() { waitValue('DELETE', e.target.value) }, 1000);
+                              
+                              } else {
+                              // rbalse
+                                  $.ajax({
+                                      url: "../",
+                                      type: 'DELETE',
+                                      data: { command: RegExp.$1, confirmation: RegExp.$2 },
+                                      //datatype: ''.
+                                      cache: false,
+                                  }).done(function(res){
+                                      this.setState({result: res})
+                                  }.bind(this)).fail(function(){
+                                      this.setState({result: 'API Request was failed '})
+                                  }.bind(this));
+                              }
+
+
+
+                              break;
+
+
+
+                          // POST =========================================================================
+                          //case /^(set|add|replace|append|prepend)\s([^\s]+)\s0\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
+                          //    cmd = RegExp.$1;
+                          //    key = RegExp.$2;
+                          //    exptime = RegExp.$3;
+                          //    bytes = RegExp.$4;
+                          //    this.setState({explanation: 'Please input Value'});
+ 
+
+                          //    $.ajax({
+                          //        url: "../",
+                          //        type: 'POST',
+                          //        //data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4 },
+                          //        data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4 },
+                          //        //datatype: ''.
+                          //        cache: false,
+                          //    }).done(function(res){
+                          //        this.setState({result: res})
+                          //    }.bind(this)).fail(function(){
+                          //        this.setState({result: 'API Request was failed '})
+                          //    }.bind(this));
+                          //    break;
+
+
+                          // PUT =========================================================================
                           case /^(release|recover)$/.test(e.target.value) :
                               $.ajax({
                                   url: "../",
@@ -95,7 +175,7 @@ PUT
                               }).done(function(res){
                                   this.setState({result: res})
                               }.bind(this)).fail(function(){
-                                  this.setState({result: 'API CONNECTION ERROR'})
+                                  this.setState({result: 'API Request was failed '})
                               }.bind(this));
                               break;
 
@@ -109,7 +189,7 @@ PUT
                               }).done(function(res){
                                   this.setState({result: res})
                               }.bind(this)).fail(function(){
-                                  this.setState({result: 'API CONNECTION ERROR'})
+                                  this.setState({result: 'API Request was failed '})
                               }.bind(this));
                               break;
 
@@ -123,16 +203,20 @@ PUT
                               }).done(function(res){
                                   this.setState({result: res})
                               }.bind(this)).fail(function(){
-                                  this.setState({result: 'API CONNECTION ERROR'})
+                                  this.setState({result: 'API Request was failed '})
                               }.bind(this));
                               break;
 
+
+                          // No Command =========================================================================
                           case '':
                               this.setState({cmd: "please input command"});
                                   this.setState({result: ''});
                               break;
+
+                          // Not supported yet on virtual console =========================================================================
                           default:
-                              this.setState({cmd: "No Support"});
+                              this.setState({cmd: "Not Supported"});
                               this.setState({result: ''});
                               break;
                       }
@@ -144,6 +228,7 @@ PUT
                     <div>
                       Send Command is {this.state.cmd}
                     </div>
+                    <p> {this.state.explanation} </p>
                     <input type="text" placeholder={this.state.cmd} onChange={this.changeText}  onKeyDown={this.sendCommand} />
                     <div>
                       result is<br />
@@ -157,6 +242,7 @@ PUT
       
       
       React.render(<Test />, document.getElementById("reactArea"));
+
     </script>
 
   </body>
