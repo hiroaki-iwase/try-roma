@@ -14,61 +14,6 @@
 
   <script type="text/jsx">
 
-
-
-//function nextForm()
-//{
-//	if (event.keyCode == 13)
-//	{
-//		currentFNo++;
-//		currentFNo %= document.myFORM.elements.length;
-//		document.myFORM[currentFNo].focus();
-//	}
-//}
-//window.document.onkeydown = nextForm;
-
-
-//     function waitValue(action, cmd) {
-//console.log('wait no cmd ='+ cmd);
-//
-////         if (document.onkeydown) {
-////console.log('key was pushed');
-////         } else {
-////console.log('NOT pushed');
-////         }
-//
-//         
-//
-//         document.onkeydown = function (e){
-//             if (e.keyCode == 13) {
-////console.log('Enter key was pushed');
-//         //        setTimeout(function() { waitValue(action, cmd) }, 3000);
-//               e.preventDefault();
-//             } else {
-////console.log('NOT Enter key was pushed');
-//         //        //console.log(e.target.value);
-//         //        $.ajax({
-//         //            url: "../",
-//         //            type: action,
-//         //            //data: { command: cmd, confirmation: bool },
-//         //            data: { command: cmd, confirmation: e.target.value },
-//         //            cache: false,
-//         //        }).done(function(res){
-//         //            console.log(res);
-//         //            //this.setState({result: res})
-//         //        }).fail(function(){
-//         //            console.log('fail');
-//         //            //this.setState({result: 'API Request was failed '})
-//         //        });
-//             return true;
-//             }
-//         //};
-//      
-//         //setTimeout(function() { waitValue(action, cmd) }, 1000);
-//console.log('return');
-//     }
-
-
      function sendQuery(action, data) {
          $.ajax({
              url: "../",
