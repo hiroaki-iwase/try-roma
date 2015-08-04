@@ -143,7 +143,7 @@ post '/' do
       @res = "STORED"
 
     when /^set_expt$/
-      raise TryRomaAPIArgumentError unless argumentcheck(k, v, exp)
+      raise TryRomaAPIArgumentError unless argumentcheck(k, exp)
       set_data(cmd, k, request.cookies[k], exp)
       @res = "STORED"
 
