@@ -41,30 +41,45 @@
 //window.document.onkeydown = nextForm;
 
 
-     function waitValue(action, cmd) {
-         console.log('wait balue')
-         document.onkeydown = function (e){
-             if (e.keyCode != 13) {
-                 setTimeout(function() { waitValue(action, cmd) }, 3000);
-             } else {
-                 console.log(e.target.value);
-                 $.ajax({
-                     url: "../",
-                     type: action,
-                     //data: { command: cmd, confirmation: bool },
-                     data: { command: cmd, confirmation: e.target.value },
-                     cache: false,
-                 }).done(function(res){
-                     console.log(res);
-                     //this.setState({result: res})
-                 }).fail(function(){
-                     console.log('fail');
-                     //this.setState({result: 'API Request was failed '})
-                 });
-             }
-         };
-         //setTimeout(function() { waitValue(action, cmd) }, 1000);
-     }
+//     function waitValue(action, cmd) {
+//console.log('wait no cmd ='+ cmd);
+//
+////         if (document.onkeydown) {
+////console.log('key was pushed');
+////         } else {
+////console.log('NOT pushed');
+////         }
+//
+//         
+//
+//         document.onkeydown = function (e){
+//             if (e.keyCode == 13) {
+////console.log('Enter key was pushed');
+//         //        setTimeout(function() { waitValue(action, cmd) }, 3000);
+//               e.preventDefault();
+//             } else {
+////console.log('NOT Enter key was pushed');
+//         //        //console.log(e.target.value);
+//         //        $.ajax({
+//         //            url: "../",
+//         //            type: action,
+//         //            //data: { command: cmd, confirmation: bool },
+//         //            data: { command: cmd, confirmation: e.target.value },
+//         //            cache: false,
+//         //        }).done(function(res){
+//         //            console.log(res);
+//         //            //this.setState({result: res})
+//         //        }).fail(function(){
+//         //            console.log('fail');
+//         //            //this.setState({result: 'API Request was failed '})
+//         //        });
+//             return true;
+//             }
+//         //};
+//      
+//         //setTimeout(function() { waitValue(action, cmd) }, 1000);
+//console.log('return');
+//     }
 
       var Test = React.createClass(
           {
@@ -78,6 +93,37 @@
               sendCommand(e) {
                   var ENTER = 13;
                   if(e.keyCode == ENTER){
+
+
+                  if (window.sessionStorage.getItem(['requireNext'])) {
+                      var lastcmd = window.sessionStorage.getItem(['lastcmd']);
+
+                      switch (true) {
+                          case /^(balse|shutdown|shutdown_self)$/.test(lastcmd):
+                              $.ajax({
+                                   url: "../",
+                                   type: 'DELETE',
+                                   data: { command: lastcmd, confirmation: e.target.value },
+                                   cache: false,
+                              }).done(function(res){
+                                   this.setState({explanation: res})
+                              }.bind(this)).fail(function(){
+                                   this.setState({result: 'API Request was failed '})
+                              }.bind(this));
+                              break;
+                      }
+                
+                      window.sessionStorage.removeItem(['requireNext']);
+                  }
+
+
+
+
+
+
+
+
+                      window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
                       switch (true) {
                           // GET =========================================================================
                           case /^(stat|stats|whoami|nodelist|version)$/.test(e.target.value) :
@@ -96,49 +142,24 @@
                           // DELETE =========================================================================
                           case /^(balse|shutdown|shutdown_self|rbalse)\s*([a-z]*)$/.test(e.target.value) :
                               var cmd = RegExp.$1;
-
-                              if (cmd =~ /balse|shutdown|shutdown_self/) {
-                                  //this.setState({explanation: 'Please input Value'});
-                                  $.ajax({
-                                      url: "../",
-                                      type: 'DELETE',
-                                      //data: { command: RegExp.$1, confirmation: RegExp.$2 },
-                                      data: { command: RegExp.$1, confirmation: RegExp.$2 },
-                                      //datatype: ''.
-                                      cache: false,
-                                  }).done(function(res){
-                                      this.setState({explanation: res})
-                                  }.bind(this)).fail(function(){
-                                      this.setState({result: 'API Request was failed '})
-                                  }.bind(this));
-
-                                  //setTimeout(function() { waitValue('DELETE', RegExp.$1, RegExp.$2) }, 5000);
-                                  //setTimeout(function() { waitValue('DELETE', RegExp.$1) }, 1000);
-                                  //console.log(e.target.value);
-                                  var cmd = e.target.value;
-                                  setTimeout(function() { waitValue('DELETE', cmd) }, 1000);
-                                  //setTimeout(function() { waitValue('DELETE', e.target.value) }, 1000);
+                              $.ajax({
+                                   url: "../",
+                                   type: 'DELETE',
+                                   data: { command: RegExp.$1, confirmation: RegExp.$2 },
+                                   cache: false,
+                              }).done(function(res){
+                                   this.setState({explanation: res})
+                              }.bind(this)).fail(function(){
+                                   this.setState({result: 'API Request was failed '})
+                              }.bind(this));
                               
-                              } else {
-                              // rbalse
-                                  $.ajax({
-                                      url: "../",
-                                      type: 'DELETE',
-                                      data: { command: RegExp.$1, confirmation: RegExp.$2 },
-                                      //datatype: ''.
-                                      cache: false,
-                                  }).done(function(res){
-                                      this.setState({result: res})
-                                  }.bind(this)).fail(function(){
-                                      this.setState({result: 'API Request was failed '})
-                                  }.bind(this));
+                              // require next line!!
+                              if (/^(balse|shutdown|shutdown_self)$/.test(cmd)) {
+                                  window.sessionStorage.setItem(['requireNext'],[true]);
+                                  //var cmd = e.target.value;
+                                  //setTimeout(function() { waitValue('DELETE', cmd) }, 1000);
                               }
-
-
-
                               break;
-
-
 
                           // POST =========================================================================
                           //case /^(set|add|replace|append|prepend)\s([^\s]+)\s0\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
@@ -207,6 +228,12 @@
                               }.bind(this));
                               break;
 
+
+                          // Same Command Again=========================================================================
+                          //case '!!':
+                          //    this.setState({cmd: "please input command"});
+                          //        this.setState({result: ''});
+                          //    break;
 
                           // No Command =========================================================================
                           case '':
