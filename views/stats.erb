@@ -8,7 +8,7 @@
   </head>
   <body>
 
-  <hr><br>
+  <br>
 
   <div id="reactArea" />
 
@@ -34,8 +34,7 @@
           {
               getInitialState() {
                   return {
-                      explanation: "please input command",
-                      cmd: "please input command",
+                      //explanation: "please input command",
                       result: ""
                   };
               },
@@ -92,27 +91,27 @@
 
                           // POST =========================================================================
                           case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                              this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
+                              //this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
                               window.sessionStorage.setItem(['requireNext'],[true]);
                               break;
 
                           case /^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                              this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
+                              //this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
                               sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 });
                               break;
 
                           case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                              this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
+                              //this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
                               window.sessionStorage.setItem(['requireNext'],[true]);
                               break;
 
                           case /^(incr|decr)\s([a-z0-9]+)\s([-]*[0-9]+)$/.test(e.target.value) :
-                              this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
+                              //this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
                               sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, digit: RegExp.$3 });
                               break;
 
                           case /^(delete)\s([a-z0-9]+)$/.test(e.target.value) :
-                              this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
+                              //this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
                               sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2 });
                               break;
 
@@ -142,14 +141,12 @@
 
                           // No Command =========================================================================
                           case '':
-                              this.setState({cmd: "please input command"});
-                                  this.setState({result: ''});
+                              //this.setState({result: 'please input command"'});
                               break;
 
                           // Not supported yet on virtual console =========================================================================
                           default:
-                              this.setState({cmd: "Not Supported"});
-                              this.setState({result: ''});
+                              this.setState({result: 'Not Supported"'});
                               break;
                       }
                   }
@@ -157,13 +154,8 @@
               render() {
                 return (
                   <div>
+                    <input type="text" onChange={this.changeText}  onKeyDown={this.sendCommand} />
                     <div>
-                      Send Command is {this.state.cmd}
-                    </div>
-                    <p> {this.state.explanation} </p>
-                    <input type="text" placeholder={this.state.cmd} onChange={this.changeText}  onKeyDown={this.sendCommand} />
-                    <div>
-                      result is<br />
                       {this.state.result}
                     </div>
                   </div>
