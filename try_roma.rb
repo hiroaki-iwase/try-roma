@@ -148,7 +148,7 @@ post '/' do
       @res = "STORED"
 
     when /^(cas)$/
-      raise TryRomaAPIArgumentError unless argumentcheck(k, v, exp, val_size)
+      raise TryRomaAPIArgumentError unless argumentcheck(k, v, exp, val_size, cas)
       h = revert_hash_from_string(request.cookies[k])
       if cas == h['clk']
         set_data(cmd, k, v, exp, val_size)

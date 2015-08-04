@@ -125,6 +125,21 @@
                               }.bind(this));
                               break;
 
+                          case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
+                              console.log('enter next cas area')
+                              $.ajax({
+                                  url: "../",
+                                  type: 'POST',
+                                  data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, casid: RegExp.$5, value: e.target.value  }, // todo Ajaxは別でまとめて、それにdataとtypeだけ送る
+                                  cache: false,
+                              }).done(function(res){
+                                  this.setState({result: res})
+                              }.bind(this)).fail(function(){
+                                  this.setState({result: 'Ajax Request was failed '})
+                              }.bind(this));
+                              break;
+
+
                           //case /^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(lastcmd) :
                           //    $.ajax({
                           //        url: "../",
@@ -199,13 +214,19 @@
                               $.ajax({
                                   url: "../",
                                   type: 'POST',
-                                  data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 },
+                                  data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 }, // todo Ajaxは別でまとめて、それにdataとtypeだけ送る
                                   cache: false,
                               }).done(function(res){
                                   this.setState({result: res})
                               }.bind(this)).fail(function(){
                                   this.setState({result: 'Ajax Request was failed '})
                               }.bind(this));
+                              break;
+
+                          case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
+                              console.log('enter the cas area' + RegExp.$1 + RegExp.$2 + RegExp.$3 + RegExp.$4 + RegExp.$5);
+                              this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
+                              window.sessionStorage.setItem(['requireNext'],[true]);
                               break;
 
 
