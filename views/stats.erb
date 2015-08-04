@@ -14,19 +14,6 @@
 
   <script type="text/jsx">
 
-     //function sendQuery(action, cmd, bool) {
-     //    $.ajax({
-     //        url: "../",
-     //        type: action,
-     //        data: { command: cmd, confirmation: bool },
-     //        cache: false,
-     //    }).done(function(res){
-     //        this.setState({result: res})
-     //    }.bind(this)).fail(function(){
-     //        this.setState({result: 'API Request was failed '})
-     //    }.bind(this));
-
-     //}
 
 
 //function nextForm()
@@ -81,6 +68,22 @@
 //console.log('return');
 //     }
 
+
+     function sendQuery(action, data) {
+         $.ajax({
+             url: "../",
+             type: action,
+             data: data,
+             cache: false,
+         }).done(function(res){
+             this.setState({result: res})
+         }.bind(this)).fail(function(){
+             this.setState({result: 'API Request was failed '})
+         });
+
+     }
+
+
       var Test = React.createClass(
           {
               getInitialState() {
@@ -93,76 +96,26 @@
               sendCommand(e) {
                   var ENTER = 13;
                   if(e.keyCode == ENTER){
+                      if (window.sessionStorage.getItem(['requireNext'])) {
+                          var lastcmd = window.sessionStorage.getItem(['lastcmd']);
 
+                          switch (true) {
+                              case /^(balse|shutdown|shutdown_self)$/.test(lastcmd):
+                                  sendQuery.bind(this)('DELETE', { command: lastcmd, confirmation: e.target.value });
+                                  break;
 
-                  if (window.sessionStorage.getItem(['requireNext'])) {
-                      var lastcmd = window.sessionStorage.getItem(['lastcmd']);
+                              case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
+                                  sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, value: e.target.value });
+                                  break;
 
-                      switch (true) {
-                          case /^(balse|shutdown|shutdown_self)$/.test(lastcmd):
-                              $.ajax({
-                                   url: "../",
-                                   type: 'DELETE',
-                                   data: { command: lastcmd, confirmation: e.target.value },
-                                   cache: false,
-                              }).done(function(res){
-                                   this.setState({explanation: res})
-                              }.bind(this)).fail(function(){
-                                  this.setState({result: 'Ajax Request was failed '})
-                              }.bind(this));
-                              break;
+                              case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
+                                  sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, casid: RegExp.$5, value: e.target.value});
+                                  break;
 
-                          case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
-                              $.ajax({
-                                  url: "../",
-                                  type: 'POST',
-                                  data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, value: e.target.value },
-                                  cache: false,
-                              }).done(function(res){
-                                  this.setState({result: res})
-                              }.bind(this)).fail(function(){
-                                  this.setState({result: 'Ajax Request was failed '})
-                              }.bind(this));
-                              break;
-
-                          case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
-                              console.log('enter next cas area')
-                              $.ajax({
-                                  url: "../",
-                                  type: 'POST',
-                                  data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, casid: RegExp.$5, value: e.target.value  }, // todo Ajaxは別でまとめて、それにdataとtypeだけ送る
-                                  cache: false,
-                              }).done(function(res){
-                                  this.setState({result: res})
-                              }.bind(this)).fail(function(){
-                                  this.setState({result: 'Ajax Request was failed '})
-                              }.bind(this));
-                              break;
-
-
-                          //case /^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(lastcmd) :
-                          //    $.ajax({
-                          //        url: "../",
-                          //        type: 'POST',
-                          //        data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 },
-                          //        cache: false,
-                          //    }).done(function(res){
-                          //        this.setState({result: res})
-                          //    }.bind(this)).fail(function(){
-                          //        this.setState({result: 'API Request was failed '})
-                          //    }.bind(this));
-                          //    break;
-                      }
+                          }
                 
-                      window.sessionStorage.removeItem(['requireNext']);
-                  }
-
-
-
-
-
-
-
+                          window.sessionStorage.removeItem(['requireNext']);
+                      }
 
                       window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
                       switch (true) {
@@ -183,22 +136,11 @@
                           // DELETE =========================================================================
                           case /^(balse|shutdown|shutdown_self|rbalse)\s*([a-z]*)$/.test(e.target.value) :
                               var cmd = RegExp.$1;
-                              $.ajax({
-                                   url: "../",
-                                   type: 'DELETE',
-                                   data: { command: RegExp.$1, confirmation: RegExp.$2 },
-                                   cache: false,
-                              }).done(function(res){
-                                   this.setState({explanation: res})
-                              }.bind(this)).fail(function(){
-                                  this.setState({result: 'Ajax Request was failed '})
-                              }.bind(this));
+                              sendQuery.bind(this)('DELETE', { command: RegExp.$1, confirmation: RegExp.$2 });
                               
-                              // require next line!!
+                              // require next line(yes/no)!!
                               if (/^(balse|shutdown|shutdown_self)$/.test(cmd)) {
                                   window.sessionStorage.setItem(['requireNext'],[true]);
-                                  //var cmd = e.target.value;
-                                  //setTimeout(function() { waitValue('DELETE', cmd) }, 1000);
                               }
                               break;
 
@@ -210,21 +152,10 @@
 
                           case /^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(e.target.value) :
                               this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
-
-                              $.ajax({
-                                  url: "../",
-                                  type: 'POST',
-                                  data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 }, // todo Ajaxは別でまとめて、それにdataとtypeだけ送る
-                                  cache: false,
-                              }).done(function(res){
-                                  this.setState({result: res})
-                              }.bind(this)).fail(function(){
-                                  this.setState({result: 'Ajax Request was failed '})
-                              }.bind(this));
+                              sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 });
                               break;
 
                           case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                              console.log('enter the cas area' + RegExp.$1 + RegExp.$2 + RegExp.$3 + RegExp.$4 + RegExp.$5);
                               this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
                               window.sessionStorage.setItem(['requireNext'],[true]);
                               break;
@@ -232,45 +163,15 @@
 
                           // PUT =========================================================================
                           case /^(release|recover)$/.test(e.target.value) :
-                              $.ajax({
-                                  url: "../",
-                                  type: 'PUT',
-                                  data: {command: RegExp.$1},
-                                  //datatype: ''.
-                                  cache: false,
-                              }).done(function(res){
-                                  this.setState({result: res})
-                              }.bind(this)).fail(function(){
-                                  this.setState({result: 'Ajax Request was failed '})
-                              }.bind(this));
+                              sendQuery.bind(this)('PUT', {command: RegExp.$1});
                               break;
 
                           case /^(set_lost_action|set_log_level)\s(.+)$/.test(e.target.value) :
-                              $.ajax({
-                                  url: "../",
-                                  type: 'PUT',
-                                  data: {command: RegExp.$1, level: RegExp.$2, lost: RegExp.$2},
-                                  //datatype: ''.
-                                  cache: false,
-                              }).done(function(res){
-                                  this.setState({result: res})
-                              }.bind(this)).fail(function(){
-                                  this.setState({result: 'Ajax Request was failed '})
-                              }.bind(this));
+                              sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2, lost: RegExp.$2});
                               break;
 
                           case /^(set_auto_recover)\s([a-z]+)\s*([0-9]*)$/.test(e.target.value) :
-                              $.ajax({
-                                  url: "../",
-                                  type: 'PUT',
-                                  data: {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3},
-                                  //datatype: ''.
-                                  cache: false,
-                              }).done(function(res){
-                                  this.setState({result: res})
-                              }.bind(this)).fail(function(){
-                                  this.setState({result: 'Ajax Request was failed '})
-                              }.bind(this));
+                              sendQuery.bind(this)('PUT', {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3});
                               break;
 
 
