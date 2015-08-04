@@ -111,6 +111,18 @@
                                    this.setState({result: 'API Request was failed '})
                               }.bind(this));
                               break;
+
+                          case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
+                              $.ajax({
+                                  url: "../",
+                                  type: 'POST',
+                                  data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, value: e.target.value },
+                                  cache: false,
+                              }).done(function(res){
+                                  this.setState({result: res})
+                              }.bind(this)).fail(function(){
+                                  this.setState({result: 'API Request was failed '})
+                              }.bind(this));
                       }
                 
                       window.sessionStorage.removeItem(['requireNext']);
@@ -162,27 +174,10 @@
                               break;
 
                           // POST =========================================================================
-                          //case /^(set|add|replace|append|prepend)\s([^\s]+)\s0\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                          //    cmd = RegExp.$1;
-                          //    key = RegExp.$2;
-                          //    exptime = RegExp.$3;
-                          //    bytes = RegExp.$4;
-                          //    this.setState({explanation: 'Please input Value'});
- 
-
-                          //    $.ajax({
-                          //        url: "../",
-                          //        type: 'POST',
-                          //        //data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4 },
-                          //        data: { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4 },
-                          //        //datatype: ''.
-                          //        cache: false,
-                          //    }).done(function(res){
-                          //        this.setState({result: res})
-                          //    }.bind(this)).fail(function(){
-                          //        this.setState({result: 'API Request was failed '})
-                          //    }.bind(this));
-                          //    break;
+                          case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
+                              this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
+                              window.sessionStorage.setItem(['requireNext'],[true]);
+                              break;
 
 
                           // PUT =========================================================================
