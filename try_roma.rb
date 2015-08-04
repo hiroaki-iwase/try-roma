@@ -177,7 +177,7 @@ post '/' do
       sum = 0 if sum < 0
 
       set_data(cmd, k, {'value' => sum, 'clk' => h['clk'] + 1})
-      @res = sum
+      @res = sum.to_s
 
     when /^(delete)$/
       raise TryRomaAPIArgumentError unless argumentcheck(k)

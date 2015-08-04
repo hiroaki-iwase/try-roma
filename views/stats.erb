@@ -15,6 +15,7 @@
   <script type="text/jsx">
 
      function sendQuery(action, data) {
+         console.log('Enter incr method area'+action+data);
          $.ajax({
              url: "../",
              type: action,
@@ -24,7 +25,7 @@
              this.setState({result: res})
          }.bind(this)).fail(function(){
              this.setState({result: 'API Request was failed '})
-         });
+         }.bind(this));
 
      }
 
@@ -105,6 +106,16 @@
                               window.sessionStorage.setItem(['requireNext'],[true]);
                               break;
 
+                          case /^(incr|decr)\s([a-z0-9]+)\s([-]*[0-9]+)$/.test(e.target.value) :
+                              this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
+                              sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, digit: RegExp.$3 });
+                              break;
+
+                          case /^(delete)\s([a-z0-9]+)$/.test(e.target.value) :
+                              this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
+                              sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2 });
+                              break;
+
 
                           // PUT =========================================================================
                           case /^(release|recover)$/.test(e.target.value) :
@@ -119,6 +130,9 @@
                               sendQuery.bind(this)('PUT', {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3});
                               break;
 
+                          case /^(set_log_level)\s([a-z]+)$/.test(e.target.value) :
+                              sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2});
+                              break;
 
                           // Same Command Again=========================================================================
                           //case '!!':
