@@ -38,7 +38,6 @@ end
 
 # debug 
 get '/' do
-  logger.info session[:lastcmd]
   erb :stats
 end
 
