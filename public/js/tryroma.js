@@ -1,3 +1,69 @@
+// cssConsole
+//$('#input').cssConsole({
+//	inputName:'console',
+//	charLimit: 60,
+//	onEnter: function(){
+//		addLine("> "+$('#input').find('input').val());
+//		execCommand($('#input').find('input').val());
+//		$('#input').cssConsole('reset');	
+//	}
+//});
+//
+//var lineLimit = 28; //enable scroll
+//var focus;
+//
+//focus = window.setInterval(function() {
+//	if(!$('#input').find('input').is(":focus")){
+//		$('#input').find('input').focus();
+//	}
+//}, 10);
+//
+//
+//// toDO
+//function addLine(input, style, color) {
+//		if($('.console div').length==lineLimit) {
+//			$('.console div').eq(0).remove();
+//		}
+//		style = typeof style !== 'undefined' ? style : 'line';
+//		color = typeof color !== 'undefined' ? color : 'white';
+//		$('.console').append('<div class="'+style+' '+color+'">'+input+'</div>');
+//}
+//
+//
+////todo 
+//function execCommand(command){
+//      return commands[command](); 
+//}
+//
+//
+//// todo
+//var commands = {
+//	help: function (){
+//		addLine("Available command list:");
+//		addLine("dir", 'margin');
+//		addLine("help", 'margin');
+//		addLine("ps", 'margin');
+//	},
+//	dir: function(){
+//		addLine(".");
+//		addLine("..");
+//		addLine("Applications", 'margin', 'blue');
+//		addLine("Documents", 'margin', 'blue');
+//		addLine("Downloads", 'margin', 'blue');
+//		addLine("Movies", 'margin', 'blue');
+//	},
+//	ps: function() {
+//		addLine("Running processes:");
+//		addLine("name: browser pid:8876", 'margin');
+//		addLine("name: movie player pid:3213", 'margin');
+//		addLine("name: system pid:0012", 'margin');
+//	}
+//}
+
+
+
+
+// React
 function sendQuery(action, data) {
     console.log('Enter incr method area'+action+data);
     $.ajax({
@@ -18,6 +84,7 @@ var Test = React.createClass(
         getInitialState() {
             return {
                 //explanation: "please input command",
+                input: "> ",
                 result: ""
             };
         },
@@ -52,12 +119,35 @@ var Test = React.createClass(
                         $.get("../"+RegExp.$1, function(res){
                             this.setState({result: res});
                          }.bind(this));
-                        break;
-
+                        breaku
                     case /^(stat|stats|get|gets)\s(.+)$/.test(e.target.value) :
-                        $.get("../"+RegExp.$1+"/"+RegExp.$2, function(res){
-                            this.setState({result: res});
-                         }.bind(this));
+                        $.ajax({
+                            url: "../"+RegExp.$1+"/"+RegExp.$2,
+                            type: 'GET',
+                            //data: data,
+                            dataType: 'json',
+                            cache: false,
+                        }).done(function(res){
+                            var test = '';
+                            //console.log('=====================================');
+                            for(var i in res){
+                                test += (i +":"+ res[i]);
+                            }
+                            //console.log(test);
+                            //console.log('=====================================');
+                            //this.setState({result: res});
+                            this.setState({result: test});
+                        }.bind(this)).fail(function(){
+                            this.setState({result: 'API Request was failed '})
+                        }.bind(this));
+
+                        //$.get("../"+RegExp.$1+"/"+RegExp.$2, function(res){
+                        //    console.log('===========================');
+                        //    console.log(res);
+                        //    console.log('===========================');
+                        //    //JSON.res
+                        //    this.setState({result: res});
+                        //}.bind(this));
                         break;
 
 
@@ -134,19 +224,29 @@ var Test = React.createClass(
                 }
             }
         },
-        render() {
-          return (
-            <div>
-              <input type="text" onChange={this.changeText}  onKeyDown={this.sendCommand} />
-              <div>
-                {this.state.result}
+        render: function() {
+            console.log($.type(this.state.result));
+            var lines = this.state.result.split("\n").map(function(line) {
+                return (<p>{line}</p>);
+            });
+            return (
+              <div id="console">
+                <div id="bottom">
+                  <div id='result'>
+                    {lines}
+                  </div>
+                    <input id='inputArea' type="text" onChange={this.changeText} onKeyDown={this.sendCommand}  />
+                </div>
               </div>
-            </div>
-          );
+            );
         }
     }
 );
 
+
+//function test(json) {
+//return json
+//};
 
 React.render(<Test />, document.getElementById("reactArea"));
 

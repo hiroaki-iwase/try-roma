@@ -53,9 +53,13 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
            .merge(session[:connection].get_stat)\
            .merge(session[:others].get_stat)
  
-  #@res = all_list.select{|k, v| k =~ /#{regexp}/}
-  #erb :stats
-  all_list.select{|k, v| k =~ /#{regexp}/}.to_json
+  #all_list.select{|k, v| k =~ /#{regexp}/}.to_json
+  h = all_list.select{|k, v| k =~ /#{regexp}/}
+  h.each{|k, v|
+    h[k] = v.to_s.concat('\n')
+  }
+  logger.info h.to_json
+  return h.to_json
 end
 
 # whoami/nodelist/version
