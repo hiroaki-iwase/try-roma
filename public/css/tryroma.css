@@ -20,3 +20,7 @@
   font-size: 20px;
   width: 100%;
 }
+
+p.res-line {
+    margin: 0;
+}

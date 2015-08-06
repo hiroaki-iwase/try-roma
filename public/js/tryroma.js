@@ -231,7 +231,7 @@ var Test = React.createClass(
         render: function() {
             console.log($.type(this.state.result));
             var lines = this.state.result.split('<br>').map(function(line) {
-                return (<p>{line}</p>);
+                return (<p className='res-line'>{line}</p>);
             });
             return (
               <div id="console">
