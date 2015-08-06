@@ -64,10 +64,10 @@
 
 
 // React
-function sendQuery(action, data) {
-    console.log('Enter incr method area'+action+data);
+function sendQuery(action, data, url) {
+    var path = url || '';
     $.ajax({
-        url: "../",
+        url: "../"+path,
         type: action,
         data: data,
         cache: false,
@@ -115,45 +115,29 @@ var Test = React.createClass(
                 window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
                 switch (true) {
                     // GET =========================================================================
-                    case /^(stat|stats|whoami|nodelist|version)$/.test(e.target.value) :
-                        //$.get("../"+RegExp.$1, function(res){
-                        //    this.setState({result: res});
-                        // }.bind(this));
-                        $.ajax({
-                            url: "../"+RegExp.$1,
-                            type: 'GET',
-                            dataType: 'json',
-                            //dataType: null,
-                            cache: false,
-                        }).done(function(res){
-                            var test = '';
-                            for(var i in res){
-                                test += (i +":"+ res[i]);
-                            }
-                            this.setState({result: test});
-                            //this.setState({result: res});
-                        }.bind(this)).fail(function(){
-                            this.setState({result: 'API Request was failed '})
-                        }.bind(this));
-                        break;
-                    case /^(stat|stats|get|gets)\s(.+)$/.test(e.target.value) :
+                    case /^(stat|stats)\s*(.*)$/.test(e.target.value) :
                         $.ajax({
                             url: "../"+RegExp.$1+"/"+RegExp.$2,
                             type: 'GET',
                             dataType: 'json',
                             cache: false,
                         }).done(function(res){
-                            var test = '';
+                            var res_lines = '';
                             for(var i in res){
-                                test += (i +":"+ res[i]);
+                                res_lines += (i +":"+ res[i]+"<br>");
                             }
-                            this.setState({result: test});
+                            this.setState({result: res_lines});
                         }.bind(this)).fail(function(){
                             this.setState({result: 'API Request was failed '})
                         }.bind(this));
-
                         break;
 
+                    case /^(whoami|nodelist|version)$/.test(e.target.value) :
+                        sendQuery.bind(this)('GET', null, RegExp.$1 );
+                        break;
+                    case /^(get|gets)\s(.+)$/.test(e.target.value) :
+                        sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$2 );
+                        break;
 
                     // DELETE =========================================================================
                     case /^(balse|shutdown|shutdown_self|rbalse)\s*([a-z]*)$/.test(e.target.value) :

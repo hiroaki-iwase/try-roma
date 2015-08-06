@@ -53,10 +53,9 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
            .merge(session[:connection].get_stat)\
            .merge(session[:others].get_stat)
  
-  #all_list.select{|k, v| k =~ /#{regexp}/}.to_json
   h = all_list.select{|k, v| k =~ /#{regexp}/}
   h.each{|k, v|
-    h[k] = v.to_s.concat('<br>')
+    h[k] = v.to_s
   }
   return h.to_json
 end
@@ -74,7 +73,7 @@ get %r{^/(whoami|nodelist|version)$} do |cmd|
 
   session[:lastcmd] = cmd
 
-  @res.to_json
+  @res
 end
 
 # get/gets <key>
@@ -111,7 +110,7 @@ delete '/' do
         end
       elsif confirm.empty?
         @res = res
-        @res = res.concat("<br>(TryRomaAPI : if you wanna execute, please send request with 'yes' or 'no' in the :confimation parameters.)") unless cmd == 'rbalse'
+        #@res = res.concat("<br>(TryRomaAPI : if you wanna execute, please send request with 'yes' or 'no' in the :confimation parameters.)") unless cmd == 'rbalse'
       else
         @res = 'Connection closed by foreign host.'
       end
@@ -200,6 +199,7 @@ post '/' do
 end
 
 ###[PUT]============================================================================================================
+# release, recover, set_auto_recover, set_lost_action, set_log_level
 put '/' do
   cmd = params[:command]
   raise TryRomaAPINoCommandError unless argumentcheck(cmd)
