@@ -56,9 +56,8 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
   #all_list.select{|k, v| k =~ /#{regexp}/}.to_json
   h = all_list.select{|k, v| k =~ /#{regexp}/}
   h.each{|k, v|
-    h[k] = v.to_s.concat('\n')
+    h[k] = v.to_s.concat('<br>')
   }
-  logger.info h.to_json
   return h.to_json
 end
 
@@ -75,7 +74,7 @@ get %r{^/(whoami|nodelist|version)$} do |cmd|
 
   session[:lastcmd] = cmd
 
-  @res
+  @res.to_json
 end
 
 # get/gets <key>

@@ -116,38 +116,42 @@ var Test = React.createClass(
                 switch (true) {
                     // GET =========================================================================
                     case /^(stat|stats|whoami|nodelist|version)$/.test(e.target.value) :
-                        $.get("../"+RegExp.$1, function(res){
-                            this.setState({result: res});
-                         }.bind(this));
-                        breaku
+                        //$.get("../"+RegExp.$1, function(res){
+                        //    this.setState({result: res});
+                        // }.bind(this));
+                        $.ajax({
+                            url: "../"+RegExp.$1,
+                            type: 'GET',
+                            dataType: 'json',
+                            //dataType: null,
+                            cache: false,
+                        }).done(function(res){
+                            var test = '';
+                            for(var i in res){
+                                test += (i +":"+ res[i]);
+                            }
+                            this.setState({result: test});
+                            //this.setState({result: res});
+                        }.bind(this)).fail(function(){
+                            this.setState({result: 'API Request was failed '})
+                        }.bind(this));
+                        break;
                     case /^(stat|stats|get|gets)\s(.+)$/.test(e.target.value) :
                         $.ajax({
                             url: "../"+RegExp.$1+"/"+RegExp.$2,
                             type: 'GET',
-                            //data: data,
                             dataType: 'json',
                             cache: false,
                         }).done(function(res){
                             var test = '';
-                            //console.log('=====================================');
                             for(var i in res){
                                 test += (i +":"+ res[i]);
                             }
-                            //console.log(test);
-                            //console.log('=====================================');
-                            //this.setState({result: res});
                             this.setState({result: test});
                         }.bind(this)).fail(function(){
                             this.setState({result: 'API Request was failed '})
                         }.bind(this));
 
-                        //$.get("../"+RegExp.$1+"/"+RegExp.$2, function(res){
-                        //    console.log('===========================');
-                        //    console.log(res);
-                        //    console.log('===========================');
-                        //    //JSON.res
-                        //    this.setState({result: res});
-                        //}.bind(this));
                         break;
 
 
@@ -226,10 +230,7 @@ var Test = React.createClass(
         },
         render: function() {
             console.log($.type(this.state.result));
-            var lines = this.state.result.split('\\n').map(function(line) {
-                console.log('=========')
-                console.log(line)
-                console.log('=========')
+            var lines = this.state.result.split('<br>').map(function(line) {
                 return (<p>{line}</p>);
             });
             return (
