@@ -226,7 +226,10 @@ var Test = React.createClass(
         },
         render: function() {
             console.log($.type(this.state.result));
-            var lines = this.state.result.split("\n").map(function(line) {
+            var lines = this.state.result.split('\\n').map(function(line) {
+                console.log('=========')
+                console.log(line)
+                console.log('=========')
                 return (<p>{line}</p>);
             });
             return (
