@@ -225,7 +225,7 @@ var Test = React.createClass(
               <div id="console">
                 <div id="bottom">
                   {lines}
-                  <input id='inputArea' type="text" onChange={this.changeText} onKeyDown={this.sendCommand}  />
+                  <p id='inputArea'>&gt; <input id='inputBox' type="text" onChange={this.changeText} onKeyDown={this.sendCommand} autoFocus={focus} /></p>
                 </div>
               </div>
             );
