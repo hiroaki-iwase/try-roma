@@ -72,7 +72,8 @@ function sendQuery(action, data, url) {
         data: data,
         cache: false,
     }).done(function(res){
-        this.setState({result: res})
+        var response = '> '+window.sessionStorage.getItem(['lastcmd'])+'<br>'+res+'<br> '
+        this.setState({result: response})
     }.bind(this)).fail(function(){
         this.setState({result: 'API Request was failed '})
     }.bind(this));
@@ -122,7 +123,7 @@ var Test = React.createClass(
                             dataType: 'json',
                             cache: false,
                         }).done(function(res){
-                            var res_lines = '';
+                            var res_lines = '> '+window.sessionStorage.getItem(['lastcmd'])+'<br>';
                             for(var i in res){
                                 res_lines += (i +":"+ res[i]+"<br>");
                             }
@@ -207,7 +208,10 @@ var Test = React.createClass(
 
                     // Not supported yet on virtual console =========================================================================
                     default:
-                        this.setState({result: 'Not Supported"'});
+                        var res = 'Not Supported';
+                        var response = '> '+window.sessionStorage.getItem(['lastcmd'])+'<br>'+res+'<br>'
+                        this.setState({result: response})
+                        //this.setState({result: 'Not Supported'});
                         break;
                 }
             }
@@ -220,10 +224,8 @@ var Test = React.createClass(
             return (
               <div id="console">
                 <div id="bottom">
-                  <div id='result'>
-                    {lines}
-                  </div>
-                    <input id='inputArea' type="text" onChange={this.changeText} onKeyDown={this.sendCommand}  />
+                  {lines}
+                  <input id='inputArea' type="text" onChange={this.changeText} onKeyDown={this.sendCommand}  />
                 </div>
               </div>
             );

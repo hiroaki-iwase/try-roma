@@ -2,7 +2,7 @@
   background-color: #031340;
   border: gray solid 5px;;
   color: white;
-  font-size: 16px;
+  font-size: 20px;
   position: relative;
   height: 600px;
   margin: 100px;
@@ -11,9 +11,11 @@
 #bottom {
   position: absolute;
   bottom: 0;
+  width: 100%;
 }
 
 #inputArea {
+  margin-top: 20px;
   background-color: black;
   border: none;
   color: white;
