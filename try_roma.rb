@@ -287,7 +287,7 @@ put '/' do
 
             sleep 2
           }
-         
+ 
         rescue => e
           logger.info e
         ensure
@@ -299,7 +299,7 @@ put '/' do
     end
 
     #erb :stats
-    return @res.to_json
+    @res
 
   when 'set_auto_recover'
     bool = params[:bool]
@@ -315,7 +315,8 @@ put '/' do
     @res = make_response_of_nodelist('STORED')
 
     #erb :stats
-    @res.to_json
+    #@res.to_json
+    @res
 
   when 'set_lost_action'
     action = params[:lost]
@@ -333,7 +334,7 @@ put '/' do
     end
 
     #erb :stats
-    @res.to_json
+    @res
 
   when 'set_log_level'
     log_level = params[:level]

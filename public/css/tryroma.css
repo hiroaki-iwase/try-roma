@@ -6,6 +6,7 @@
   position: relative;
   height: 600px;
   margin: 100px;
+  word-wrap:break-word;
 }
 
 #bottom {

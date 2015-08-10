@@ -62,10 +62,19 @@
 
 
 // React
-function clearForm(res){
+
+function changeStyleToHash(json) {
+    hash_str = json.replace(/", "/g,'"=>"').replace(/\]\[/g,', ').replace(/\[/,'{').replace(/\]/,'}');
+    return hash_str;
+}
+
+function clearForm(){
     React.findDOMNode(this.refs.command).value = '';
-    var response = '> '+window.sessionStorage.getItem(['lastcmd'])+'<br>'+res+'<br> '
-    this.setState({result: this.state.result +'<br>'+ response})
+}
+
+function showResult(res) {
+    var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd'])
+    this.setState({result: this.state.result +'<br>'+ lastcmd + '<br>' + res})
 }
 
 function sendQuery(action, data, url) {
@@ -76,7 +85,11 @@ function sendQuery(action, data, url) {
         data: data,
         cache: false,
     }).done(function(res){
-        clearForm.bind(this)(res);
+        clearForm.bind(this);
+        if (action == 'PUT') {
+          res = changeStyleToHash(res);
+        } 
+        showResult.bind(this)(res);
     }.bind(this)).fail(function(){
         this.setState({result: 'API Request was failed '})
     }.bind(this));
@@ -204,6 +217,7 @@ var Test = React.createClass(
                     // Not supported yet on virtual console =========================================================================
                     default:
                         var res = 'Not Supported';
+                        showResult.bind(this)(res);
                         clearForm.bind(this)(res);
                         break;
                 }
