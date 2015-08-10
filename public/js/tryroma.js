@@ -64,6 +64,12 @@
 
 
 // React
+function clearForm(res){
+    React.findDOMNode(this.refs.command).value = '';
+    var response = '> '+window.sessionStorage.getItem(['lastcmd'])+'<br>'+res+'<br> '
+    this.setState({result: response})
+}
+
 function sendQuery(action, data, url) {
     var path = url || '';
     $.ajax({
@@ -72,8 +78,7 @@ function sendQuery(action, data, url) {
         data: data,
         cache: false,
     }).done(function(res){
-        var response = '> '+window.sessionStorage.getItem(['lastcmd'])+'<br>'+res+'<br> '
-        this.setState({result: response})
+        clearForm.bind(this)(res);
     }.bind(this)).fail(function(){
         this.setState({result: 'API Request was failed '})
     }.bind(this));
@@ -85,7 +90,7 @@ var Test = React.createClass(
         getInitialState() {
             return {
                 //explanation: "please input command",
-                input: "> ",
+                //input: "> ",
                 result: ""
             };
         },
@@ -209,9 +214,7 @@ var Test = React.createClass(
                     // Not supported yet on virtual console =========================================================================
                     default:
                         var res = 'Not Supported';
-                        var response = '> '+window.sessionStorage.getItem(['lastcmd'])+'<br>'+res+'<br>'
-                        this.setState({result: response})
-                        //this.setState({result: 'Not Supported'});
+                        clearForm.bind(this)(res);
                         break;
                 }
             }
@@ -225,7 +228,7 @@ var Test = React.createClass(
               <div id="console">
                 <div id="bottom">
                   {lines}
-                  <p id='inputArea'>&gt; <input id='inputBox' type="text" onChange={this.changeText} onKeyDown={this.sendCommand} autoFocus={focus} /></p>
+                  <p id='inputArea'>&gt; <input id='inputBox' type="text" placeholder='please input command' onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
                 </div>
               </div>
             );
