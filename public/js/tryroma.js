@@ -1,4 +1,4 @@
-// cssConsole
+//// cssConsole
 //$('#input').cssConsole({
 //	inputName:'console',
 //	charLimit: 60,
@@ -74,7 +74,12 @@ function clearForm(){
 
 function showResult(res) {
     var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd'])
-    this.setState({result: this.state.result +'<br><br>'+ lastcmd + '<br>' + res})
+
+    value = this.state.result +'<br><br>'+ lastcmd + '<br>' + res;
+
+    console.log((value.match(/<br>/g)||[]).length);
+
+    this.setState({result: value})
 }
 
 function refactorStatResult(res) {

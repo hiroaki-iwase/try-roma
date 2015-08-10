@@ -6,6 +6,8 @@
   position: relative;
   height: 600px;
   margin: 100px;
+  font-family: courier;
+  white-space: pre;
   word-wrap:break-word;
 }
 
@@ -13,6 +15,7 @@
   position: absolute;
   bottom: 0;
   width: 100%;
+  max-height：600px;
 }
 
 #inputArea {
@@ -38,4 +41,5 @@ input[type="text"]:focus {
 
 p.res-line {
     margin: 0;
+    color: #A0C5E8;
 }
