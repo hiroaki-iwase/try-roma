@@ -116,9 +116,9 @@ var Test = React.createClass(
                 window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
                 switch (true) {
                     // GET =========================================================================
-                    case /^(stats|stat)\s*(.*)$/.test(e.target.value) :
+                    case /^(stats|stat)(\s(.*))*$/.test(e.target.value) :
                         $.ajax({
-                            url: "../"+RegExp.$1+"/"+RegExp.$2,
+                            url: "../"+RegExp.$1+"/"+RegExp.$3,
                             type: 'GET',
                             dataType: 'json',
                             cache: false,

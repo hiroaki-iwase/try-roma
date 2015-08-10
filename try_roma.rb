@@ -43,7 +43,7 @@ end
 
 ###[GET]============================================================================================================
 # stat/stats [regexp]
-get %r{/stat[s]*/?(.*)?} do |regexp|
+get %r{/stat[s]?/?(.*)?} do |regexp|
   all_list = session[:version].get_stat\
            .merge(session[:config].get_stat)\
            .merge(session[:stats].get_stat)\
