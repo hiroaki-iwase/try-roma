@@ -61,13 +61,11 @@
 //}
 
 
-
-
 // React
 function clearForm(res){
     React.findDOMNode(this.refs.command).value = '';
     var response = '> '+window.sessionStorage.getItem(['lastcmd'])+'<br>'+res+'<br> '
-    this.setState({result: response})
+    this.setState({result: this.state.result +'<br>'+ response})
 }
 
 function sendQuery(action, data, url) {
@@ -89,8 +87,6 @@ var Test = React.createClass(
     {
         getInitialState() {
             return {
-                //explanation: "please input command",
-                //input: "> ",
                 result: ""
             };
         },
@@ -132,7 +128,7 @@ var Test = React.createClass(
                             for(var i in res){
                                 res_lines += (i +":"+ res[i]+"<br>");
                             }
-                            this.setState({result: res_lines});
+                            this.setState({result: this.state.result +'<br>'+ res_lines})
                         }.bind(this)).fail(function(){
                             this.setState({result: 'API Request was failed '})
                         }.bind(this));
@@ -158,27 +154,22 @@ var Test = React.createClass(
 
                     // POST =========================================================================
                     case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                        //this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
                         window.sessionStorage.setItem(['requireNext'],[true]);
                         break;
 
                     case /^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                        //this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
                         sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 });
                         break;
 
                     case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                        //this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
                         window.sessionStorage.setItem(['requireNext'],[true]);
                         break;
 
                     case /^(incr|decr)\s([a-z0-9]+)\s([-]*[0-9]+)$/.test(e.target.value) :
-                        //this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
                         sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, digit: RegExp.$3 });
                         break;
 
                     case /^(delete)\s([a-z0-9]+)$/.test(e.target.value) :
-                        //this.setState({explanation: 'Please input Value'}); // todoここらへん最初のメッセージに戻すメソッドとして切り出す
                         sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2 });
                         break;
 
@@ -208,7 +199,6 @@ var Test = React.createClass(
 
                     // No Command =========================================================================
                     case '':
-                        //this.setState({result: 'please input command"'});
                         break;
 
                     // Not supported yet on virtual console =========================================================================
@@ -235,11 +225,6 @@ var Test = React.createClass(
         }
     }
 );
-
-
-//function test(json) {
-//return json
-//};
 
 React.render(<Test />, document.getElementById("reactArea"));
 
