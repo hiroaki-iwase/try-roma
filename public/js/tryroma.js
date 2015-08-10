@@ -74,7 +74,7 @@ function clearForm(){
 
 function showResult(res) {
     var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd'])
-    this.setState({result: this.state.result +'<br>'+ lastcmd + '<br>' + res})
+    this.setState({result: this.state.result +'<br><br>'+ lastcmd + '<br>' + res})
 }
 
 function refactorStatResult(res) {
@@ -209,11 +209,15 @@ var Test = React.createClass(
                     //    break;
 
                     // No Command =========================================================================
-                    case '':
+                    case e.target.value == '':
+                        console.log('hogehoge');
+                        var lastcmd = '> ';
+                        this.setState({result: this.state.result +'<br>'+lastcmd});
                         break;
 
                     // Not supported yet on virtual console =========================================================================
                     default:
+                        console.log(e.target.value.size);
                         var res = 'Not Supported';
                         showResult.bind(this)(res);
                         clearForm.bind(this)();
@@ -223,7 +227,11 @@ var Test = React.createClass(
         },
         render: function() {
             var lines = this.state.result.split('<br>').map(function(line) {
-                return (<p className='res-line'>{line}</p>);
+                if (line) {
+                    return (<p className='res-line'>{line}</p>);
+                } else {
+                    return (<p className='res-line'>&nbsp;</p>);
+                }
             });
             return (
               <div id="console">
