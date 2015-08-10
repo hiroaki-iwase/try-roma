@@ -85,7 +85,7 @@ function sendQuery(action, data, url) {
         data: data,
         cache: false,
     }).done(function(res){
-        clearForm.bind(this);
+        clearForm.bind(this)();
         if (action == 'PUT') {
           res = changeStyleToHash(res);
         } 
@@ -94,7 +94,6 @@ function sendQuery(action, data, url) {
         this.setState({result: 'API Request was failed '})
     }.bind(this));
 }
-
 
 var Test = React.createClass(
     {
@@ -137,11 +136,12 @@ var Test = React.createClass(
                             dataType: 'json',
                             cache: false,
                         }).done(function(res){
-                            var res_lines = '> '+window.sessionStorage.getItem(['lastcmd'])+'<br>';
+                            var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd']);
+                            var res_lines = '';
                             for(var i in res){
-                                res_lines += (i +":"+ res[i]+"<br>");
+                                res_lines += (i +" "+ res[i]+"<br>");
                             }
-                            this.setState({result: this.state.result +'<br>'+ res_lines})
+                            this.setState({result: this.state.result +'<br>'+lastcmd+'<br>'+res_lines})
                         }.bind(this)).fail(function(){
                             this.setState({result: 'API Request was failed '})
                         }.bind(this));
@@ -218,13 +218,12 @@ var Test = React.createClass(
                     default:
                         var res = 'Not Supported';
                         showResult.bind(this)(res);
-                        clearForm.bind(this)(res);
+                        clearForm.bind(this)();
                         break;
                 }
             }
         },
         render: function() {
-            console.log($.type(this.state.result));
             var lines = this.state.result.split('<br>').map(function(line) {
                 return (<p className='res-line'>{line}</p>);
             });
