@@ -77,17 +77,29 @@ function showResult(res) {
     this.setState({result: this.state.result +'<br>'+ lastcmd + '<br>' + res})
 }
 
-function sendQuery(action, data, url) {
+function refactorStatResult(res) {
+    res_lines = '';
+    for(var i in res){
+        res_lines += (i +" "+ res[i]+"<br>");
+    }
+    return res_lines;
+}
+
+function sendQuery(action, data, url, format) {
     var path = url || '';
     $.ajax({
         url: "../"+path,
         type: action,
         data: data,
+        dataType: format,
         cache: false,
     }).done(function(res){
         clearForm.bind(this)();
         if (action == 'PUT') {
           res = changeStyleToHash(res);
+        } 
+        if (format == 'json') {
+            res = refactorStatResult(res);
         } 
         showResult.bind(this)(res);
     }.bind(this)).fail(function(){
@@ -130,21 +142,7 @@ var Test = React.createClass(
                 switch (true) {
                     // GET =========================================================================
                     case /^(stats|stat)(\s(.*))*$/.test(e.target.value) :
-                        $.ajax({
-                            url: "../"+RegExp.$1+"/"+RegExp.$3,
-                            type: 'GET',
-                            dataType: 'json',
-                            cache: false,
-                        }).done(function(res){
-                            var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd']);
-                            var res_lines = '';
-                            for(var i in res){
-                                res_lines += (i +" "+ res[i]+"<br>");
-                            }
-                            this.setState({result: this.state.result +'<br>'+lastcmd+'<br>'+res_lines})
-                        }.bind(this)).fail(function(){
-                            this.setState({result: 'API Request was failed '})
-                        }.bind(this));
+                        sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$3, 'json');
                         break;
 
                     case /^(whoami|nodelist|version)$/.test(e.target.value) :
