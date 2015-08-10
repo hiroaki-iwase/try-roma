@@ -112,10 +112,23 @@ function sendQuery(action, data, url, format) {
     }.bind(this));
 }
 
+function heardoc() {
+    var heredoc = (function () {/*
+ _ _ _       _  _                            _    _           _____  _____  __ __    _____  _____  _____  _____ 
+| | | | ___ | || |   ___  ___  _____  ___   | |_ | |_  ___   |_   _|| __  ||  |  |  | __  ||     ||     ||  _  |
+| | | || -_|| || |  |  _|| . ||     || -_|  |  _||   || -_|    | |  |    -||_   _|  |    -||  |  || | | ||     |
+|_____||___||_||_|  |___||___||_|_|_||___|  |_|  |_|_||___|    |_|  |__|__|  |_|    |__|__||_____||_|_|_||__|__|
+    */}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
+
+    return heredoc;
+}
+
 var Test = React.createClass(
     {
         getInitialState() {
             return {
+                greetingAA: heardoc(),
+                greetingMessage: 'Please feel free to execute ROMA command!!',
                 result: ""
             };
         },
@@ -240,6 +253,10 @@ var Test = React.createClass(
             });
             return (
               <div id="console">
+                <div id="greeting">
+                  <div id="greeting-aa">{this.state.greetingAA}</div>
+                  <div id="greeting-msg">{this.state.greetingMessage}</div>
+                </div>
                 <div id="bottom">
                   {lines}
                   <p id='inputArea'>&gt; <input id='inputBox' type="text" placeholder='please input command' onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>

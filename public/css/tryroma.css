@@ -11,6 +11,18 @@
   word-wrap:break-word;
 }
 
+#greeting {
+  color: #00cede;
+}
+
+#greeting-aa {
+  font-size: 11px;
+}
+
+#greeting-msg {
+  font-size: 20px;
+}
+
 #bottom {
   position: absolute;
   bottom: 0;
