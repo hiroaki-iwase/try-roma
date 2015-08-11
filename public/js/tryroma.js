@@ -81,6 +81,7 @@ function clearForm(){
 }
 
 function showResult(res) {
+console.log('call showResult')
     var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd'])
 
     value = this.state.result +'<br><br>'+ lastcmd + '<br>' + res;
@@ -113,7 +114,7 @@ function sendQuery(action, data, url, format) {
         } 
         if (format == 'json') {
             res = refactorStatResult(res);
-        } 
+        }
         showResult.bind(this)(res);
     }.bind(this)).fail(function(){
         this.setState({result: 'API Request was failed '})
@@ -155,8 +156,35 @@ console.log(cmd);
     this.setState({activeNodelist: activeMessage})
 }
 
+function checkSecondValue(e) {
+    var lastcmd = window.sessionStorage.getItem(['lastcmd']);
 
-var Test = React.createClass(
+    switch (true) {
+        case /^(balse|shutdown|shutdown_self)$/.test(lastcmd):
+            sendQuery.bind(this)('DELETE', { command: lastcmd, confirmation: e.target.value });
+
+            if (e.target.value == 'yes') {
+                 displayNodeDownMsg.bind(this)(lastcmd);
+            }
+
+            break;
+
+        case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
+            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, value: e.target.value });
+            break;
+
+        case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
+            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, casid: RegExp.$5, value: e.target.value});
+            break;
+
+    }
+    
+    window.sessionStorage.removeItem(['requireNext']);
+    window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
+
+}
+
+var TryRoma = React.createClass(
     {
         getInitialState() {
             return {
@@ -175,116 +203,96 @@ var Test = React.createClass(
                 clearHeader.bind(this)();
 
                 if (window.sessionStorage.getItem(['requireNext'])) {
-                    var lastcmd = window.sessionStorage.getItem(['lastcmd']);
-
+                    checkSecondValue.bind(this)(e);
+                } else {
+                    window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
                     switch (true) {
-                        case /^(balse|shutdown|shutdown_self)$/.test(lastcmd):
-                            sendQuery.bind(this)('DELETE', { command: lastcmd, confirmation: e.target.value });
+                        // GET =========================================================================
+                        case /^(stats|stat)(\s(.*))*$/.test(e.target.value) :
+                            sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$3, 'json');
+                            break;
 
-                            if (e.target.value == 'yes') {
-                                 displayNodeDownMsg.bind(this)(lastcmd);
+                        case /^(whoami|nodelist|version)$/.test(e.target.value) :
+                            console.log(this.state.nodeInfo);
+                            sendQuery.bind(this)('GET', null, RegExp.$1 );
+                            break;
+                        case /^(get|gets)\s(.+)$/.test(e.target.value) :
+                            sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$2 );
+                            break;
+
+                        // DELETE =========================================================================
+                        case /^(balse|shutdown|shutdown_self|rbalse)$/.test(e.target.value) :
+                            var cmd = RegExp.$1;
+                            //sendQuery.bind(this)('DELETE', { command: RegExp.$1, confirmation: RegExp.$2 });
+                            sendQuery.bind(this)('DELETE', { command: RegExp.$1, confirmation: null });
+                            
+                            // require next line(yes/no)!!
+                            if (/^(balse|shutdown|shutdown_self)$/.test(cmd)) {
+                                window.sessionStorage.setItem(['requireNext'],[true]);
                             }
-
                             break;
 
-                        case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
-                            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, value: e.target.value });
-                            break;
-
-                        case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
-                            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, casid: RegExp.$5, value: e.target.value});
-                            break;
-
-                    }
-          
-                    window.sessionStorage.removeItem(['requireNext']);
-                }
-
-                window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
-                switch (true) {
-                    // GET =========================================================================
-                    case /^(stats|stat)(\s(.*))*$/.test(e.target.value) :
-                        sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$3, 'json');
-                        break;
-
-                    case /^(whoami|nodelist|version)$/.test(e.target.value) :
-                        console.log(this.state.nodeInfo);
-                        sendQuery.bind(this)('GET', null, RegExp.$1 );
-                        break;
-                    case /^(get|gets)\s(.+)$/.test(e.target.value) :
-                        sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$2 );
-                        break;
-
-                    // DELETE =========================================================================
-                    case /^(balse|shutdown|shutdown_self|rbalse)\s*([a-z]*)$/.test(e.target.value) :
-                        var cmd = RegExp.$1;
-                        sendQuery.bind(this)('DELETE', { command: RegExp.$1, confirmation: RegExp.$2 });
-                        
-                        // require next line(yes/no)!!
-                        if (/^(balse|shutdown|shutdown_self)$/.test(cmd)) {
+                        // POST =========================================================================
+                        case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
                             window.sessionStorage.setItem(['requireNext'],[true]);
-                        }
-                        break;
+                            break;
 
-                    // POST =========================================================================
-                    case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                        window.sessionStorage.setItem(['requireNext'],[true]);
-                        break;
+                        case /^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(e.target.value) :
+                            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 });
+                            break;
 
-                    case /^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                        sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 });
-                        break;
+                        case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
+                            window.sessionStorage.setItem(['requireNext'],[true]);
+                            break;
 
-                    case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                        window.sessionStorage.setItem(['requireNext'],[true]);
-                        break;
+                        case /^(incr|decr)\s([a-z0-9]+)\s([-]*[0-9]+)$/.test(e.target.value) :
+                            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, digit: RegExp.$3 });
+                            break;
 
-                    case /^(incr|decr)\s([a-z0-9]+)\s([-]*[0-9]+)$/.test(e.target.value) :
-                        sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, digit: RegExp.$3 });
-                        break;
-
-                    case /^(delete)\s([a-z0-9]+)$/.test(e.target.value) :
-                        sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2 });
-                        break;
+                        case /^(delete)\s([a-z0-9]+)$/.test(e.target.value) :
+                            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2 });
+                            break;
 
 
-                    // PUT =========================================================================
-                    case /^(release|recover)$/.test(e.target.value) :
-                        sendQuery.bind(this)('PUT', {command: RegExp.$1});
-                        break;
+                        // PUT =========================================================================
+                        case /^(release|recover)$/.test(e.target.value) :
+                            sendQuery.bind(this)('PUT', {command: RegExp.$1});
+                            break;
 
-                    case /^(set_lost_action|set_log_level)\s(.+)$/.test(e.target.value) :
-                        sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2, lost: RegExp.$2});
-                        break;
+                        case /^(set_lost_action|set_log_level)\s(.+)$/.test(e.target.value) :
+                            sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2, lost: RegExp.$2});
+                            break;
 
-                    case /^(set_auto_recover)\s([a-z]+)\s*([0-9]*)$/.test(e.target.value) :
-                        sendQuery.bind(this)('PUT', {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3});
-                        break;
+                        case /^(set_auto_recover)\s([a-z]+)\s*([0-9]*)$/.test(e.target.value) :
+                            sendQuery.bind(this)('PUT', {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3});
+                            break;
 
-                    case /^(set_log_level)\s([a-z]+)$/.test(e.target.value) :
-                        sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2});
-                        break;
+                        case /^(set_log_level)\s([a-z]+)$/.test(e.target.value) :
+                            sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2});
+                            break;
 
-                    // Same Command Again=========================================================================
-                    //case '!!':
-                    //    this.setState({cmd: "please input command"});
-                    //        this.setState({result: ''});
-                    //    break;
+                        // Same Command Again=========================================================================
+                        //case '!!':
+                        //    this.setState({cmd: "please input command"});
+                        //        this.setState({result: ''});
+                        //    break;
 
-                    // No Command =========================================================================
-                    case e.target.value == '':
-                        console.log('hogehoge');
-                        var lastcmd = '> ';
-                        this.setState({result: this.state.result +'<br>'+lastcmd});
-                        break;
+                        // No Command =========================================================================
+                        case e.target.value == '':
+                            console.log('hogehoge');
+                            var lastcmd = '> ';
+                            this.setState({result: this.state.result +'<br>'+lastcmd});
+                            //this.setState({result: this.state.result +'<br>'+lastcmd});
+                            break;
 
-                    // Not supported yet on virtual console =========================================================================
-                    default:
-                        console.log(e.target.value.size);
-                        var res = 'Not Supported';
-                        showResult.bind(this)(res);
-                        clearForm.bind(this)();
-                        break;
+                        // Not supported yet on virtual console =========================================================================
+                        default:
+                            console.log(e.target.value.size);
+                            var res = 'Not Supported';
+                            showResult.bind(this)(res);
+                            clearForm.bind(this)();
+                            break;
+                    }
                 }
             }
         },
@@ -316,5 +324,5 @@ var Test = React.createClass(
     }
 );
 
-React.render(<Test />, document.getElementById("reactArea"));
+React.render(<TryRoma />, document.getElementById("reactArea"));
 
