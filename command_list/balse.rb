@@ -11,13 +11,12 @@ module Roma
         "rbalse" => "rbalse is deprecated command, please use [shutdown_self] command",
         "shutdown_self" =>
           <<-'Confirmation'
-            =================================================================<br>
-            CAUTION!!<br>
-                    This command kill the instance!<br>
-                    There is some possibility of occuring redundancy down!<br>
-            =================================================================<br>
-            <br>
-            Are you sure to shutdown this instance?(yes/no)
+=================================================================
+CAUTION!!
+        This command kill the instance!
+        There is some possibility of occuring redundancy down!
+=================================================================
+Are you sure to shutdown this instance?(yes/no)
           Confirmation
       }
     end

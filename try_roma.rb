@@ -15,6 +15,7 @@ helpers do
 end
 
 before do
+  logger.info 'execute BEFORE!!!'
   # response of stat command
   session[:version]      = Roma::Version.new      unless session[:version]
   session[:config]       = Roma::Config.new       unless session[:config]
@@ -38,13 +39,12 @@ end
 
 # debug 
 get '/' do
-  logger.info session[:lastcmd]
   erb :stats
 end
 
 ###[GET]============================================================================================================
 # stat/stats [regexp]
-get %r{/stat[s]*/?(.*)?} do |regexp|
+get %r{/stat[s]?/?(.*)?} do |regexp|
   all_list = session[:version].get_stat\
            .merge(session[:config].get_stat)\
            .merge(session[:stats].get_stat)\
@@ -54,9 +54,11 @@ get %r{/stat[s]*/?(.*)?} do |regexp|
            .merge(session[:connection].get_stat)\
            .merge(session[:others].get_stat)
  
-  #@res = all_list.select{|k, v| k =~ /#{regexp}/}
-  #erb :stats
-  all_list.select{|k, v| k =~ /#{regexp}/}.to_json
+  h = all_list.select{|k, v| k =~ /#{regexp}/}
+  h.each{|k, v|
+    h[k] = v.to_s
+  }
+  return h.to_json
 end
 
 # whoami/nodelist/version
@@ -109,7 +111,7 @@ delete '/' do
         end
       elsif confirm.empty?
         @res = res
-        @res = res.concat("<br>(TryRomaAPI : if you wanna execute, please send request with 'yes' or 'no' in the :confimation parameters.)") unless cmd == 'rbalse'
+        #@res = res.concat("<br>(TryRomaAPI : if you wanna execute, please send request with 'yes' or 'no' in the :confimation parameters.)") unless cmd == 'rbalse'
       else
         @res = 'Connection closed by foreign host.'
       end
@@ -198,6 +200,7 @@ post '/' do
 end
 
 ###[PUT]============================================================================================================
+# release, recover, set_auto_recover, set_lost_action, set_log_level
 put '/' do
   cmd = params[:command]
   raise TryRomaAPINoCommandError unless argumentcheck(cmd)
@@ -285,7 +288,7 @@ put '/' do
 
             sleep 2
           }
-         
+ 
         rescue => e
           logger.info e
         ensure
@@ -297,7 +300,7 @@ put '/' do
     end
 
     #erb :stats
-    return @res.to_json
+    @res
 
   when 'set_auto_recover'
     bool = params[:bool]
@@ -313,7 +316,8 @@ put '/' do
     @res = make_response_of_nodelist('STORED')
 
     #erb :stats
-    @res.to_json
+    #@res.to_json
+    @res
 
   when 'set_lost_action'
     action = params[:lost]
@@ -331,7 +335,7 @@ put '/' do
     end
 
     #erb :stats
-    @res.to_json
+    @res
 
   when 'set_log_level'
     log_level = params[:level]
