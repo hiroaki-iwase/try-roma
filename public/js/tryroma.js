@@ -142,11 +142,11 @@ function disabledForm() {
 function displayNodeDownMsg(cmd){
 
     if (cmd == 'shutdown_self') {
-        var downMessage = this.state.nodeInfo.shift() + ' was down. So Try ROMA access the next node.'
-        var activeMessage = "Active Nodes are " + this.state.nodeInfo
+        var downMessage = this.state.nodeList.shift() + ' was down. So Try ROMA access the next node.'
+        var activeMessage = "Active Nodes are " + this.state.nodeList
     }
 console.log(cmd);
-    if ((/^(balse|shutdown)$/.test(cmd)) || (this.state.nodeInfo.length == 0)) {
+    if ((/^(balse|shutdown)$/.test(cmd)) || (this.state.nodeList.length == 0)) {
         var downMessage = 'All nodes were down!! So please Reload.'
         var activeMessage = ''
         disabledForm.bind(this)();
@@ -192,7 +192,7 @@ var TryRoma = React.createClass(
                 greetingMessage: 'Please feel free to execute ROMA command!!',
                 nonActiveNodelist: '',
                 activeNodelist: '',
-                nodeInfo: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
+                nodeList: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
                 result: ""
             };
         },
@@ -213,7 +213,7 @@ var TryRoma = React.createClass(
                             break;
 
                         case /^(whoami|nodelist|version)$/.test(e.target.value) :
-                            console.log(this.state.nodeInfo);
+                            console.log(this.state.nodeList);
                             sendQuery.bind(this)('GET', null, RegExp.$1 );
                             break;
                         case /^(get|gets)\s(.+)$/.test(e.target.value) :
@@ -271,7 +271,7 @@ var TryRoma = React.createClass(
                             sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2});
                             break;
 
-                        // Same Command Again=========================================================================
+                        //// Same Command Again=========================================================================
                         //case '!!':
                         //    this.setState({cmd: "please input command"});
                         //        this.setState({result: ''});
@@ -299,24 +299,28 @@ var TryRoma = React.createClass(
         render: function() {
             var lines = this.state.result.split('<br>').map(function(line) {
                 if (line) {
-                    return (<p className='res-line'>{line}</p>);
+                    return (<p className='no-margin'>{line}</p>);
                 } else {
-                    return (<p className='res-line'>&nbsp;</p>);
+                    return (<p className='no-margin'>&nbsp;</p>);
                 }
             });
             return (
-              <div id="console">
-                <div id="greeting">
-                  <div id="greeting-aa">{this.state.greetingAA}</div>
-                  <div id="greeting-msg">{this.state.greetingMessage}</div>
+              <div id="console-screen">
+                <div id="header-area">
+                  <div id="greeting">
+                    <div id="greeting-aa">{this.state.greetingAA}</div>
+                    <div id="greeting-msg">{this.state.greetingMessage}</div>
+                  </div>
+                  <div>
+                    <div id="non-active-nodeinfo">{this.state.nonActiveNodelist}</div>
+                    <div id="active-nodeinfo">{this.state.activeNodelist}</div>
+                  </div>
                 </div>
-                <div id="nodeInfo">
-                  <div id="non-active-nodelist">{this.state.nonActiveNodelist}</div>
-                  <div id="active-nodelist">{this.state.activeNodelist}</div>
-                </div>
-                <div id="displayArea">
+                <div id="resultArea">
                   {lines}
-                  <p id='inputArea'>&gt; <input id='inputBox' type="text" placeholder='please input command' onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
+                </div>
+                <div id='inputArea'>
+                  <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder='please input command' onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
                 </div>
               </div>
             );
