@@ -67,8 +67,8 @@
 function clearHeader(){
     this.setState({greetingAA: ''})
     this.setState({greetingMessage: ''})
-    this.setState({nonActiveNodelist: ''})
-    this.setState({activeNodelist: ''})
+    this.setState({nonActiveNodeMsg: ''})
+    this.setState({activeNodeMsg: ''})
 }
 
 function changeStyleToHash(json) {
@@ -81,7 +81,6 @@ function clearForm(){
 }
 
 function showResult(res) {
-console.log('call showResult')
     var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd'])
 
     value = this.state.result +'<br><br>'+ lastcmd + '<br>' + res;
@@ -142,18 +141,21 @@ function disabledForm() {
 function displayNodeDownMsg(cmd){
 
     if (cmd == 'shutdown_self') {
-        var downMessage = this.state.nodeList.shift() + ' was down. So Try ROMA access the next node.'
-        var activeMessage = "Active Nodes are " + this.state.nodeList
+        var nonActiveMessage = this.state.nodeList.shift() + ' was down.<br>So Try ROMA access the next node.'
+        var nlist= ''
+        for(var i in this.state.nodeList){
+            nlist += ("    - "+ this.state.nodeList[i] +"<br>");
+        }
+        var activeMessage = "Active Nodes are <br>" + nlist
     }
-console.log(cmd);
     if ((/^(balse|shutdown)$/.test(cmd)) || (this.state.nodeList.length == 0)) {
-        var downMessage = 'All nodes were down!! So please Reload.'
+        var nonActiveMessage = 'All nodes were down!!<br>Please Reload.'
         var activeMessage = ''
         disabledForm.bind(this)();
     }
 
-    this.setState({nonActiveNodelist: downMessage})
-    this.setState({activeNodelist: activeMessage})
+    this.setState({nonActiveNodeMsg: nonActiveMessage})
+    this.setState({activeNodeMsg: activeMessage})
 }
 
 function checkSecondValue(e) {
@@ -164,6 +166,7 @@ function checkSecondValue(e) {
             sendQuery.bind(this)('DELETE', { command: lastcmd, confirmation: e.target.value });
 
             if (e.target.value == 'yes') {
+                 this.setState({result: ''});
                  displayNodeDownMsg.bind(this)(lastcmd);
             }
 
@@ -190,8 +193,8 @@ var TryRoma = React.createClass(
             return {
                 greetingAA: heardoc(),
                 greetingMessage: 'Please feel free to execute ROMA command!!',
-                nonActiveNodelist: '',
-                activeNodelist: '',
+                nonActiveNodeMsg: '',
+                activeNodeMsg: '',
                 nodeList: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
                 result: ""
             };
@@ -279,7 +282,6 @@ var TryRoma = React.createClass(
 
                         // No Command =========================================================================
                         case e.target.value == '':
-                            console.log('hogehoge');
                             var lastcmd = '> ';
                             this.setState({result: this.state.result +'<br>'+lastcmd});
                             //this.setState({result: this.state.result +'<br>'+lastcmd});
@@ -297,13 +299,13 @@ var TryRoma = React.createClass(
             }
         },
         render: function() {
-            var lines = this.state.result.split('<br>').map(function(line) {
+            function lines(line){
                 if (line) {
                     return (<p className='no-margin'>{line}</p>);
                 } else {
                     return (<p className='no-margin'>&nbsp;</p>);
                 }
-            });
+            }
             return (
               <div id="console-screen">
                 <div id="header-area">
@@ -312,12 +314,12 @@ var TryRoma = React.createClass(
                     <div id="greeting-msg">{this.state.greetingMessage}</div>
                   </div>
                   <div>
-                    <div id="non-active-nodeinfo">{this.state.nonActiveNodelist}</div>
-                    <div id="active-nodeinfo">{this.state.activeNodelist}</div>
+                    <div id="non-active-nodeinfo">{this.state.nonActiveNodeMsg.split('<br>').map(lines)}</div>
+                    <div id="active-nodeinfo">{this.state.activeNodeMsg.split('<br>').map(lines)}</div>
                   </div>
                 </div>
                 <div id="resultArea">
-                  {lines}
+                  {this.state.result.split('<br>').map(lines)}
                 </div>
                 <div id='inputArea'>
                   <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder='please input command' onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>

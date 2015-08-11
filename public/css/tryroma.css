@@ -33,6 +33,7 @@
 
 #active-nodeinfo {
   color: lime;
+  font-size: 20px;
 }
 
 /*
@@ -41,7 +42,7 @@
  =========================================
 */
 #resultArea {
-  bottom: 20px;
+  bottom: 40px;
   position: absolute;
   color: #A0C5E8;
   font-size: 20px;
