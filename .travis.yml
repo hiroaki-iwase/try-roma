@@ -1,7 +1,6 @@
 language: ruby
 rvm:
   - 2.1.2
-  #- 2.2.1
 before_install:
   #- echo ===================before_install_area============================
   # 注意する点として、Travisがテストをする環境はUbuntu 12.04 LTS Server Edition 64 bit
