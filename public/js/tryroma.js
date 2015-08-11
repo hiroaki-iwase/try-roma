@@ -63,6 +63,14 @@
 
 // React
 
+
+function clearHeader(){
+    this.setState({greetingAA: ''})
+    this.setState({greetingMessage: ''})
+    this.setState({nonActiveNodelist: ''})
+    this.setState({activeNodelist: ''})
+}
+
 function changeStyleToHash(json) {
     hash_str = json.replace(/", "/g,'"=>"').replace(/\]\[/g,', ').replace(/\[/,'{').replace(/\]/,'}');
     return hash_str;
@@ -123,24 +131,60 @@ function heardoc() {
     return heredoc;
 }
 
+
+function disabledForm() {
+    React.findDOMNode(this.refs.command).disabled = 'true';
+    React.findDOMNode(this.refs.command).placeholder = 'Please Reload';
+}
+
+
+function displayNodeDownMsg(cmd){
+
+    if (cmd == 'shutdown_self') {
+        var downMessage = this.state.nodeInfo.shift() + ' was down. So Try ROMA access the next node.'
+        var activeMessage = "Active Nodes are " + this.state.nodeInfo
+    }
+console.log(cmd);
+    if ((/^(balse|shutdown)$/.test(cmd)) || (this.state.nodeInfo.length == 0)) {
+        var downMessage = 'All nodes were down!! So please Reload.'
+        var activeMessage = ''
+        disabledForm.bind(this)();
+    }
+
+    this.setState({nonActiveNodelist: downMessage})
+    this.setState({activeNodelist: activeMessage})
+}
+
+
 var Test = React.createClass(
     {
         getInitialState() {
             return {
                 greetingAA: heardoc(),
                 greetingMessage: 'Please feel free to execute ROMA command!!',
+                nonActiveNodelist: '',
+                activeNodelist: '',
+                nodeInfo: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
                 result: ""
             };
         },
         sendCommand(e) {
             var ENTER = 13;
             if(e.keyCode == ENTER){
+
+                clearHeader.bind(this)();
+
                 if (window.sessionStorage.getItem(['requireNext'])) {
                     var lastcmd = window.sessionStorage.getItem(['lastcmd']);
 
                     switch (true) {
                         case /^(balse|shutdown|shutdown_self)$/.test(lastcmd):
                             sendQuery.bind(this)('DELETE', { command: lastcmd, confirmation: e.target.value });
+
+                            if (e.target.value == 'yes') {
+                                 displayNodeDownMsg.bind(this)(lastcmd);
+                            }
+
                             break;
 
                         case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
@@ -164,6 +208,7 @@ var Test = React.createClass(
                         break;
 
                     case /^(whoami|nodelist|version)$/.test(e.target.value) :
+                        console.log(this.state.nodeInfo);
                         sendQuery.bind(this)('GET', null, RegExp.$1 );
                         break;
                     case /^(get|gets)\s(.+)$/.test(e.target.value) :
@@ -257,7 +302,11 @@ var Test = React.createClass(
                   <div id="greeting-aa">{this.state.greetingAA}</div>
                   <div id="greeting-msg">{this.state.greetingMessage}</div>
                 </div>
-                <div id="bottom">
+                <div id="nodeInfo">
+                  <div id="non-active-nodelist">{this.state.nonActiveNodelist}</div>
+                  <div id="active-nodelist">{this.state.activeNodelist}</div>
+                </div>
+                <div id="displayArea">
                   {lines}
                   <p id='inputArea'>&gt; <input id='inputBox' type="text" placeholder='please input command' onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
                 </div>

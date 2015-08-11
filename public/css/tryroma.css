@@ -23,7 +23,17 @@
   font-size: 20px;
 }
 
-#bottom {
+#non-active-nodelist {
+  color: red;
+  font-size: 33px;
+}
+
+#active-nodelist {
+  color: lime;
+}
+
+
+#displayArea {
   position: absolute;
   bottom: 0;
   width: 100%;

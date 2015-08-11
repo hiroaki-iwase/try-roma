@@ -15,6 +15,7 @@ helpers do
 end
 
 before do
+  logger.info 'execute BEFORE!!!'
   # response of stat command
   session[:version]      = Roma::Version.new      unless session[:version]
   session[:config]       = Roma::Config.new       unless session[:config]
