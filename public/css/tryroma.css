@@ -1,9 +1,83 @@
+body {
+  font-family: courier;
+}
+
+/*
+ =========================================
+  Title
+ =========================================
+*/
+#title {
+  font-size: 60px;
+  color: red;
+}
+
+img#title-image {
+  width: 60px;
+  position: relative;
+  top: 19px;
+}
+
+/*
+ =========================================
+  Select Mode Button
+ =========================================
+*/
+#mode-button {
+  margin-top: 20px;
+}
+
+#mode-button button {
+  border: 0;
+  margin: 0 20px;
+  font-size: 25px;
+  color: white;
+}
+
+button#tutorial-button {
+  background-color: DeepSkyBlue;
+}
+
+button#free-button {
+  background-color: Orange;
+}
+
+/*
+ =========================================
+  Tutorial Side Bar
+ =========================================
+*/
+#side-bar {
+  position: absolute;
+  top: 180px;
+  visibility: hidden;
+  font-weight: 700;
+  color: gray;
+}
+
+
+#side-bar > ul > li {
+  list-style: none;
+  margin-left: -20px;
+}
+
+ul.tutorial-commands {
+  list-style: none;
+  margin-left: -40px;
+}
+
+
+/*
+ =========================================
+  Console Area
+ =========================================
+*/
+
 #console-screen {
   background-color: #031340;
   border: gray solid 5px;;
-  font-family: courier;
   height: 600px;
-  margin: 100px;
+  margin: 30px 100px;
   overflow: auto;
   position: relative;
   white-space: pre;
@@ -11,7 +85,7 @@
 
 /*
  =========================================
-  Header Area
+  Header Area(console)
  =========================================
 */
 #greeting {
@@ -38,7 +112,7 @@
 
 /*
  =========================================
-  Result Area
+  Result Area(console)
  =========================================
 */
 #resultArea {
@@ -58,7 +132,7 @@ p.no-margin {
 
 /*
  =========================================
-  Input Area
+  Input Area(console)
  =========================================
 */
 #inputArea {

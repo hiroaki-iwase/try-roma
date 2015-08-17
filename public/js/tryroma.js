@@ -1,69 +1,9 @@
-//// cssConsole
-//$('#input').cssConsole({
-//	inputName:'console',
-//	charLimit: 60,
-//	onEnter: function(){
-//		addLine("> "+$('#input').find('input').val());
-//		execCommand($('#input').find('input').val());
-//		$('#input').cssConsole('reset');	
-//	}
-//});
-//
-//var lineLimit = 28; //enable scroll
-//var focus;
-//
-//focus = window.setInterval(function() {
-//	if(!$('#input').find('input').is(":focus")){
-//		$('#input').find('input').focus();
-//	}
-//}, 10);
-//
-//
-//// toDO
-//function addLine(input, style, color) {
-//		if($('.console div').length==lineLimit) {
-//			$('.console div').eq(0).remove();
-//		}
-//		style = typeof style !== 'undefined' ? style : 'line';
-//		color = typeof color !== 'undefined' ? color : 'white';
-//		$('.console').append('<div class="'+style+' '+color+'">'+input+'</div>');
-//}
-//
-//
-////todo 
-//function execCommand(command){
-//      return commands[command](); 
-//}
-//
-//
-//// todo
-//var commands = {
-//	help: function (){
-//		addLine("Available command list:");
-//		addLine("dir", 'margin');
-//		addLine("help", 'margin');
-//		addLine("ps", 'margin');
-//	},
-//	dir: function(){
-//		addLine(".");
-//		addLine("..");
-//		addLine("Applications", 'margin', 'blue');
-//		addLine("Documents", 'margin', 'blue');
-//		addLine("Downloads", 'margin', 'blue');
-//		addLine("Movies", 'margin', 'blue');
-//	},
-//	ps: function() {
-//		addLine("Running processes:");
-//		addLine("name: browser pid:8876", 'margin');
-//		addLine("name: movie player pid:3213", 'margin');
-//		addLine("name: system pid:0012", 'margin');
-//	}
-//}
-
-
-// React
-
-
+/*
+ *  =========================================
+ *    JavaScript
+ *  =========================================
+ *     
+*/
 function clearHeader(){
     this.setState({greetingAA: ''})
     this.setState({greetingMessage: ''})
@@ -84,8 +24,6 @@ function showResult(res) {
     var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd'])
 
     value = this.state.result +'<br><br>'+ lastcmd + '<br>' + res;
-
-    //console.log((value.match(/<br>/g)||[]).length);
 
     this.setState({result: value})
 }
@@ -284,9 +222,46 @@ function analyzeCommand(e) {
                     break;
             }
         }
+ 
+        if (window.sessionStorage.getItem(['tutorialFlag'])) {
+           showTutorialMessage.bind(this)(e.target.value);
+            
+        } 
+    }
+}
+
+
+
+function showTutorialMessage(cmd) {
+    if (cmd == window.sessionStorage.getItem(['nextCommand'])) {
+
+    } else {
+
     }
 
+    
+
+    window.sessionStorage.setItem(['nextCommand'],'stats');
+    window.sessionStorage.setItem(['tutorialFlag'],true);
+
 }
+
+function startTutorial() {
+    console.log('enter startTutorial');
+    $('#console-screen').animate({'margin-left':'220px', 'margin-right':'20px'}, 500);
+    $('#side-bar').css({'visibility':'visible'});
+    window.sessionStorage.setItem(['tutorialFlag'],true);
+    window.sessionStorage.setItem(['nextCommand'],'stats');
+    $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
+}
+
+
+/*
+ *  =========================================
+ *    React Component
+ *  =========================================
+ *     
+*/
 
 var Console = React.createClass(
     {
@@ -336,23 +311,95 @@ var Console = React.createClass(
     }
 );
 
+var Title = React.createClass(
+    {
+        render: function() {
+            return (
+                <div id='title'>
+                  <center>
+                    Try R<img src="../img/ROMA.png" id='title-image'/>MA
+                  </center>
+                </div>
+            );
+        }
+    }
+);
 
 var SelectMode = React.createClass(
     {
-        getInitialState() {
-            return {
-                hogehoge: "",
-            };
-        },
-        sendCommand(e) {
-
+        selectMode(e) {
+          if (e.target.name == 'tutorial') {
+            $("#tutorial-button").prop("disabled", true);
+            $("#free-button").hide('slow', function(){$("#free-button").remove();});
+            startTutorial.bind(this)();
+          } else if (e.target.name == 'free') {
+            $("#free-button").prop("disabled", true);
+            $("#tutorial-button").hide('slow', function(){$("#tutorial-button").remove();});
+          }
         },
         render: function() {
             return (
+                <div id='mode-button'>
+                  <center>
+                    <button id='tutorial-button' type="button" name="tutorial" onClick={this.selectMode}>
+                      Tutorial mode
+                    </button>
+                    <button id='free-button' type="button" name="free" onClick={this.selectMode}>
+                      Free mode
+                    </button>
+                  </center>
+                </div>
+            );
+        }
+    }
+);
+
+
+var TutorialSideBar = React.createClass(
+    {
+        render: function() {
+            return (
+                <span id='side-bar'>
+                  <ul>
+                    <li>Check Status</li>
+                    <ul className='tutorial-commands'>
+                      <li>stat</li>
+                      <li>nodelist</li>
+                    </ul>
+                    <li>Manage Data</li>
+                    <ul className='tutorial-commands'>
+                      <li>set</li>
+                      <li>get</li>
+                      <li>delete</li>
+                      <li>add</li>
+                      <li>set_expt</li>
+                    </ul>
+                    <li>Instance shutdown</li>
+                    <ul className='tutorial-commands'>
+                      <li>release</li>
+                      <li>shutdown_self</li>
+                    </ul>
+                    <li>Recover redundancy</li>
+                    <ul className='tutorial-commands'>
+                      <li>recover</li>
+                      <li>set_auto_recover</li>
+                    </ul>
+                  </ul>
+                </span>
+            );
+        }
+    }
+);
+
+var FooterInfo = React.createClass(
+    {
+        render: function() {
+            return (
                 <div>
-                  <button type="button" name="aaa" value="aaa">
-                    <font size="2">ここを</font><font size="5" color="#333399">押してね</font>
-                  </button>
+                  <center>
+                    <p className='no-margin'>This site was inspired by Try Redis.</p>
+                    <p className='no-margin'>The source code to Try ROMA is available on <a href='https://github.com/hiroaki-iwase/try-roma'>GitHub</a>.</p>
+                  </center>
                 </div>
             );
         }
@@ -361,21 +408,19 @@ var SelectMode = React.createClass(
 
 var TryRoma = React.createClass(
     {
-        getInitialState() {
-            return null
-        },
         render: function() {
             return (
                 <div>
+                  <Title />
                   <SelectMode />
+                  <TutorialSideBar />
                   <Console />
+                  <FooterInfo />
                 </div>
             );
         }
     }
 );
 
-
-//React.render(<Console />, document.getElementById("reactArea"));
 React.render(<TryRoma />, document.getElementById("reactArea"));
 
