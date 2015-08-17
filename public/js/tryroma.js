@@ -7,6 +7,7 @@
 function clearHeader(){
     this.setState({greetingAA: ''})
     this.setState({greetingMessage: ''})
+    this.setState({tutorialExplain: ''})
     this.setState({nonActiveNodeMsg: ''})
     this.setState({activeNodeMsg: ''})
 }
@@ -125,134 +126,257 @@ function checkSecondValue(e) {
 
 }
 
+function getExplain(cmd) {
+    var explain = '';
+    switch (true) {
+        case /^stats$/.test(cmd) :
+            explain = "Firstly Let's check ROMA's cluster status.<br>[stats] command will display all of cluster status.<br>So please input below command and push Enter key.<br><br>> stats"
+            break;
+        case /^stats node$/.test(cmd) :
+            explain = "[stats] command display the all of parameters, so it is hard to check specific one.<br>But you can use regular expression as a argument.<br>So please input below command and push Enter key.<br><br>> stats node"
+            break;
+        case /^nodelist$/.test(cmd) :
+            explain = "Next let's check current nodelist without using stats command.<br>ROMA has the command which check the just alive nodelist. <br>So please input below command and push Enter key.<br><br>> nodelist"
+            break;
+
+        case /^set foo 0 0 3$/.test(cmd) :
+            explain = 'todo';
+            //explain = "Next is a data store command.<br>[set] command store the data.<br>Usage:<br>set <key> <flags> <exptime> <bytes><br><value><br><br>So please input below command and push Enter key.<br><br>> set foo 0 0 3"
+            break;
+        case /^get foo$/.test(cmd) :
+            explain = "Next is a data getting command.<br>[get] command search and display the data.<br>Usage:<br>get <key><br>So please input below command and push Enter key.<br><br>> get foo"
+            break;
+        case /^delete foo$/.test(cmd) :
+            explain = "Next is a data deletion command.<br>[delete] command remove the data.<br>Usage:<br>delete <key><br>So please input below command and push Enter key.<br><br>> delete foo"
+            break;
+        case /^add baz 0 0 4$/.test(cmd) :
+            //todo
+            explain = 'hogehoge';
+            //explain = "Let's confirm whether data(of key name is foo) was removed correctly or Not.<br>So please input below command and push Enter key.<br><br>> get foo"
+            break;
+        case /^get baz$/.test(cmd) :
+            explain = "Let's confirm the stored data(of key name is baz).<br>So please input below command and push Enter key.<br><br>> get baz"
+            break;
+        case /^set_expt baz 1$/.test(cmd) :
+            explain = "ROMA can set expired time.<br>When passed over expired time, data will be remove automatically.<br>Usage:<br>set_expt <key> <exptime><br>Setting rule is same of memcached.<br>If the value is 0 then the data will not be expired.<br>So please input below command and push Enter key.<br><br>> set_expt baz 1"
+            break;
+
+        case /^release$/.test(cmd) :
+            explain = "<br>So please input below command and push Enter key.<br><br>> release"
+            break;
+    }
+    return explain;
+}
+
+function showTutorialMessage(cmd) {
+    if (cmd == window.sessionStorage.getItem(['nextCommand'])) {
+        /* corrent command was pushed */
+        clearHeader.bind(this)();
+
+        //sendQuery.bind(this)('GET', null, cmd, 'json'); /* todo*/
+        sendRomaCommand.bind(this)(cmd, true)
+
+        React.findDOMNode(this.refs.command).placeholder = 'Good!! Please push Enter key to go next commands.';
+
+    } else if (cmd == '') {
+        /* push enter key with brank */
+        clearHeader.bind(this)();
+        //React.findDOMNode(this.refs.result).value = '';
+        this.setState({result: ''});
+
+        var nextCommand = $tutorialCommands.shift();
+
+        window.sessionStorage.setItem(['nextCommand'], nextCommand);
+        this.setState({tutorialExplain: getExplain(nextCommand)});
+        React.findDOMNode(this.refs.command).placeholder = nextCommand;
+    } else {
+       /* mistake command */
+        var res = '> ' + cmd + '<br>Please input [' + window.sessionStorage.getItem(['nextCommand']) + '] command';
+        this.setState({result: res});
+    } 
+
+    if (nextCommand == 'set foo 0 0 3') {
+        $('#side-bar > ul > li:nth-of-type(1)').css({'color':'gray'});
+        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'red'});
+    } else if (nextCommand == 'release') {
+        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'gray'});
+        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'red'});
+    } else if (nextCommand == 'recover') {
+        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'gray'});
+        $('#side-bar > ul > li:nth-of-type(4)').css({'color':'red'});
+    }
+}
+
+function startTutorial() {
+    $('#console-screen').animate({'margin-left':'220px', 'margin-right':'20px'}, 500);
+    $('#side-bar').css({'visibility':'visible'});
+    window.sessionStorage.setItem(['tutorialFlag'],true);
+    $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
+    $tutorialCommands = [
+        'stats', 
+        'stats node', 
+        'nodelist', 
+        'set foo 0 0 3',
+        'bar', 
+        'get foo',
+        'delete foo',
+        'add baz 0 0 3',
+        'baz',
+        'get baz',
+        'set_expt baz 1',
+        'get baz',
+        'release',
+        'stat primary|secondary',
+        'shutdown_self',
+        'shutdown_self',
+        'recover',
+        'stat short',
+        'set_auto_recover'
+    ]
+
+/*
+    React.findDOMNode(this.refs.command).placeholder = nextCommand;
+    
+    this.setState({tutorialExplain: "This mode is tutorial of ROMA basic usage.<br>This mode explain ROMA command one by one.<br>Let's start tutorial, Please push Enter Key "});
+*/
+}
+
+function checkTutorialMode() {
+    if (window.sessionStorage.getItem(['tutorialFlag'])) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function sendRomaCommand(cmd, tutorialMode) {
+    tutorialMode = tutorialMode || checkTutorialMode()
+    switch (true) {
+        // GET =========================================================================
+        case /^(stats|stat)(\s(.*))*$/.test(cmd) :
+            sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$3, 'json');
+            break;
+
+        case /^(whoami|nodelist|version)$/.test(cmd) :
+            console.log(this.state.nodeList);
+            sendQuery.bind(this)('GET', null, RegExp.$1 );
+            break;
+        case /^(get|gets)\s(.+)$/.test(cmd) :
+            sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$2 );
+            break;
+
+        // DELETE =========================================================================
+        case /^(balse|shutdown|shutdown_self|rbalse)$/.test(cmd) :
+            var cmd = RegExp.$1;
+            //sendQuery.bind(this)('DELETE', { command: RegExp.$1, confirmation: RegExp.$2 });
+            sendQuery.bind(this)('DELETE', { command: RegExp.$1, confirmation: null });
+            
+            // require next line(yes/no)!!
+            if (/^(balse|shutdown|shutdown_self)$/.test(cmd)) {
+                window.sessionStorage.setItem(['requireNext'],[true]);
+            }
+            break;
+
+        // POST =========================================================================
+        case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(cmd) :
+            window.sessionStorage.setItem(['requireNext'],[true]);
+            
+            React.findDOMNode(this.refs.command).value = '';
+            React.findDOMNode(this.refs.command).placeholder = 'please input value';
+            var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd']) 
+            value = this.state.result +'<br><br>'+ lastcmd;   
+            this.setState({result: value})
+
+            if (tutorialMode) {
+                React.findDOMNode(this.refs.command).value = '';
+                React.findDOMNode(this.refs.command).placeholder = 'bar';
+                this.setState({tutorialExplain: 'Please input value(bar).'});
+            }
+            break;
+
+        case /^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(cmd) :
+            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 });
+            break;
+
+        case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(cmd) :
+            window.sessionStorage.setItem(['requireNext'],[true]);
+            break;
+
+        case /^(incr|decr)\s([a-z0-9]+)\s([-]*[0-9]+)$/.test(cmd) :
+            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, digit: RegExp.$3 });
+            break;
+
+        case /^(delete)\s([a-z0-9]+)$/.test(cmd) :
+            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2 });
+            break;
+
+
+        // PUT =========================================================================
+        case /^(release|recover)$/.test(cmd) :
+            sendQuery.bind(this)('PUT', {command: RegExp.$1});
+            break;
+
+        case /^(set_lost_action|set_log_level)\s(.+)$/.test(cmd) :
+            sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2, lost: RegExp.$2});
+            break;
+
+        case /^(set_auto_recover)\s([a-z]+)\s*([0-9]*)$/.test(cmd) :
+            sendQuery.bind(this)('PUT', {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3});
+            break;
+
+        case /^(set_log_level)\s([a-z]+)$/.test(cmd) :
+            sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2});
+            break;
+
+        //// Same Command Again=========================================================================
+        //case '!!':
+        //    this.setState({cmd: "please input command"});
+        //        this.setState({result: ''});
+        //    break;
+
+        // No Command =========================================================================
+        case cmd == '':
+            var lastcmd = '> ';
+            this.setState({result: this.state.result +'<br>'+lastcmd});
+            //this.setState({result: this.state.result +'<br>'+lastcmd});
+            break;
+
+        // Not supported yet on virtual console =========================================================================
+        default:
+            console.log(cmd.size);
+            var res = 'Not Supported';
+            showResult.bind(this)(res);
+            clearForm.bind(this)();
+            break;
+    }
+
+}
+
+
 function analyzeCommand(e) {
     var ENTER = 13;
     if(e.keyCode == ENTER){
 
-        clearHeader.bind(this)();
-
-        if (window.sessionStorage.getItem(['requireNext'])) {
-            checkSecondValue.bind(this)(e);
-        } else {
+        if (window.sessionStorage.getItem(['tutorialFlag'])) {
+            // tutorial mode
             window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
-            switch (true) {
-                // GET =========================================================================
-                case /^(stats|stat)(\s(.*))*$/.test(e.target.value) :
-                    sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$3, 'json');
-                    break;
+            showTutorialMessage.bind(this)(e.target.value);
+        } else {
+            // free mode
+            clearHeader.bind(this)();
 
-                case /^(whoami|nodelist|version)$/.test(e.target.value) :
-                    console.log(this.state.nodeList);
-                    sendQuery.bind(this)('GET', null, RegExp.$1 );
-                    break;
-                case /^(get|gets)\s(.+)$/.test(e.target.value) :
-                    sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$2 );
-                    break;
+            if (window.sessionStorage.getItem(['requireNext'])) {
+                checkSecondValue.bind(this)(e);
+                React.findDOMNode(this.refs.command).placeholder = 'please input command';
+            } else {
+                window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
 
-                // DELETE =========================================================================
-                case /^(balse|shutdown|shutdown_self|rbalse)$/.test(e.target.value) :
-                    var cmd = RegExp.$1;
-                    //sendQuery.bind(this)('DELETE', { command: RegExp.$1, confirmation: RegExp.$2 });
-                    sendQuery.bind(this)('DELETE', { command: RegExp.$1, confirmation: null });
-                    
-                    // require next line(yes/no)!!
-                    if (/^(balse|shutdown|shutdown_self)$/.test(cmd)) {
-                        window.sessionStorage.setItem(['requireNext'],[true]);
-                    }
-                    break;
-
-                // POST =========================================================================
-                case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                    window.sessionStorage.setItem(['requireNext'],[true]);
-                    break;
-
-                case /^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                    sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 });
-                    break;
-
-                case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(e.target.value) :
-                    window.sessionStorage.setItem(['requireNext'],[true]);
-                    break;
-
-                case /^(incr|decr)\s([a-z0-9]+)\s([-]*[0-9]+)$/.test(e.target.value) :
-                    sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, digit: RegExp.$3 });
-                    break;
-
-                case /^(delete)\s([a-z0-9]+)$/.test(e.target.value) :
-                    sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2 });
-                    break;
-
-
-                // PUT =========================================================================
-                case /^(release|recover)$/.test(e.target.value) :
-                    sendQuery.bind(this)('PUT', {command: RegExp.$1});
-                    break;
-
-                case /^(set_lost_action|set_log_level)\s(.+)$/.test(e.target.value) :
-                    sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2, lost: RegExp.$2});
-                    break;
-
-                case /^(set_auto_recover)\s([a-z]+)\s*([0-9]*)$/.test(e.target.value) :
-                    sendQuery.bind(this)('PUT', {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3});
-                    break;
-
-                case /^(set_log_level)\s([a-z]+)$/.test(e.target.value) :
-                    sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2});
-                    break;
-
-                //// Same Command Again=========================================================================
-                //case '!!':
-                //    this.setState({cmd: "please input command"});
-                //        this.setState({result: ''});
-                //    break;
-
-                // No Command =========================================================================
-                case e.target.value == '':
-                    var lastcmd = '> ';
-                    this.setState({result: this.state.result +'<br>'+lastcmd});
-                    //this.setState({result: this.state.result +'<br>'+lastcmd});
-                    break;
-
-                // Not supported yet on virtual console =========================================================================
-                default:
-                    console.log(e.target.value.size);
-                    var res = 'Not Supported';
-                    showResult.bind(this)(res);
-                    clearForm.bind(this)();
-                    break;
+                sendRomaCommand.bind(this)(e.target.value);
             }
         }
- 
-        if (window.sessionStorage.getItem(['tutorialFlag'])) {
-           showTutorialMessage.bind(this)(e.target.value);
-            
-        } 
-    }
-}
-
-
-
-function showTutorialMessage(cmd) {
-    if (cmd == window.sessionStorage.getItem(['nextCommand'])) {
-
-    } else {
 
     }
 
-    
-
-    window.sessionStorage.setItem(['nextCommand'],'stats');
-    window.sessionStorage.setItem(['tutorialFlag'],true);
-
-}
-
-function startTutorial() {
-    console.log('enter startTutorial');
-    $('#console-screen').animate({'margin-left':'220px', 'margin-right':'20px'}, 500);
-    $('#side-bar').css({'visibility':'visible'});
-    window.sessionStorage.setItem(['tutorialFlag'],true);
-    window.sessionStorage.setItem(['nextCommand'],'stats');
-    $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
 }
 
 
@@ -269,6 +393,7 @@ var Console = React.createClass(
             return {
                 greetingAA: heardoc(),
                 greetingMessage: 'Please feel free to execute ROMA command!!',
+                tutorialExplain: '',
                 nonActiveNodeMsg: '',
                 activeNodeMsg: '',
                 nodeList: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
@@ -293,13 +418,14 @@ var Console = React.createClass(
                   <div id="greeting">
                     <div id="greeting-aa">{this.state.greetingAA}</div>
                     <div id="greeting-msg">{this.state.greetingMessage}</div>
+                    <div id="tutorial-explain">{this.state.tutorialExplain.split('<br>').map(lines)}</div>
                   </div>
                   <div>
                     <div id="non-active-nodeinfo">{this.state.nonActiveNodeMsg.split('<br>').map(lines)}</div>
                     <div id="active-nodeinfo">{this.state.activeNodeMsg.split('<br>').map(lines)}</div>
                   </div>
                 </div>
-                <div id="resultArea">
+                <div id="resultArea" ref="result">
                   {this.state.result.split('<br>').map(lines)}
                 </div>
                 <div id='inputArea'>
