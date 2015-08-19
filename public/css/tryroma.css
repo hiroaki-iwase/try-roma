@@ -85,6 +85,32 @@ ul.tutorial-commands {
 
 /*
  =========================================
+  Input Area(console)
+ =========================================
+*/
+#inputArea {
+  bottom: 0;
+  position: absolute;
+  background-color: black;
+  color: white;
+  font-size: 20px;
+  width: 100%;
+}
+
+#inputBox {
+  background-color: black;
+  border: none;
+  color: white;
+  font-size: 20px;
+  width: 95%;
+}
+
+input[type="text"]:focus {
+  outline: 0;
+}
+
+/*
+ =========================================
   Header Area(console)
  =========================================
 */
@@ -120,7 +146,7 @@ ul.tutorial-commands {
   Result Area(console)
  =========================================
 */
-#resultArea {
+#responseArea {
   bottom: 40px;
   position: absolute;
   color: #A0C5E8;
@@ -135,28 +161,3 @@ p.no-margin {
     margin: 0;
 }
 
-/*
- =========================================
-  Input Area(console)
- =========================================
-*/
-#inputArea {
-  bottom: 0;
-  position: absolute;
-  background-color: black;
-  color: white;
-  font-size: 20px;
-  width: 100%;
-}
-
-#inputBox {
-  background-color: black;
-  border: none;
-  color: white;
-  font-size: 20px;
-  width: 95%;
-}
-
-input[type="text"]:focus {
-  outline: 0;
-}

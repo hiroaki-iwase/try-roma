@@ -24,9 +24,11 @@ function clearForm(){
 function showResult(res) {
     var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd'])
 
-    value = this.state.result +'<br><br>'+ lastcmd + '<br>' + res;
+    //value = this.state.result +'<br><br>'+ lastcmd + '<br>' + res;
+    //value = '+ lastcmd + '<br>' + res;
 
-    this.setState({result: value})
+    //this.setState({result: value})
+    return lastcmd + '<br>' + res;
 }
 
 function refactorStatResult(res) {
@@ -168,89 +170,91 @@ function getExplain(cmd) {
     return explain;
 }
 
-function showTutorialMessage(cmd) {
-    if (cmd == window.sessionStorage.getItem(['nextCommand'])) {
-        /* corrent command was pushed */
-        clearHeader.bind(this)();
 
-        //sendQuery.bind(this)('GET', null, cmd, 'json'); /* todo*/
-        sendRomaCommand.bind(this)(cmd, true)
 
-        React.findDOMNode(this.refs.command).placeholder = 'Good!! Please push Enter key to go next commands.';
-
-    } else if (cmd == '') {
-        /* push enter key with brank */
-        clearHeader.bind(this)();
-        //React.findDOMNode(this.refs.result).value = '';
-        this.setState({result: ''});
-
-        var nextCommand = $tutorialCommands.shift();
-
-        window.sessionStorage.setItem(['nextCommand'], nextCommand);
-        this.setState({tutorialExplain: getExplain(nextCommand)});
-        React.findDOMNode(this.refs.command).placeholder = nextCommand;
-    } else {
-       /* mistake command */
-        var res = '> ' + cmd + '<br>Please input [' + window.sessionStorage.getItem(['nextCommand']) + '] command';
-        this.setState({result: res});
-    } 
-
-    if (nextCommand == 'set foo 0 0 3') {
-        $('#side-bar > ul > li:nth-of-type(1)').css({'color':'gray'});
-        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'red'});
-    } else if (nextCommand == 'release') {
-        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'gray'});
-        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'red'});
-    } else if (nextCommand == 'recover') {
-        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'gray'});
-        $('#side-bar > ul > li:nth-of-type(4)').css({'color':'red'});
-    }
-}
-
-function startTutorial() {
-    $('#console-screen').animate({'margin-left':'220px', 'margin-right':'20px'}, 500);
-    $('#side-bar').css({'visibility':'visible'});
-    window.sessionStorage.setItem(['tutorialFlag'],true);
-    $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
-    $tutorialCommands = [
-        'stats', 
-        'stats node', 
-        'nodelist', 
-        'set foo 0 0 3',
-        'bar', 
-        'get foo',
-        'delete foo',
-        'add baz 0 0 3',
-        'baz',
-        'get baz',
-        'set_expt baz 1',
-        'get baz',
-        'release',
-        'stat primary|secondary',
-        'shutdown_self',
-        'shutdown_self',
-        'recover',
-        'stat short',
-        'set_auto_recover'
-    ]
-
-/*
-    React.findDOMNode(this.refs.command).placeholder = nextCommand;
-    
-    this.setState({tutorialExplain: "This mode is tutorial of ROMA basic usage.<br>This mode explain ROMA command one by one.<br>Let's start tutorial, Please push Enter Key "});
-*/
-}
-
-function checkTutorialMode() {
-    if (window.sessionStorage.getItem(['tutorialFlag'])) {
-        return true;
-    } else {
-        return false;
-    }
-}
+//function showTutorialMessage(cmd) {
+//    if (cmd == window.sessionStorage.getItem(['nextCommand'])) {
+//        /* corrent command was pushed */
+//        clearHeader.bind(this)();
+//
+//        //sendQuery.bind(this)('GET', null, cmd, 'json'); /* todo*/
+//        sendRomaCommand.bind(this)(cmd, true)
+//
+//        React.findDOMNode(this.refs.command).placeholder = 'Good!! Please push Enter key to go next commands.';
+//
+//    } else if (cmd == '') {
+//        /* push enter key with brank */
+//        clearHeader.bind(this)();
+//        //React.findDOMNode(this.refs.result).value = '';
+//        this.setState({result: ''});
+//
+//        var nextCommand = $tutorialCommands.shift();
+//
+//        window.sessionStorage.setItem(['nextCommand'], nextCommand);
+//        this.setState({tutorialExplain: getExplain(nextCommand)});
+//        React.findDOMNode(this.refs.command).placeholder = nextCommand;
+//    } else {
+//       /* mistake command */
+//        var res = '> ' + cmd + '<br>Please input [' + window.sessionStorage.getItem(['nextCommand']) + '] command';
+//        this.setState({result: res});
+//    } 
+//
+//    if (nextCommand == 'set foo 0 0 3') {
+//        $('#side-bar > ul > li:nth-of-type(1)').css({'color':'gray'});
+//        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'red'});
+//    } else if (nextCommand == 'release') {
+//        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'gray'});
+//        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'red'});
+//    } else if (nextCommand == 'recover') {
+//        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'gray'});
+//        $('#side-bar > ul > li:nth-of-type(4)').css({'color':'red'});
+//    }
+//}
+//
+//function startTutorial() {
+//    $('#console-screen').animate({'margin-left':'220px', 'margin-right':'20px'}, 500);
+//    $('#side-bar').css({'visibility':'visible'});
+//    window.sessionStorage.setItem(['tutorialFlag'],true);
+//    $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
+//    $tutorialCommands = [
+//        'stats', 
+//        'stats node', 
+//        'nodelist', 
+//        'set foo 0 0 3',
+//        'bar', 
+//        'get foo',
+//        'delete foo',
+//        'add baz 0 0 3',
+//        'baz',
+//        'get baz',
+//        'set_expt baz 1',
+//        'get baz',
+//        'release',
+//        'stat primary|secondary',
+//        'shutdown_self',
+//        'shutdown_self',
+//        'recover',
+//        'stat short',
+//        'set_auto_recover'
+//    ]
+//
+///*
+//    React.findDOMNode(this.refs.command).placeholder = nextCommand;
+//    
+//    this.setState({tutorialExplain: "This mode is tutorial of ROMA basic usage.<br>This mode explain ROMA command one by one.<br>Let's start tutorial, Please push Enter Key "});
+//*/
+//}
+//
+//function checkTutorialMode() {
+//    if (window.sessionStorage.getItem(['tutorialFlag'])) {
+//        return true;
+//    } else {
+//        return false;
+//    }
+//}
 
 function sendRomaCommand(cmd, tutorialMode) {
-    tutorialMode = tutorialMode || checkTutorialMode()
+    //tutorialMode = tutorialMode || checkTutorialMode()
     switch (true) {
         // GET =========================================================================
         case /^(stats|stat)(\s(.*))*$/.test(cmd) :
@@ -258,7 +262,6 @@ function sendRomaCommand(cmd, tutorialMode) {
             break;
 
         case /^(whoami|nodelist|version)$/.test(cmd) :
-            console.log(this.state.nodeList);
             sendQuery.bind(this)('GET', null, RegExp.$1 );
             break;
         case /^(get|gets)\s(.+)$/.test(cmd) :
@@ -268,7 +271,6 @@ function sendRomaCommand(cmd, tutorialMode) {
         // DELETE =========================================================================
         case /^(balse|shutdown|shutdown_self|rbalse)$/.test(cmd) :
             var cmd = RegExp.$1;
-            //sendQuery.bind(this)('DELETE', { command: RegExp.$1, confirmation: RegExp.$2 });
             sendQuery.bind(this)('DELETE', { command: RegExp.$1, confirmation: null });
             
             // require next line(yes/no)!!
@@ -338,44 +340,50 @@ function sendRomaCommand(cmd, tutorialMode) {
         case cmd == '':
             var lastcmd = '> ';
             this.setState({result: this.state.result +'<br>'+lastcmd});
-            //this.setState({result: this.state.result +'<br>'+lastcmd});
             break;
 
         // Not supported yet on virtual console =========================================================================
         default:
-            console.log(cmd.size);
-            var res = 'Not Supported';
-            showResult.bind(this)(res);
+            var res = showResult.bind(this)('Not Supported');
             clearForm.bind(this)();
             break;
     }
+    return res;
 
 }
 
 
 function analyzeCommand(e) {
-    var ENTER = 13;
-    if(e.keyCode == ENTER){
+    //var ENTER = 13;
+    //if(e.keyCode == ENTER){
 
-        if (window.sessionStorage.getItem(['tutorialFlag'])) {
-            // tutorial mode
-            window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
-            showTutorialMessage.bind(this)(e.target.value);
-        } else {
+        //if (window.sessionStorage.getItem(['tutorialFlag'])) {
+        //    // tutorial mode
+        //    window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
+        //    showTutorialMessage.bind(this)(e.target.value);
+        //} else {
             // free mode
-            clearHeader.bind(this)();
 
-            if (window.sessionStorage.getItem(['requireNext'])) {
-                checkSecondValue.bind(this)(e);
-                React.findDOMNode(this.refs.command).placeholder = 'please input command';
-            } else {
+
+
+            //clearHeader.bind(this)();
+
+            //if (window.sessionStorage.getItem(['requireNext'])) {
+            //    checkSecondValue.bind(this)(e);
+            //    React.findDOMNode(this.refs.command).placeholder = 'please input command';
+            //} else {
                 window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
 
-                sendRomaCommand.bind(this)(e.target.value);
-            }
-        }
+                //sendRomaCommand.bind(this)(e.target.value);
+                var res = sendRomaCommand.bind(this)(e.target.value);
+                return res;
+            //}
 
-    }
+
+
+        //}
+
+    //}
 
 }
 
@@ -386,8 +394,68 @@ function analyzeCommand(e) {
  *  =========================================
  *     
 */
+var TestChild = React.createClass(
+    {
+        render: function() {
+            return (
+              <div>
+                <p>in the child</p>
+                  {this.props.children}
+                <p>in the child</p>
+              </div>
+            );
+        }
+    }
+);
 
+var TestParent = React.createClass(
+    {
+        render: function() {
+            return (
+              <div>
+                1st line
+                <TestChild>2nd line</TestChild>
+              </div>
+            );
+        }
+    }
+);
+
+
+//5(parent)
 var Console = React.createClass(
+    {
+        getDefaultProps() {
+            return {
+                ENTER: 13,
+            }
+        },
+        getInitialState() {
+            return {
+                res: "",
+            };
+        },
+        sendCommand(e) {
+            if(e.keyCode == this.props.ENTER){
+                this.setState({res: analyzeCommand.bind(this)(e)});
+            } 
+        },
+        render: function() {
+            return (
+              <div id="console-screen">
+                <Display response={this.state.res} />
+                <div id='inputArea'>
+                  <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder='please input command' onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
+                </div>
+              </div>
+            );
+        }
+    }
+);
+
+
+//4(child)
+var Display = React.createClass(
     {
         getInitialState() {
             return {
@@ -398,11 +466,16 @@ var Console = React.createClass(
                 activeNodeMsg: '',
                 nodeList: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
                 result: "",
+                response: '',
             };
         },
-        sendCommand(e) {
-            analyzeCommand.bind(this)(e);
-
+        //ComponentWillReceiveProps(e) {
+        //    this.setState({response: this.props.response});
+        //    console.log(this.props.response)
+        //},
+        componentWillReceiveProps(nextProps) {
+            console.log(nextProps.response);
+            this.setState({response: this.state.response + '<br><br>' + nextProps.response});
         },
         render: function() {
             function lines(line){
@@ -412,31 +485,35 @@ var Console = React.createClass(
                     return (<p className='no-margin'>&nbsp;</p>);
                 }
             }
+
             return (
-              <div id="console-screen">
-                <div id="header-area">
-                  <div id="greeting">
-                    <div id="greeting-aa">{this.state.greetingAA}</div>
-                    <div id="greeting-msg">{this.state.greetingMessage}</div>
-                    <div id="tutorial-explain">{this.state.tutorialExplain.split('<br>').map(lines)}</div>
+                <div>
+
+                  <div id="header-area">
+                    <div id="greeting">
+                      <div id="greeting-aa">{this.state.greetingAA}</div>
+                      <div id="greeting-msg">{this.state.greetingMessage}</div>
+                      <div id="tutorial-explain">{this.state.tutorialExplain.split('<br>').map(lines)}</div>
+                    </div>
+                    <div>
+                      <div id="non-active-nodeinfo">{this.state.nonActiveNodeMsg.split('<br>').map(lines)}</div>
+                      <div id="active-nodeinfo">{this.state.activeNodeMsg.split('<br>').map(lines)}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div id="non-active-nodeinfo">{this.state.nonActiveNodeMsg.split('<br>').map(lines)}</div>
-                    <div id="active-nodeinfo">{this.state.activeNodeMsg.split('<br>').map(lines)}</div>
+
+                  <div id="responseArea">
+                    {this.state.response.split('<br>').map(lines)}
                   </div>
                 </div>
-                <div id="resultArea" ref="result">
-                  {this.state.result.split('<br>').map(lines)}
-                </div>
-                <div id='inputArea'>
-                  <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder='please input command' onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
-                </div>
-              </div>
             );
         }
     }
 );
 
+
+
+
+//1
 var Title = React.createClass(
     {
         render: function() {
@@ -451,7 +528,8 @@ var Title = React.createClass(
     }
 );
 
-var SelectMode = React.createClass(
+//3
+var SelectModeButton = React.createClass(
     {
         selectMode(e) {
           if (e.target.name == 'tutorial') {
@@ -480,7 +558,7 @@ var SelectMode = React.createClass(
     }
 );
 
-
+//2
 var TutorialSideBar = React.createClass(
     {
         render: function() {
@@ -517,6 +595,7 @@ var TutorialSideBar = React.createClass(
     }
 );
 
+//6
 var FooterInfo = React.createClass(
     {
         render: function() {
@@ -538,9 +617,15 @@ var TryRoma = React.createClass(
             return (
                 <div>
                   <Title />
-                  <SelectMode />
+
+                  <TestParent />
+
+                  <SelectModeButton />
+
                   <TutorialSideBar />
+
                   <Console />
+
                   <FooterInfo />
                 </div>
             );
