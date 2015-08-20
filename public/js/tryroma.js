@@ -9,11 +9,6 @@ function clearForm(){
 
 function showResult(res) {
     var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd'])
-
-    //value = this.state.result +'<br><br>'+ lastcmd + '<br>' + res;
-    //value = '+ lastcmd + '<br>' + res;
-
-    //this.setState({result: value})
     return lastcmd + res;
 }
 
@@ -86,6 +81,8 @@ function checkSecondValue(cmd) {
 
     return res;
 }
+
+
 
 
 
@@ -171,9 +168,7 @@ function checkSecondValue(cmd) {
 //}
 //
 //function startTutorial() {
-//    $('#console-screen').animate({'margin-left':'220px', 'margin-right':'20px'}, 500);
 //    $('#side-bar').css({'visibility':'visible'});
-//    window.sessionStorage.setItem(['tutorialFlag'],true);
 //    $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
 //    $tutorialCommands = [
 //        'stats', 
@@ -200,7 +195,6 @@ function checkSecondValue(cmd) {
 ///*
 //    React.findDOMNode(this.refs.command).placeholder = nextCommand;
 //    
-//    this.setState({tutorialExplain: "This mode is tutorial of ROMA basic usage.<br>This mode explain ROMA command one by one.<br>Let's start tutorial, Please push Enter Key "});
 //*/
 //}
 //
@@ -265,8 +259,6 @@ function sendRomaCommand(cmd, tutorialMode) {
         if (/^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(cmd)) {
             window.sessionStorage.setItem(['requireNext'],[true]);
             changePlaceHolder.bind(this)('please input value');
-            //this.setState({result: value})
-            //var res = '> '+window.sessionStorage.getItem(['lastcmd']);
             var res = showResult.bind(this)('');
             //if (tutorialMode) {
             //    React.findDOMNode(this.refs.command).value = '';
@@ -278,7 +270,6 @@ function sendRomaCommand(cmd, tutorialMode) {
             window.sessionStorage.setItem(['requireNext'],[true]);
             changePlaceHolder.bind(this)('please input value');
             var res = showResult.bind(this)('');
-            //var res = '> '+window.sessionStorage.getItem(['lastcmd']);
 
         } else if (/^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(cmd)) {
             var action = 'POST';
@@ -367,6 +358,7 @@ var Console = React.createClass(
         getDefaultProps() {
             return {
                 ENTER: 13,
+                mode: "free",
             };
         },
         getInitialState() {
@@ -375,13 +367,35 @@ var Console = React.createClass(
                 downNodeMsg: "",
                 aliveNodeMsg: "",
                 nodeList: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
-                mode: "free",
+                placeholder: 'Please input command',
+                explain: '',
             };
+        },
+        componentWillReceiveProps(nextProps) {
         },
         sendCommand(e) {
             if(e.keyCode == this.props.ENTER){
-                var response = sendPureCommand.bind(this)(e.target.value);
-                this.setState({res: response});
+                if (this.props.mode == 'free') {
+                    var response = sendPureCommand.bind(this)(e.target.value);
+                    this.setState({res: response});
+
+                } else if (this.props.mode == 'tutorial') {
+                    if (e.target.value == '') {
+                        // go next command
+                        this.setState({explain: getExplanation()});
+                        changePlaceHolder.(getNextCommand);
+
+                    } else {
+                        var response = sendTutorialCommand.bind(this)(e.target.value);
+                        if (response) {
+                            response += "<br><br>Good!! Let's go Next Command, please push Enter."
+                            this.setState({res: response});
+                         } else {
+                             var retryRes = showResult.bind(this)('<br>please input ****** command<br>');
+                             this.setState({res: retryRes});
+                         }
+                    }
+                } 
             } 
         },
         render: function() {
@@ -389,21 +403,26 @@ var Console = React.createClass(
                 nonActive: this.state.downNodeMsg,
                 active: this.state.aliveNodeMsg,
             };
-            var whichMode;
-            if (this.state.mode == 'free') {
-                whichMode = <Header />;
-            } else {
-                whichMode = <br />;
+            var whichModeHeader;
+            if (this.props.mode == 'free') {
+                whichModeHeader = <FreeHeader nodeMsg={nodeMsg} />;
+            } else if (this.props.mode == 'tutorial') {
+                whichModeHeader = <TutorialHeader explain={this.state.explain}/>;
+            }
+            var whichModeDisplay;
+            if (this.props.mode == 'free') {
+                whichModeDisplay = <FreeDisplay response={this.state.res} />;
+            } else if (this.props.mode == 'tutorial') {
+                whichModeDisplay = <TutorialDisplay response={this.state.res} />;
             }
             return (
               <div id="console-screen">
 
-                <Header  nodeMsg={nodeMsg} />
-                {/*whichModeHeader*/}
-                <Display response={this.state.res} />
+                {whichModeHeader}
+                {whichModeDisplay}
 
                 <div id='inputArea'>
-                  <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder='please input command' onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
+                  <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder={this.state.placeholder} onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
                 </div>
               </div>
             );
@@ -440,7 +459,7 @@ function heardoc() {
 }
 
 //8(child)
-var Header = React.createClass(
+var FreeHeader = React.createClass(
     {
         getDefaultProps() {
             return {
@@ -483,16 +502,12 @@ var Header = React.createClass(
                     color: 'lime',
                     fontSize: '20px',
                 },
-                tutorial: {
-                    fontSize: '25px',
-                },
             };
             return (
                 <div>
                   <div style={style.greeting}>
                     <div style={style.greetingAA}>{this.state.greetingAA}</div>
                     <div style={style.greetingMsg}>{this.state.greetingMessage}</div>
-                    {/*<div style={style.tutorial}>{this.state.tutorialExplain.split('<br>').map(lines)}</div>*/}
                   </div>
                   <div>
                     <div style={style.nonActive}>{this.state.redMsg.split('<br>').map(lines)}</div>
@@ -504,10 +519,40 @@ var Header = React.createClass(
     }
 );
 
+var TutorialHeader = React.createClass(
+    {
+        //getDefaultProps() {
+        //    return {
+        //        explain: "This mode is tutorial of ROMA basic usage.<br>This mode explain ROMA command one by one.<br><br>Let's start tutorial!!<br>Please push Enter Key ",
+        //    };
+        //},
+        getInitialState() {
+            return {
+                explain: "This mode is tutorial of ROMA basic usage.<br>This mode explain ROMA command one by one.<br><br>Let's start tutorial!!<br>Please push Enter Key ",
+            };
+        },
+        componentWillReceiveProps(nextProps) {
+            this.setState({explain: nextProps.explain});
+        },
+        render: function() {
+            var style = {
+                tutorial: {
+                    fontSize: '30px',
+                    color: '#00cede',
+                },
+            };
+            return (
+                <div>
+                  <div style={style.tutorial}>{this.state.explain.split('<br>').map(lines)}</div>
+                </div>
+            );
+        }
+    }
+);
 
 
 //4(child)
-var Display = React.createClass(
+var FreeDisplay = React.createClass(
     {
         getInitialState() {
             return {
@@ -532,6 +577,30 @@ var Display = React.createClass(
     }
 );
 
+var TutorialDisplay = React.createClass(
+    {
+        getInitialState() {
+            return {
+                result: "",
+                response: '',
+            };
+        },
+        componentWillReceiveProps(nextProps) {
+            if (nextProps.response.lastIndexOf('BYE') == -1) {
+                this.setState({response: this.state.response + '<br>' + nextProps.response});
+            } else {
+                this.setState({response: nextProps.response});
+            }
+        },
+        render: function() {
+            return (
+                <div id="responseArea">
+                  {this.state.response.split('<br>').map(lines)}
+                </div>
+            );
+        }
+    }
+);
 
 var Title = React.createClass(
     {
@@ -549,27 +618,61 @@ var Title = React.createClass(
 
 var SelectModeButton = React.createClass(
     {
+        getInitialState() {
+            return{
+                mode: 'free',
+            };
+        },
         selectMode(e) {
-          if (e.target.name == 'tutorial') {
-            $("#tutorial-button").prop("disabled", true);
-            $("#free-button").hide('slow', function(){$("#free-button").remove();});
-            startTutorial.bind(this)();
-          } else if (e.target.name == 'free') {
-            $("#free-button").prop("disabled", true);
-            $("#tutorial-button").hide('slow', function(){$("#tutorial-button").remove();});
-          }
+            if (e.target.name == 'tutorial') {
+console.log('selected tutorial mode!!')
+                $("#tutorial-button").prop("disabled", true);
+                $("#free-button").hide('slow', function(){$("#free-button").remove();});
+                $('#console-screen').animate({'margin-left':'220px', 'margin-right':'20px'}, 500);
+                //startTutorial.bind(this)();
+                this.setState({mode: 'tutorial'});
+
+            } else if (e.target.name == 'free') {
+                // todo css animation
+                $("#free-button").prop("disabled", true);
+                $("#tutorial-button").hide('slow', function(){$("#tutorial-button").remove();});
+                this.setState({mode: 'free'});
+            }
         },
         render: function() {
             return (
-                <div id='mode-button'>
-                  <center>
-                    <button id='tutorial-button' type="button" name="tutorial" onClick={this.selectMode}>
-                      Tutorial mode
-                    </button>
-                    <button id='free-button' type="button" name="free" onClick={this.selectMode}>
-                      Free mode
-                    </button>
-                  </center>
+                <div>
+                  <div id='mode-button'>
+                    <center>
+                      <button id='tutorial-button' type="button" name="tutorial" onClick={this.selectMode}>
+                        Tutorial mode
+                      </button>
+                      <button id='free-button' type="button" name="free" onClick={this.selectMode}>
+                        Free mode
+                      </button>
+                    </center>
+                  </div>
+
+                  <Main mode={this.state.mode} />
+
+                </div>
+            );
+        }
+    }
+);
+
+var Main = React.createClass(
+    {
+        getDefaultProps() {
+            return {
+                mode: 'free',
+            };
+        },
+        render: function() {
+            return (
+                <div>
+                  {/*<SideBar mode={this.state.mode} />*/}
+                  <Console mode={this.props.mode} />
                 </div>
             );
         }
@@ -636,8 +739,7 @@ var TryRoma = React.createClass(
                 <div>
                   <Title />
                   <SelectModeButton />
-                  <TutorialSideBar />
-                  <Console />
+                  {/*<TutorialSideBar />*/}
                   <FooterInfo />
                 </div>
             );
