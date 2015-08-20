@@ -34,7 +34,7 @@ function showResult(res) {
 function refactorStatResult(res) {
     res_lines = '';
     for(var i in res){
-        res_lines += (i +" "+ res[i]+"<br>");
+        res_lines += ("<br>"+i +" "+ res[i]);
     }
     return res_lines;
 }
@@ -85,7 +85,12 @@ function checkSecondValue(cmd) {
 
     switch (true) {
         case /^(balse|shutdown|shutdown_self)$/.test(firstCmd):
-            var res = sendAjax.bind(this)('DELETE', { command: firstCmd, confirmation: secondCmd });
+            if (secondCmd) {
+                var res = sendAjax.bind(this)('DELETE', { command: firstCmd, confirmation: secondCmd });
+            } else {
+                var res = sendAjax.bind(this)('DELETE', { command: firstCmd, confirmation: 'nothing' });
+            }
+
             if (secondCmd == 'yes') {
                  makeNodeDownMsg.bind(this)(firstCmd);
             }
@@ -363,7 +368,8 @@ function sendPureCommand(cmd) {
 
 
 
-            //clearHeader.bind(this)();
+            this.setState({downNodeMsg: ''})
+            this.setState({aliveNodeMsg: ''})
 
             if (window.sessionStorage.getItem(['requireNext'])) {
                 var res = checkSecondValue.bind(this)(cmd);
@@ -429,36 +435,6 @@ var Console = React.createClass(
     }
 );
 
-
-//4(child)
-var Display = React.createClass(
-    {
-        getInitialState() {
-            return {
-                result: "",
-                response: '',
-            };
-        },
-        componentWillReceiveProps(nextProps) {
-            this.setState({response: this.state.response + '<br>' + nextProps.response});
-        },
-        render: function() {
-            function lines(line){
-                if (line) {
-                    return (<p className='no-margin'>{line}</p>);
-                } else {
-                    return (<p className='no-margin'>&nbsp;</p>);
-                }
-            }
-            return (
-                <div id="responseArea">
-                  {this.state.response.split('<br>').map(lines)}
-                </div>
-            );
-        }
-    }
-);
-
 //8(child)
 var Header = React.createClass(
     {
@@ -473,7 +449,7 @@ var Header = React.createClass(
                 greetingAA: this.props.greetingAA,
                 greetingMessage: this.props.greetingMessage,
 
-                tutorialExplain: '',
+                //tutorialExplain: '',
 
                 redMsg: '',
                 greenMsg: '',
@@ -507,19 +483,12 @@ var Header = React.createClass(
                     fontSize: '25px',
                 },
             };
-            function lines(line){
-                if (line) {
-                    return (<p className='no-margin'>{line}</p>);
-                } else {
-                    return (<p className='no-margin'>&nbsp;</p>);
-                }
-            }
             return (
                 <div>
                   <div style={style.greeting}>
                     <div style={style.greetingAA}>{this.state.greetingAA}</div>
                     <div style={style.greetingMsg}>{this.state.greetingMessage}</div>
-                    <div style={style.tutorial}>{this.state.tutorialExplain.split('<br>').map(lines)}</div>
+                    {/*<div style={style.tutorial}>{this.state.tutorialExplain.split('<br>').map(lines)}</div>*/}
                   </div>
                   <div>
                     <div style={style.nonActive}>{this.state.redMsg.split('<br>').map(lines)}</div>
@@ -530,6 +499,42 @@ var Header = React.createClass(
         }
     }
 );
+
+
+function lines(line){
+    if (line) {
+        return (<p className='no-margin'>{line}</p>);
+    } else {
+        return (<p className='no-margin'>&nbsp;</p>);
+    }
+}
+
+//4(child)
+var Display = React.createClass(
+    {
+        getInitialState() {
+            return {
+                result: "",
+                response: '',
+            };
+        },
+        componentWillReceiveProps(nextProps) {
+            if (nextProps.response.lastIndexOf('BYE') == -1) {
+                this.setState({response: this.state.response + '<br>' + nextProps.response});
+            } else {
+                this.setState({response: nextProps.response});
+            }
+        },
+        render: function() {
+            return (
+                <div id="responseArea">
+                  {this.state.response.split('<br>').map(lines)}
+                </div>
+            );
+        }
+    }
+);
+
 
 
 //1
@@ -636,7 +641,6 @@ var TryRoma = React.createClass(
             return (
                 <div>
                   <Title />
-
 
                   <SelectModeButton />
 

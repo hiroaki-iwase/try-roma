@@ -109,7 +109,7 @@ delete '/' do
           @res = make_response_of_nodelist('BYE').to_s + '<br>Connection closed by foreign host.'
           kill_instance(:all)
         end
-      elsif confirm.empty?
+      elsif confirm.empty? && confirm != 'nothing'
         @res = res
         #@res = res.concat("<br>(TryRomaAPI : if you wanna execute, please send request with 'yes' or 'no' in the :confimation parameters.)") unless cmd == 'rbalse'
       else
