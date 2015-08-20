@@ -1,17 +1,3 @@
-/*
- *  =========================================
- *    JavaScript
- *  =========================================
- *     
-*/
-function clearHeader(){
-    this.setState({greetingAA: ''})
-    this.setState({greetingMessage: ''})
-    this.setState({tutorialExplain: ''})
-    this.setState({redMsg: ''})
-    this.setState({greenMsg: ''})
-}
-
 function changeStyleToHash(json) {
     hash_str = json.replace(/", "/g,'"=>"').replace(/\]\[/g,', ').replace(/\[/,'{').replace(/\]/,'}');
     return hash_str;
@@ -37,17 +23,6 @@ function refactorStatResult(res) {
         res_lines += ("<br>"+i +" "+ res[i]);
     }
     return res_lines;
-}
-
-function heardoc() {
-    var heredoc = (function () {/*
- _ _ _       _  _                          _    _           _____  _____  __ __    _____  _____  _____  _____ 
-| | | | ___ | || | ___  ___  _____  ___   | |_ | |_  ___   |_   _|| __  ||  |  |  | __  ||     ||     ||  _  |
-| | | || -_|| || ||  _|| . ||     || -_|  |  _||   || -_|    | |  |    -||_   _|  |    -||  |  || | | ||     |
-|_____||___||_||_||___||___||_|_|_||___|  |_|  |_|_||___|    |_|  |__|__|  |_|    |__|__||_____||_|_|_||__|__|
-    */}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
-
-    return heredoc;
 }
 
 
@@ -112,49 +87,49 @@ function checkSecondValue(cmd) {
     return res;
 }
 
-function getExplain(cmd) {
-    var explain = '';
-    switch (true) {
-        case /^stats$/.test(cmd) :
-            explain = "Firstly Let's check ROMA's cluster status.<br>[stats] command will display all of cluster status.<br>So please input below command and push Enter key.<br><br>> stats"
-            break;
-        case /^stats node$/.test(cmd) :
-            explain = "[stats] command display the all of parameters, so it is hard to check specific one.<br>But you can use regular expression as a argument.<br>So please input below command and push Enter key.<br><br>> stats node"
-            break;
-        case /^nodelist$/.test(cmd) :
-            explain = "Next let's check current nodelist without using stats command.<br>ROMA has the command which check the just alive nodelist. <br>So please input below command and push Enter key.<br><br>> nodelist"
-            break;
-
-        case /^set foo 0 0 3$/.test(cmd) :
-            explain = 'todo';
-            //explain = "Next is a data store command.<br>[set] command store the data.<br>Usage:<br>set <key> <flags> <exptime> <bytes><br><value><br><br>So please input below command and push Enter key.<br><br>> set foo 0 0 3"
-            break;
-        case /^get foo$/.test(cmd) :
-            explain = "Next is a data getting command.<br>[get] command search and display the data.<br>Usage:<br>get <key><br>So please input below command and push Enter key.<br><br>> get foo"
-            break;
-        case /^delete foo$/.test(cmd) :
-            explain = "Next is a data deletion command.<br>[delete] command remove the data.<br>Usage:<br>delete <key><br>So please input below command and push Enter key.<br><br>> delete foo"
-            break;
-        case /^add baz 0 0 4$/.test(cmd) :
-            //todo
-            explain = 'hogehoge';
-            //explain = "Let's confirm whether data(of key name is foo) was removed correctly or Not.<br>So please input below command and push Enter key.<br><br>> get foo"
-            break;
-        case /^get baz$/.test(cmd) :
-            explain = "Let's confirm the stored data(of key name is baz).<br>So please input below command and push Enter key.<br><br>> get baz"
-            break;
-        case /^set_expt baz 1$/.test(cmd) :
-            explain = "ROMA can set expired time.<br>When passed over expired time, data will be remove automatically.<br>Usage:<br>set_expt <key> <exptime><br>Setting rule is same of memcached.<br>If the value is 0 then the data will not be expired.<br>So please input below command and push Enter key.<br><br>> set_expt baz 1"
-            break;
-
-        case /^release$/.test(cmd) :
-            explain = "<br>So please input below command and push Enter key.<br><br>> release"
-            break;
-    }
-    return explain;
-}
 
 
+//function getExplain(cmd) {
+//    var explain = '';
+//    switch (true) {
+//        case /^stats$/.test(cmd) :
+//            explain = "Firstly Let's check ROMA's cluster status.<br>[stats] command will display all of cluster status.<br>So please input below command and push Enter key.<br><br>> stats"
+//            break;
+//        case /^stats node$/.test(cmd) :
+//            explain = "[stats] command display the all of parameters, so it is hard to check specific one.<br>But you can use regular expression as a argument.<br>So please input below command and push Enter key.<br><br>> stats node"
+//            break;
+//        case /^nodelist$/.test(cmd) :
+//            explain = "Next let's check current nodelist without using stats command.<br>ROMA has the command which check the just alive nodelist. <br>So please input below command and push Enter key.<br><br>> nodelist"
+//            break;
+//
+//        case /^set foo 0 0 3$/.test(cmd) :
+//            explain = 'todo';
+//            //explain = "Next is a data store command.<br>[set] command store the data.<br>Usage:<br>set <key> <flags> <exptime> <bytes><br><value><br><br>So please input below command and push Enter key.<br><br>> set foo 0 0 3"
+//            break;
+//        case /^get foo$/.test(cmd) :
+//            explain = "Next is a data getting command.<br>[get] command search and display the data.<br>Usage:<br>get <key><br>So please input below command and push Enter key.<br><br>> get foo"
+//            break;
+//        case /^delete foo$/.test(cmd) :
+//            explain = "Next is a data deletion command.<br>[delete] command remove the data.<br>Usage:<br>delete <key><br>So please input below command and push Enter key.<br><br>> delete foo"
+//            break;
+//        case /^add baz 0 0 4$/.test(cmd) :
+//            //todo
+//            explain = 'hogehoge';
+//            //explain = "Let's confirm whether data(of key name is foo) was removed correctly or Not.<br>So please input below command and push Enter key.<br><br>> get foo"
+//            break;
+//        case /^get baz$/.test(cmd) :
+//            explain = "Let's confirm the stored data(of key name is baz).<br>So please input below command and push Enter key.<br><br>> get baz"
+//            break;
+//        case /^set_expt baz 1$/.test(cmd) :
+//            explain = "ROMA can set expired time.<br>When passed over expired time, data will be remove automatically.<br>Usage:<br>set_expt <key> <exptime><br>Setting rule is same of memcached.<br>If the value is 0 then the data will not be expired.<br>So please input below command and push Enter key.<br><br>> set_expt baz 1"
+//            break;
+//
+//        case /^release$/.test(cmd) :
+//            explain = "<br>So please input below command and push Enter key.<br><br>> release"
+//            break;
+//    }
+//    return explain;
+//}
 
 //function showTutorialMessage(cmd) {
 //    if (cmd == window.sessionStorage.getItem(['nextCommand'])) {
@@ -386,13 +361,6 @@ function sendPureCommand(cmd) {
 }
 
 
-/*
- *  =========================================
- *    React Component
- *  =========================================
- *     
-*/
-
 //5(parent)
 var Console = React.createClass(
     {
@@ -407,6 +375,7 @@ var Console = React.createClass(
                 downNodeMsg: "",
                 aliveNodeMsg: "",
                 nodeList: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
+                mode: "free",
             };
         },
         sendCommand(e) {
@@ -420,11 +389,18 @@ var Console = React.createClass(
                 nonActive: this.state.downNodeMsg,
                 active: this.state.aliveNodeMsg,
             };
+            var whichMode;
+            if (this.state.mode == 'free') {
+                whichMode = <Header />;
+            } else {
+                whichMode = <br />;
+            }
             return (
               <div id="console-screen">
 
-                <Header  nodeMsg={nodeMsg}/>
-                <Display response={this.state.res}/>
+                <Header  nodeMsg={nodeMsg} />
+                {/*whichModeHeader*/}
+                <Display response={this.state.res} />
 
                 <div id='inputArea'>
                   <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder='please input command' onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
@@ -434,6 +410,34 @@ var Console = React.createClass(
         }
     }
 );
+
+
+function lines(line){
+    if (line) {
+        return (<p className='no-margin'>{line}</p>);
+    } else {
+        return (<p className='no-margin'>&nbsp;</p>);
+    }
+}
+
+function clearHeader(){
+    this.setState({greetingAA: ''})
+    this.setState({greetingMessage: ''})
+    this.setState({tutorialExplain: ''})
+    this.setState({redMsg: ''})
+    this.setState({greenMsg: ''})
+}
+
+function heardoc() {
+    var heredoc = (function () {/*
+ _ _ _       _  _                          _    _           _____  _____  __ __    _____  _____  _____  _____ 
+| | | | ___ | || | ___  ___  _____  ___   | |_ | |_  ___   |_   _|| __  ||  |  |  | __  ||     ||     ||  _  |
+| | | || -_|| || ||  _|| . ||     || -_|  |  _||   || -_|    | |  |    -||_   _|  |    -||  |  || | | ||     |
+|_____||___||_||_||___||___||_|_|_||___|  |_|  |_|_||___|    |_|  |__|__|  |_|    |__|__||_____||_|_|_||__|__|
+    */}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
+
+    return heredoc;
+}
 
 //8(child)
 var Header = React.createClass(
@@ -501,13 +505,6 @@ var Header = React.createClass(
 );
 
 
-function lines(line){
-    if (line) {
-        return (<p className='no-margin'>{line}</p>);
-    } else {
-        return (<p className='no-margin'>&nbsp;</p>);
-    }
-}
 
 //4(child)
 var Display = React.createClass(
@@ -536,8 +533,6 @@ var Display = React.createClass(
 );
 
 
-
-//1
 var Title = React.createClass(
     {
         render: function() {
@@ -552,7 +547,6 @@ var Title = React.createClass(
     }
 );
 
-//3
 var SelectModeButton = React.createClass(
     {
         selectMode(e) {
@@ -641,13 +635,9 @@ var TryRoma = React.createClass(
             return (
                 <div>
                   <Title />
-
                   <SelectModeButton />
-
                   <TutorialSideBar />
-
                   <Console />
-
                   <FooterInfo />
                 </div>
             );
