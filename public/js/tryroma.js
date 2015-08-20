@@ -8,8 +8,8 @@ function clearHeader(){
     this.setState({greetingAA: ''})
     this.setState({greetingMessage: ''})
     this.setState({tutorialExplain: ''})
-    this.setState({nonActiveNodeMsg: ''})
-    this.setState({activeNodeMsg: ''})
+    this.setState({redMsg: ''})
+    this.setState({greenMsg: ''})
 }
 
 function changeStyleToHash(json) {
@@ -28,7 +28,7 @@ function showResult(res) {
     //value = '+ lastcmd + '<br>' + res;
 
     //this.setState({result: value})
-    return lastcmd + '<br>' + res;
+    return lastcmd + res;
 }
 
 function refactorStatResult(res) {
@@ -37,28 +37,6 @@ function refactorStatResult(res) {
         res_lines += (i +" "+ res[i]+"<br>");
     }
     return res_lines;
-}
-
-function sendQuery(action, data, url, format) {
-    var path = url || '';
-    $.ajax({
-        url: "../"+path,
-        type: action,
-        data: data,
-        dataType: format,
-        cache: false,
-    }).done(function(res){
-        clearForm.bind(this)();
-        if (action == 'PUT') {
-          res = changeStyleToHash(res);
-        } 
-        if (format == 'json') {
-            res = refactorStatResult(res);
-        }
-        showResult.bind(this)(res);
-    }.bind(this)).fail(function(){
-        this.setState({result: 'API Request was failed '})
-    }.bind(this));
 }
 
 function heardoc() {
@@ -79,7 +57,7 @@ function disabledForm() {
 }
 
 
-function displayNodeDownMsg(cmd){
+function makeNodeDownMsg(cmd){
 
     if (cmd == 'shutdown_self') {
         var nonActiveMessage = this.state.nodeList.shift() + ' was down.<br>So Try ROMA access the next node.'
@@ -89,43 +67,44 @@ function displayNodeDownMsg(cmd){
         }
         var activeMessage = "Active Nodes are <br>" + nlist
     }
+
     if ((/^(balse|shutdown)$/.test(cmd)) || (this.state.nodeList.length == 0)) {
         var nonActiveMessage = 'All nodes were down!!<br>Please Reload.'
         var activeMessage = ''
         disabledForm.bind(this)();
     }
 
-    this.setState({nonActiveNodeMsg: nonActiveMessage})
-    this.setState({activeNodeMsg: activeMessage})
+    this.setState({downNodeMsg:  nonActiveMessage})
+    this.setState({aliveNodeMsg: activeMessage})
 }
 
-function checkSecondValue(e) {
-    var lastcmd = window.sessionStorage.getItem(['lastcmd']);
+function checkSecondValue(cmd) {
+    var firstCmd = window.sessionStorage.getItem(['lastcmd']); // past command
+    var secondCmd = cmd; // confirm command
+    window.sessionStorage.setItem(['lastcmd'],[secondCmd]);
 
     switch (true) {
-        case /^(balse|shutdown|shutdown_self)$/.test(lastcmd):
-            sendQuery.bind(this)('DELETE', { command: lastcmd, confirmation: e.target.value });
-
-            if (e.target.value == 'yes') {
-                 this.setState({result: ''});
-                 displayNodeDownMsg.bind(this)(lastcmd);
+        case /^(balse|shutdown|shutdown_self)$/.test(firstCmd):
+            var res = sendAjax.bind(this)('DELETE', { command: firstCmd, confirmation: secondCmd });
+            if (secondCmd == 'yes') {
+                 makeNodeDownMsg.bind(this)(firstCmd);
             }
-
             break;
 
-        case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
-            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, value: e.target.value });
+        case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(firstCmd) :
+            var res = sendAjax.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, value: secondCmd });
             break;
 
-        case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(lastcmd) :
-            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, casid: RegExp.$5, value: e.target.value});
+        case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(firstCmd) :
+            var res = sendAjax.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3, bytes: RegExp.$4, casid: RegExp.$5, value: secondCmd});
             break;
 
     }
     
     window.sessionStorage.removeItem(['requireNext']);
-    window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
+    clearForm.bind(this)();
 
+    return res;
 }
 
 function getExplain(cmd) {
@@ -177,7 +156,7 @@ function getExplain(cmd) {
 //        /* corrent command was pushed */
 //        clearHeader.bind(this)();
 //
-//        //sendQuery.bind(this)('GET', null, cmd, 'json'); /* todo*/
+//        //sendAjax.bind(this)('GET', null, cmd, 'json'); /* todo*/
 //        sendRomaCommand.bind(this)(cmd, true)
 //
 //        React.findDOMNode(this.refs.command).placeholder = 'Good!! Please push Enter key to go next commands.';
@@ -253,109 +232,127 @@ function getExplain(cmd) {
 //    }
 //}
 
+
+
+function sendAjax(action, data, url, format) {
+    var path = url || '';
+    var response = '';
+
+    $.ajax({
+        url: "../"+path,
+        type: action,
+        data: data,
+        dataType: format,
+        cache: false,
+        async: false,
+    }).done(function(res){
+        if (action == 'PUT') {
+          res = changeStyleToHash(res);
+        } 
+        if (format == 'json') {
+            res = refactorStatResult(res);
+        }
+        response = '> '+window.sessionStorage.getItem(['lastcmd']) + '<br>' + res + '<br>';
+    }.bind(this)).fail(function(){
+        response = 'API Request was failed ';
+    }.bind(this)).responseText;
+
+    return response;
+}
+
+function changePlaceHolder(str) {
+    React.findDOMNode(this.refs.command).placeholder = str;
+}
+
+
 function sendRomaCommand(cmd, tutorialMode) {
     //tutorialMode = tutorialMode || checkTutorialMode()
-    switch (true) {
-        // GET =========================================================================
-        case /^(stats|stat)(\s(.*))*$/.test(cmd) :
-            sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$3, 'json');
-            break;
 
-        case /^(whoami|nodelist|version)$/.test(cmd) :
-            sendQuery.bind(this)('GET', null, RegExp.$1 );
-            break;
-        case /^(get|gets)\s(.+)$/.test(cmd) :
-            sendQuery.bind(this)('GET', null, RegExp.$1+"/"+RegExp.$2 );
-            break;
+    var data = null;
+    if (/^(stats|stat|whoami|nodelist|version|get|gets)/.test(cmd)) {
+        var action = 'GET';
+        if (/^(stats|stat)(\s(.*))*$/.test(cmd)) {
+            var url = RegExp.$1+"/"+RegExp.$3;
+            var dataType = 'json';
 
-        // DELETE =========================================================================
-        case /^(balse|shutdown|shutdown_self|rbalse)$/.test(cmd) :
-            var cmd = RegExp.$1;
-            sendQuery.bind(this)('DELETE', { command: RegExp.$1, confirmation: null });
-            
-            // require next line(yes/no)!!
-            if (/^(balse|shutdown|shutdown_self)$/.test(cmd)) {
-                window.sessionStorage.setItem(['requireNext'],[true]);
-            }
-            break;
+        } else if (/^(whoami|nodelist|version)$/.test(cmd)) {
+            var url = RegExp.$1;
 
-        // POST =========================================================================
-        case /^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(cmd) :
+        } else if (/^(get|gets)\s(.+)$/.test(cmd)) { 
+            var url = RegExp.$1+"/"+RegExp.$2;
+        }
+    } else if (/^(set|add|replace|append|prepend|cas|set_expt|incr|decr|delete)/.test(cmd)) {
+        if (/^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(cmd)) {
             window.sessionStorage.setItem(['requireNext'],[true]);
-            
-            React.findDOMNode(this.refs.command).value = '';
-            React.findDOMNode(this.refs.command).placeholder = 'please input value';
-            var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd']) 
-            value = this.state.result +'<br><br>'+ lastcmd;   
-            this.setState({result: value})
+            changePlaceHolder.bind(this)('please input value');
+            //this.setState({result: value})
+            //var res = '> '+window.sessionStorage.getItem(['lastcmd']);
+            var res = showResult.bind(this)('');
+            //if (tutorialMode) {
+            //    React.findDOMNode(this.refs.command).value = '';
+            //    React.findDOMNode(this.refs.command).placeholder = 'bar';
+            //    this.setState({tutorialExplain: 'Please input value(bar).'});
+            //}
 
-            if (tutorialMode) {
-                React.findDOMNode(this.refs.command).value = '';
-                React.findDOMNode(this.refs.command).placeholder = 'bar';
-                this.setState({tutorialExplain: 'Please input value(bar).'});
-            }
-            break;
-
-        case /^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(cmd) :
-            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 });
-            break;
-
-        case /^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(cmd) :
+        } else if (/^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(cmd)) {
             window.sessionStorage.setItem(['requireNext'],[true]);
-            break;
+            changePlaceHolder.bind(this)('please input value');
+            var res = showResult.bind(this)('');
+            //var res = '> '+window.sessionStorage.getItem(['lastcmd']);
 
-        case /^(incr|decr)\s([a-z0-9]+)\s([-]*[0-9]+)$/.test(cmd) :
-            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2, digit: RegExp.$3 });
-            break;
+        } else if (/^(set_expt)\s([a-z0-9]+)\s([0-9]+)$/.test(cmd)) {
+            var action = 'POST';
+            data = { command: RegExp.$1, key: RegExp.$2, exptime: RegExp.$3 };
 
-        case /^(delete)\s([a-z0-9]+)$/.test(cmd) :
-            sendQuery.bind(this)('POST', { command: RegExp.$1, key: RegExp.$2 });
-            break;
+        } else if (/^(incr|decr)\s([a-z0-9]+)\s([-]*[0-9]+)$/.test(cmd)) {
+            var action = 'POST';
+            data = { command: RegExp.$1, key: RegExp.$2, digit: RegExp.$3 };
 
-
-        // PUT =========================================================================
-        case /^(release|recover)$/.test(cmd) :
-            sendQuery.bind(this)('PUT', {command: RegExp.$1});
-            break;
-
-        case /^(set_lost_action|set_log_level)\s(.+)$/.test(cmd) :
-            sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2, lost: RegExp.$2});
-            break;
-
-        case /^(set_auto_recover)\s([a-z]+)\s*([0-9]*)$/.test(cmd) :
-            sendQuery.bind(this)('PUT', {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3});
-            break;
-
-        case /^(set_log_level)\s([a-z]+)$/.test(cmd) :
-            sendQuery.bind(this)('PUT', {command: RegExp.$1, level: RegExp.$2});
-            break;
-
-        //// Same Command Again=========================================================================
-        //case '!!':
-        //    this.setState({cmd: "please input command"});
-        //        this.setState({result: ''});
-        //    break;
-
-        // No Command =========================================================================
-        case cmd == '':
-            var lastcmd = '> ';
-            this.setState({result: this.state.result +'<br>'+lastcmd});
-            break;
-
-        // Not supported yet on virtual console =========================================================================
-        default:
-            var res = showResult.bind(this)('Not Supported');
-            clearForm.bind(this)();
-            break;
+        } else if (/^(delete)\s([a-z0-9]+)$/.test(cmd)) {
+            var action = 'POST';
+            data = { command: RegExp.$1, key: RegExp.$2 };
+        }
+    } else if (/^(release|recover|set_lost_action|set_auto_recover|set_log_level)/.test(cmd)) {
+        var action = 'PUT';
+        if (/^(release|recover)$/.test(cmd)) {
+            data = {command: RegExp.$1};
+        } else if (/^(set_lost_action)\s(.+)$/.test(cmd)) {
+            data = {command: RegExp.$1, level: RegExp.$2, lost: RegExp.$2};
+        } else if (/^(set_auto_recover)\s([a-z]+)\s*([0-9]*)$/.test(cmd)) {
+            data = {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3};
+        } else if (/^(set_log_level)\s([a-z]+)$/.test(cmd)) {
+            data = {command: RegExp.$1, level: RegExp.$2};
+        }
+    } else if (/^(balse|shutdown|shutdown_self)$/.test(cmd)) {
+        var action = 'DELETE';
+        var firstCmd = RegExp.$1;
+        data = { command: firstCmd, confirmation: null };
+        
+        if (/^(balse|shutdown|shutdown_self)$/.test(firstCmd)) {
+            window.sessionStorage.setItem(['requireNext'],[true]);
+        }
+    } else if (/^(rbalse)$/.test(cmd)) {
+          var res = showResult.bind(this)('<br>rbalse is deprecated command, please use [shutdown_self] command<br>');
+    } else if (/^()$/.test(cmd)) {
+          var res = '> ';
+    //} else if (/^(!!)$/.test(cmd)) {
+    //      var lastcmd = window.sessionStorage.getItem(['lastcmd']);
+    //      sendPureCommand(lastcmd);
+    } else {
+          var res = showResult.bind(this)('<br>Not Supported<br>');
     }
+
+    if (action) {
+        var res = sendAjax.bind(this)(action, data, url, dataType);
+    }
+
+    clearForm.bind(this)();
     return res;
 
 }
 
 
-function analyzeCommand(e) {
-    //var ENTER = 13;
-    //if(e.keyCode == ENTER){
+function sendPureCommand(cmd) {
 
         //if (window.sessionStorage.getItem(['tutorialFlag'])) {
         //    // tutorial mode
@@ -368,23 +365,18 @@ function analyzeCommand(e) {
 
             //clearHeader.bind(this)();
 
-            //if (window.sessionStorage.getItem(['requireNext'])) {
-            //    checkSecondValue.bind(this)(e);
-            //    React.findDOMNode(this.refs.command).placeholder = 'please input command';
-            //} else {
-                window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
-
-                //sendRomaCommand.bind(this)(e.target.value);
-                var res = sendRomaCommand.bind(this)(e.target.value);
+            if (window.sessionStorage.getItem(['requireNext'])) {
+                var res = checkSecondValue.bind(this)(cmd);
+                React.findDOMNode(this.refs.command).placeholder = 'please input command';
                 return res;
-            //}
+            } else {
+                window.sessionStorage.setItem(['lastcmd'],[cmd]);
 
-
+                var res = sendRomaCommand.bind(this)(cmd);
+                return res;
+            }
 
         //}
-
-    //}
-
 }
 
 
@@ -394,33 +386,6 @@ function analyzeCommand(e) {
  *  =========================================
  *     
 */
-var TestChild = React.createClass(
-    {
-        render: function() {
-            return (
-              <div>
-                <p>in the child</p>
-                  {this.props.children}
-                <p>in the child</p>
-              </div>
-            );
-        }
-    }
-);
-
-var TestParent = React.createClass(
-    {
-        render: function() {
-            return (
-              <div>
-                1st line
-                <TestChild>2nd line</TestChild>
-              </div>
-            );
-        }
-    }
-);
-
 
 //5(parent)
 var Console = React.createClass(
@@ -428,22 +393,33 @@ var Console = React.createClass(
         getDefaultProps() {
             return {
                 ENTER: 13,
-            }
+            };
         },
         getInitialState() {
             return {
                 res: "",
+                downNodeMsg: "",
+                aliveNodeMsg: "",
+                nodeList: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
             };
         },
         sendCommand(e) {
             if(e.keyCode == this.props.ENTER){
-                this.setState({res: analyzeCommand.bind(this)(e)});
+                var response = sendPureCommand.bind(this)(e.target.value);
+                this.setState({res: response});
             } 
         },
         render: function() {
+            var nodeMsg = {
+                nonActive: this.state.downNodeMsg,
+                active: this.state.aliveNodeMsg,
+            };
             return (
               <div id="console-screen">
-                <Display response={this.state.res} />
+
+                <Header  nodeMsg={nodeMsg}/>
+                <Display response={this.state.res}/>
+
                 <div id='inputArea'>
                   <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder='please input command' onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
                 </div>
@@ -459,23 +435,12 @@ var Display = React.createClass(
     {
         getInitialState() {
             return {
-                greetingAA: heardoc(),
-                greetingMessage: 'Please feel free to execute ROMA command!!',
-                tutorialExplain: '',
-                nonActiveNodeMsg: '',
-                activeNodeMsg: '',
-                nodeList: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
                 result: "",
                 response: '',
             };
         },
-        //ComponentWillReceiveProps(e) {
-        //    this.setState({response: this.props.response});
-        //    console.log(this.props.response)
-        //},
         componentWillReceiveProps(nextProps) {
-            console.log(nextProps.response);
-            this.setState({response: this.state.response + '<br><br>' + nextProps.response});
+            this.setState({response: this.state.response + '<br>' + nextProps.response});
         },
         render: function() {
             function lines(line){
@@ -485,32 +450,86 @@ var Display = React.createClass(
                     return (<p className='no-margin'>&nbsp;</p>);
                 }
             }
-
             return (
-                <div>
-
-                  <div id="header-area">
-                    <div id="greeting">
-                      <div id="greeting-aa">{this.state.greetingAA}</div>
-                      <div id="greeting-msg">{this.state.greetingMessage}</div>
-                      <div id="tutorial-explain">{this.state.tutorialExplain.split('<br>').map(lines)}</div>
-                    </div>
-                    <div>
-                      <div id="non-active-nodeinfo">{this.state.nonActiveNodeMsg.split('<br>').map(lines)}</div>
-                      <div id="active-nodeinfo">{this.state.activeNodeMsg.split('<br>').map(lines)}</div>
-                    </div>
-                  </div>
-
-                  <div id="responseArea">
-                    {this.state.response.split('<br>').map(lines)}
-                  </div>
+                <div id="responseArea">
+                  {this.state.response.split('<br>').map(lines)}
                 </div>
             );
         }
     }
 );
 
+//8(child)
+var Header = React.createClass(
+    {
+        getDefaultProps() {
+            return {
+                greetingAA: heardoc(),
+                greetingMessage: 'Please feel free to execute ROMA command!!',
+            };
+        },
+        getInitialState() {
+            return {
+                greetingAA: this.props.greetingAA,
+                greetingMessage: this.props.greetingMessage,
 
+                tutorialExplain: '',
+
+                redMsg: '',
+                greenMsg: '',
+            };
+        },
+        componentWillReceiveProps(nextProps) {
+            clearHeader.bind(this)();
+            this.setState({redMsg: nextProps.nodeMsg['nonActive']});
+            this.setState({greenMsg: nextProps.nodeMsg['active']});
+        },
+        render: function() {
+            var style = {
+                greeting: {
+                    color: '#00cede',
+                },
+                greetingAA: {
+                    fontSize: '11px',
+                },
+                greetingMsg: {
+                    fontSize: '20px',
+                },
+                nonActive: {
+                    color: 'red',
+                    fontSize: '33px',
+                },
+                active: {
+                    color: 'lime',
+                    fontSize: '20px',
+                },
+                tutorial: {
+                    fontSize: '25px',
+                },
+            };
+            function lines(line){
+                if (line) {
+                    return (<p className='no-margin'>{line}</p>);
+                } else {
+                    return (<p className='no-margin'>&nbsp;</p>);
+                }
+            }
+            return (
+                <div>
+                  <div style={style.greeting}>
+                    <div style={style.greetingAA}>{this.state.greetingAA}</div>
+                    <div style={style.greetingMsg}>{this.state.greetingMessage}</div>
+                    <div style={style.tutorial}>{this.state.tutorialExplain.split('<br>').map(lines)}</div>
+                  </div>
+                  <div>
+                    <div style={style.nonActive}>{this.state.redMsg.split('<br>').map(lines)}</div>
+                    <div style={style.active}>{this.state.greenMsg.split('<br>').map(lines)}</div>
+                  </div>
+                </div>
+            );
+        }
+    }
+);
 
 
 //1
@@ -618,7 +637,6 @@ var TryRoma = React.createClass(
                 <div>
                   <Title />
 
-                  <TestParent />
 
                   <SelectModeButton />
 

@@ -8,7 +8,6 @@ module Roma
       @list = {
         "balse" => "Are you sure?(yes/no)",
         "shutdown" => "*** ARE YOU REALLY SURE TO SHUTDOWN? *** (yes/no)",
-        "rbalse" => "rbalse is deprecated command, please use [shutdown_self] command",
         "shutdown_self" =>
           <<-'Confirmation'
 =================================================================

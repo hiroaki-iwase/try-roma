@@ -111,38 +111,6 @@ input[type="text"]:focus {
 
 /*
  =========================================
-  Header Area(console)
- =========================================
-*/
-#greeting {
-  color: #00cede;
-}
-
-#greeting-aa {
-  font-size: 11px;
-}
-
-#greeting-msg {
-  font-size: 20px;
-}
-
-#tutorial-explain {
-  font-size: 25px;
-}
-
-
-#non-active-nodeinfo {
-  color: red;
-  font-size: 33px;
-}
-
-#active-nodeinfo {
-  color: lime;
-  font-size: 20px;
-}
-
-/*
- =========================================
   Result Area(console)
  =========================================
 */
