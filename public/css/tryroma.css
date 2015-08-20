@@ -1,9 +1,83 @@
+body {
+  font-family: courier;
+}
+
+/*
+ =========================================
+  Title
+ =========================================
+*/
+#title {
+  font-size: 60px;
+  color: red;
+}
+
+img#title-image {
+  width: 60px;
+  position: relative;
+  top: 19px;
+}
+
+/*
+ =========================================
+  Select Mode Button
+ =========================================
+*/
+#mode-button {
+  margin-top: 20px;
+}
+
+#mode-button button {
+  border: 0;
+  margin: 0 20px;
+  font-size: 25px;
+  color: white;
+}
+
+button#tutorial-button {
+  background-color: DeepSkyBlue;
+}
+
+button#free-button {
+  background-color: Orange;
+}
+
+/*
+ =========================================
+  Tutorial Side Bar
+ =========================================
+*/
+#side-bar {
+  position: absolute;
+  top: 180px;
+  visibility: hidden;
+  font-weight: 700;
+  color: gray;
+}
+
+
+#side-bar > ul > li {
+  list-style: none;
+  margin-left: -20px;
+}
+
+ul.tutorial-commands {
+  list-style: none;
+  margin-left: -40px;
+}
+
+
+/*
+ =========================================
+  Console Area
+ =========================================
+*/
+
 #console-screen {
   background-color: #031340;
   border: gray solid 5px;;
-  font-family: courier;
   height: 600px;
-  margin: 100px;
+  margin: 30px 100px;
   overflow: auto;
   position: relative;
   white-space: pre;
@@ -11,54 +85,7 @@
 
 /*
  =========================================
-  Header Area
- =========================================
-*/
-#greeting {
-  color: #00cede;
-}
-
-#greeting-aa {
-  font-size: 11px;
-}
-
-#greeting-msg {
-  font-size: 20px;
-}
-
-#non-active-nodeinfo {
-  color: red;
-  font-size: 33px;
-}
-
-#active-nodeinfo {
-  color: lime;
-  font-size: 20px;
-}
-
-/*
- =========================================
-  Result Area
- =========================================
-*/
-#resultArea {
-  bottom: 40px;
-  position: absolute;
-  color: #A0C5E8;
-  font-size: 20px;
-  width: 100%;
-  height：580px;
-  /*overflow: auto;*/
-  word-wrap:break-word;
-}
-
-p.no-margin {
-    margin: 0;
-}
-
-/*
- =========================================
-  Input Area
+  Input Area(console)
  =========================================
 */
 #inputArea {
@@ -81,3 +108,24 @@ p.no-margin {
 input[type="text"]:focus {
   outline: 0;
 }
+
+/*
+ =========================================
+  Result Area(console)
+ =========================================
+*/
+#responseArea {
+  bottom: 40px;
+  position: absolute;
+  color: #A0C5E8;
+  font-size: 20px;
+  width: 100%;
+  height：580px;
+  /*overflow: auto;*/
+  word-wrap:break-word;
+}
+
+p.no-margin {
+    margin: 0;
+}
+

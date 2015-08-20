@@ -109,7 +109,7 @@ delete '/' do
           @res = make_response_of_nodelist('BYE').to_s + '<br>Connection closed by foreign host.'
           kill_instance(:all)
         end
-      elsif confirm.empty?
+      elsif confirm.empty? && confirm != 'nothing'
         @res = res
         #@res = res.concat("<br>(TryRomaAPI : if you wanna execute, please send request with 'yes' or 'no' in the :confimation parameters.)") unless cmd == 'rbalse'
       else
@@ -272,7 +272,7 @@ put '/' do
         begin
           loop{
             # decreasing
-            session[:routing].short_vnodes -= 5 if run_short
+            session[:routing].short_vnodes -= 20 if run_short
 
             # check value
             if session[:routing].short_vnodes <= 0
@@ -396,6 +396,9 @@ def kill_instance(type)
     session[:routing].version_of_nodes.shift
     session[:routing].event.push("#{Time.now.iso8601} leave #{session[:routing].nodes.shift}")
     session[:routing].short_vnodes += session[:routing].primary + session[:routing].secondary1 + session[:routing].secondary2
+    session[:routing].primary = 152 if session[:routing].primary == 0
+    session[:routing].secondary1 = 106 if session[:routing].secondary1 == 0
+    session[:routing].secondary2 = 133 if session[:routing].secondary2 == 0
     session[:routing].short_vnodes = 512 if session[:routing].short_vnodes > 512
     if session[:stats].port.empty?
       logger.info 'All ROMA instance have Stopped!'

@@ -18,9 +18,9 @@ module Roma
       def initialize
         @redundant = 3
         @nodes = ["localhost_10001", "localhost_10002", "localhost_10003", "localhost_10004", "localhost_10005"]
-        @primary = 103
-        @secondary1 = 102
-        @secondary2 = 102
+        @primary = 152
+        @secondary1 = 106
+        @secondary2 = 133
         @short_vnodes = 0
         @lost_vnodes = 0
         @lost_action=:auto_assign
