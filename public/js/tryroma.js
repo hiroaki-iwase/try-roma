@@ -1,19 +1,50 @@
 /* =====================================================================================================================
- *  Java Script
+ *  Commmon Methods
  * ===================================================================================================================== */
-function changeStyleToHash(json) {
-    hash_str = json.replace(/", "/g,'"=>"').replace(/\]\[/g,', ').replace(/\[/,'{').replace(/\]/,'}');
-    return hash_str;
+
+function showResult(res) {
+    var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd'])
+    return lastcmd + res;
 }
 
 function clearForm(){
     React.findDOMNode(this.refs.command).value = '';
 }
 
-function showResult(res) {
-    var lastcmd = '> '+window.sessionStorage.getItem(['lastcmd'])
-    return lastcmd + res;
+function disabledForm() {
+    React.findDOMNode(this.refs.command).disabled = 'true';
+    React.findDOMNode(this.refs.command).placeholder = 'Please Reload';
 }
+
+function changePlaceHolder(str) {
+    React.findDOMNode(this.refs.command).placeholder = str;
+}
+
+
+function lines(line){
+    if (line) {
+        return (<p className='no-margin'>{line}</p>);
+    } else {
+        return (<p className='no-margin'>&nbsp;</p>);
+    }
+}
+
+function clearHeader(){
+    this.setState({greetingAA: ''})
+    this.setState({greetingMessage: ''})
+    this.setState({tutorialExplain: ''})
+    this.setState({redMsg: ''})
+    this.setState({greenMsg: ''})
+}
+
+/* =====================================================================================================================
+ *  Free Mode Methods
+ * ===================================================================================================================== */
+function changeStyleToHash(json) {
+    hash_str = json.replace(/", "/g,'"=>"').replace(/\]\[/g,', ').replace(/\[/,'{').replace(/\]/,'}');
+    return hash_str;
+}
+
 
 function refactorStatResult(res) {
     res_lines = '';
@@ -24,10 +55,6 @@ function refactorStatResult(res) {
 }
 
 
-function disabledForm() {
-    React.findDOMNode(this.refs.command).disabled = 'true';
-    React.findDOMNode(this.refs.command).placeholder = 'Please Reload';
-}
 
 
 function makeNodeDownMsg(cmd){
@@ -85,289 +112,6 @@ function checkSecondValue(cmd) {
     return res;
 }
 
-/* =====================================================================================================================
- *  Free Mode Contents
- * ===================================================================================================================== */
-
-
-/* =====================================================================================================================
- *  Tutorial Contents
- * ===================================================================================================================== */
-
-function heardoc_tutorial() {
-    var heredoc = (function () {/*
- _____     _           _     _    _____       _     
-|_   _|_ _| |_ ___ ___|_|___| |  |     |___ _| |___ 
-  | | | | |  _| . |  _| | .'| |  | | | | . | . | -_|
-  |_| |___|_| |___|_| |_|__,|_|  |_|_|_|___|___|___|
-    */}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
-
-    return heredoc;
-}
-
-function getCommandList() {
-    return [
-        //GET
-        'stats',
-        'stats node',
-        'nodelist',
-        //POST
-        'set foo 0 0 3',
-        'bar',
-        'get foo',
-        'add foo 0 0 3',
-        'baz',
-        'add hoge 0 0 4',
-        'fuga',
-        'get hoge',
-        'delete foo',
-        //DELETE & PUT(release)
-        'stat primary|secondary',
-        'release',
-        'stat primary|secondary',
-        'shutdown_self',
-        'yes',
-        'nodelist',
-        //DELETE & PUT(recover)
-        'shutdown_self',
-        'yes',
-        'nodelist',
-        'stat short',
-        'recover',
-        'stat short',
-        //DELETE & PUT(auto recover)
-        'set_auto_recover true 600',
-        'stat auto',
-        //balse
-        'balse',
-        //'set_expt baz 1',
-    ]
-}
-
-
-function getCommandUsage(cmd) {
-    return [
-        //GET
-        "* stat|stats",
-        "* stat|stats <regexp>",
-        "* nodelist",
-        //POST
-        "* set <key> <flag> <exptime> <value size>\\n<value>",
-        "* set <key> <flag> <exptime> <value size>\\n<value>",
-        "* get <key>",
-        "* add <key> <flag> <exptime> <value size>\\n<value>",
-        "* add <key> <flag> <exptime> <value size>\\n<value>",
-        "* add <key> <flag> <exptime> <value size>\\n<value>",
-        "* add <key> <flag> <exptime> <value size>\\n<value>",
-        "* add <key> <flag> <exptime> <value size>\\n<value>",
-        "* delete <key>",
-        //DELETE & PUT(release)
-        '* release',
-        '* release',
-        '* release',
-        '* shutdown_self',
-        '* shutdown_self',
-        '* shutdown_self',
-        //DELETE & PUT(recover)
-        '* recover',
-        '* recover',
-        '* recover',
-        '* recover',
-        '* recover',
-        '* recover',
-        //DELETE & PUT(auto recover)
-        '* set_auto_recover <true|flase> <sec>',
-        '* set_auto_recover <true|flase> <sec>',
-        //balse
-        '* balse',
-    ]
-}
-
-
-function getCommandExplanation() {
-    return [
-        //GET
-        "Firstly Let's check ROMA's cluster status.<br>" +
-        "This command will display all of the cluster status.<br>" + 
-        "<br>Please input below command and push Enter key.<br>> stats",
-
-        "[stat|stats] command display the all of parameters,<br>" +
-        "so it is hard to check specific one.<br>" + 
-        "But you can use regular expression as a argument.<br>" + 
-        "<br>Please input below command and push Enter key.<br>> stats node",
-
-        "Next let's check current nodelist without using stats.<br>" + 
-        "ROMA has the command which check the just alive nodelist.<br>" + 
-        "<br>Please input below command and push Enter key.<br>> nodelist",
-
-        //POST
-        "Next is a data store command.<br>" +
-        "this command store the data.<br>" +
-        "<br>Please input below command and push Enter key.<br>> set foo 0 0 3",
-
-        "Next is a data store command.<br>" +
-        "this command store the data.<br>" +
-        "<br>Please input below command and push Enter key.<br>> set foo 0 0 3<br>" +
-        "<br>Please input below command and push Enter key.<br>> bar",
-
-        "Next is a data getting command.<br>" +
-        "This command search and display the data.<br>" +
-        "<br>Please input below command and push Enter key.<br>> get foo",
-
-        "Next is a data adding command.<br>" +
-        "This command is similar to set command,<br>" +
-        "but add command set the data unless specified key is already exist.<br>" +
-        "Fistly, try add to exist key data.<br>" +
-        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3",
-
-        "Next is a data adding command.<br>" +
-        "This command is similar to set command,<br>" +
-        "but add command set the data unless specified key is already exist.<br>" +
-        "Fistly, try add to exist key data.<br>" +
-        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3" +
-        "<br>Please input below command and push Enter key.<br>> baz",
-
-        "Next is a data adding command.<br>" +
-        "This command is similar to set command,<br>" +
-        "but add command set the data unless specified key is already exist.<br>" +
-        "Fistly, try add to exist key data.<br>" +
-        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3" +
-        "<br>Please input below command and push Enter key.<br>> baz" +
-        "<br>Next, try add to Non exist data.<br>" +
-        "<br>Please input below command and push Enter key.<br>> add hoge 0 0 4",
-
-        "Next is a data adding command.<br>" +
-        "This command is similar to set command,<br>" +
-        "but add command set the data unless specified key is already exist.<br>" +
-        "Fistly, try add to exist key data.<br>" +
-        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3" +
-        "<br>Please input below command and push Enter key.<br>> baz" +
-        "<br><br>Next, try add to Non exist data.<br>" +
-        "<br>Please input below command and push Enter key.<br>> add hoge 0 0 4" + 
-        "<br>Please input below command and push Enter key.<br>> fuga",
-
-        "Let's confirm the stored data(of key name is hoge).<br>" +
-        "<br>Please input below command and push Enter key.<br>> get baz",
- 
-        "Next is a data deletion command.<br>" + 
-        "This command remove the data.<br>" +
-        "<br>Please input below command and push Enter key.<br>> delete foo",
-
-        //DELETE & PUT(release)
-        "Next is a instance shutdown command.<br>" + 
-        "Fistly, check the responsible vnodes of this instance.<br>" +
-        "<br>Please input below command and push Enter key.<br>> stat primary|secondary",
-
-        "Next step, let's release the these responsible vnodes to other instances.<br>" +
-        "<br>Please input below command and push Enter key.<br>> release",
-
-        "release process may take a long time depending on the fail size or something,<br>" +
-        "but this is a tutorial, let's skip to end of this process.<br>" +
-        "<br>Please input below command and push Enter key.<br>> stat primary|secondary",
-
-        "release process release the all responsible vnodes,<br>" +
-        "so let's shutdown the this instance.<br>" +
-        "<br>Please input below command and push Enter key.<br>> shutdown_self",
-
-        "release process release the all responsible vnodes,<br>" +
-        "so let's shutdown the this instance.<br>" +
-        "<br>Please input below command and push Enter key.<br>> shutdown_self"+
-        "<br><br>Please input below command and push Enter key.<br>> yes",
-
-        "instance(localhost_10001) was down.<br>" +
-        "Let's check node status.<br>" +
-        "<br>Please input below command and push Enter key.<br>> nodelist",
-
-        //DELETE & PUT(recover)
-        "Next is a recovering redundancy Error command.<br>" + 
-        "Fistly, shutdown the instance without execute release.<br>" +
-        "<br>Please input below command and push Enter key.<br>> shutdown_self",
-
-        "Next is a recovering redundancy Error command.<br>" + 
-        "Fistly, shutdown the instance without execute release.<br>" +
-        "<br>Please input below command and push Enter key.<br>> shutdown_self" +
-        "<br><br>Please input below command and push Enter key.<br>> yes",
-
-        "instance(localhost_10002) was down.<br>" +
-        "Let's check node status.<br>" +
-        "<br>Please input below command and push Enter key.<br>> nodelist",
-
-        "We executed shutdown without release responsible vnodes,<br>" +
-        "so ROMA's redundancy was down.<br>" +
-        "You can check the count of redundancy down vnodes by stats command.<br>" +
-        "<br>Please input below command and push Enter key.<br>> stat short",
-      
-        "It is NOT good for ROMA,<br>" +
-        "so let's recover the data by use 'recover' command.<br>" +
-        "<br>Please input below command and push Enter key.<br>> recover",
-
-        "recover process may take a long time as also 'release' command,<br>" +
-        "so let's skip to end of this process.<br><br>" +
-        "After finising recover, short_vnodes will become 0." +
-        "<br><br>Please input below command and push Enter key.<br>> stat short",
-
-        //DELETE & PUT(auto recover)
-        "We can set to execute recover automatically when redundancy will be down.<br>" +
-        "set_auto_reocver can set this.<br>" +
-        "<br>Please input below command and push Enter key.<br>> set_auto_recover true 600",
-
-        "This argument means that activating auto recover function passed 600sec after redundancy down.<br>" +
-        "Please confirm current status by stats command.<br>" +
-        "<br>Please input below command and push Enter key.<br>> stat auto",
-
-        //balse
-        "Finally, let's shutdown the ROMA(means shutdown all instaces).<br>" +
-        "<br>Please input below command and push Enter key.<br>> balse",
-    ]
-}
-
-
-//function showTutorialMessage(cmd) {
-//    if (cmd == window.sessionStorage.getItem(['nextCommand'])) {
-//        /* corrent command was pushed */
-//        clearHeader.bind(this)();
-//
-//        //sendAjax.bind(this)('GET', null, cmd, 'json'); /* todo*/
-//        sendRomaCommand.bind(this)(cmd, true)
-//
-//        React.findDOMNode(this.refs.command).placeholder = 'Good!! Please push Enter key to go next commands.';
-//
-//    } else if (cmd == '') {
-//        /* push enter key with brank */
-//        clearHeader.bind(this)();
-//        //React.findDOMNode(this.refs.result).value = '';
-//        this.setState({result: ''});
-//
-//        var nextCommand = $tutorialCommands.shift();
-//
-//        window.sessionStorage.setItem(['nextCommand'], nextCommand);
-//        this.setState({tutorialExplain: getExplain(nextCommand)});
-//        React.findDOMNode(this.refs.command).placeholder = nextCommand;
-//    } else {
-//       /* mistake command */
-//        var res = '> ' + cmd + '<br>Please input [' + window.sessionStorage.getItem(['nextCommand']) + '] command';
-//        this.setState({result: res});
-//    } 
-//
-//    if (nextCommand == 'set foo 0 0 3') {
-//        $('#side-bar > ul > li:nth-of-type(1)').css({'color':'gray'});
-//        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'red'});
-//    } else if (nextCommand == 'release') {
-//        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'gray'});
-//        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'red'});
-//    } else if (nextCommand == 'recover') {
-//        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'gray'});
-//        $('#side-bar > ul > li:nth-of-type(4)').css({'color':'red'});
-//    }
-//}
-//
-//function startTutorial() {
-//    $('#side-bar').css({'visibility':'visible'});
-//    $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
-//}
-
-
-
 function sendAjax(action, data, url, format) {
     var path = url || '';
     var response = '';
@@ -394,13 +138,7 @@ function sendAjax(action, data, url, format) {
     return response;
 }
 
-function changePlaceHolder(str) {
-    React.findDOMNode(this.refs.command).placeholder = str;
-}
-
-
 function sendRomaCommand(cmd, tutorialMode) {
-    //tutorialMode = tutorialMode || checkTutorialMode()
 
     var data = null;
     if (/^(stats|stat|whoami|nodelist|version|get|gets)/.test(cmd)) {
@@ -420,11 +158,6 @@ function sendRomaCommand(cmd, tutorialMode) {
             window.sessionStorage.setItem(['requireNext'],[true]);
             changePlaceHolder.bind(this)('please input value');
             var res = showResult.bind(this)('');
-            //if (tutorialMode) {
-            //    React.findDOMNode(this.refs.command).value = '';
-            //    React.findDOMNode(this.refs.command).placeholder = 'bar';
-            //    this.setState({tutorialExplain: 'Please input value(bar).'});
-            //}
 
         } else if (/^(cas)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)\s([0-9]+)$/.test(cmd)) {
             window.sessionStorage.setItem(['requireNext'],[true]);
@@ -511,21 +244,383 @@ function sendPureCommand(cmd) {
         //}
 }
 
-function lines(line){
-    if (line) {
-        return (<p className='no-margin'>{line}</p>);
-    } else {
-        return (<p className='no-margin'>&nbsp;</p>);
-    }
+
+/* =====================================================================================================================
+ *  Tutorial Methods
+ * ===================================================================================================================== */
+
+function heardoc_tutorial() {
+    var heredoc = (function () {/*
+ _____     _           _     _    _____       _     
+|_   _|_ _| |_ ___ ___|_|___| |  |     |___ _| |___ 
+  | | | | |  _| . |  _| | .'| |  | | | | . | . | -_|
+  |_| |___|_| |___|_| |_|__,|_|  |_|_|_|___|___|___|
+    */}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
+
+    return heredoc;
 }
 
-function clearHeader(){
-    this.setState({greetingAA: ''})
-    this.setState({greetingMessage: ''})
-    this.setState({tutorialExplain: ''})
-    this.setState({redMsg: ''})
-    this.setState({greenMsg: ''})
+function getCommandList() {
+    return [
+        //GET
+        'stats',
+        'stats node',
+        'nodelist',
+        //POST
+        'set foo 0 0 3',
+        'bar',
+        'get foo',
+        'add foo 0 0 3',
+        'baz',
+        'add hoge 0 0 4',
+        'fuga',
+        'get hoge',
+        'delete foo',
+        //DELETE & PUT(release)
+        'stat primary|secondary',
+        'release',
+        'stat primary|secondary',
+        'shutdown_self',
+        'yes',
+        'nodelist',
+        //DELETE & PUT(recover)
+        'shutdown_self',
+        'yes',
+        'nodelist',
+        'stat short',
+        'recover',
+        'stat short',
+        //DELETE & PUT(auto recover)
+        'set_auto_recover true 600',
+        'stat auto',
+        //balse
+        'balse',
+        //'set_expt baz 1',
+    ]
 }
+
+
+function getCommandUsage(cmd) {
+    return [
+        //GET
+        "* stat|stats",
+        "* stat|stats <regexp>",
+        "* nodelist",
+        //POST
+        "* set <key> <flag> <exptime> <value size>\\n<value>",
+        "* set <key> <flag> <exptime> <value size>\\n<value>",
+        "* get <key>",
+        "* add <key> <flag> <exptime> <value size>\\n<value>",
+        "* add <key> <flag> <exptime> <value size>\\n<value>",
+        "* add <key> <flag> <exptime> <value size>\\n<value>",
+        "* add <key> <flag> <exptime> <value size>\\n<value>",
+        "* add <key> <flag> <exptime> <value size>\\n<value>",
+        "* delete <key>",
+        //DELETE & PUT(release)
+        '* release',
+        '* release',
+        '* release',
+        '* shutdown_self',
+        '* shutdown_self',
+        '* shutdown_self',
+        //DELETE & PUT(recover)
+        '* recover',
+        '* recover',
+        '* recover',
+        '* recover',
+        '* recover',
+        '* recover',
+        //DELETE & PUT(auto recover)
+        //'* set_auto_recover <true|flase> <sec>',
+        //'* set_auto_recover <true|flase> <sec>',
+        //balse
+        '* balse',
+    ]
+}
+
+
+function getCommandExplanation() {
+    return [
+        //GET
+        "Firstly Let's check ROMA's cluster status.<br>" +
+        "This command will display all of the cluster status.<br>" + 
+        "<br>Please input below command and push Enter key.<br>> stats",
+
+        "[stat|stats] command display the all of parameters,<br>" +
+        "so it is hard to check specific one.<br>" + 
+        "But you can use regular expression as a argument.<br>" + 
+        "<br>Please input below command and push Enter key.<br>> stats node",
+
+        "Next let's check current nodelist without using stats.<br>" + 
+        "ROMA has the command which check the just alive nodelist.<br>" + 
+        "<br>Please input below command and push Enter key.<br>> nodelist",
+
+        //POST
+        "Next is a data store command.<br>" +
+        "this command store the data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> set foo 0 0 3",
+
+        "Next is a data store command.<br>" +
+        "this command store the data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> set foo 0 0 3<br>" +
+        "<br>Please input below command and push Enter key.<br>> bar",
+
+        "Next is a data getting command.<br>" +
+        "This command search and display the data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> get foo",
+
+        "Next is a data adding command.<br>" +
+        "This command is similar to set command,<br>" +
+        "but add command set the data unless specified key is already exist.<br>" +
+        "Fistly, try add to exist key data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3",
+
+        "Next is a data adding command.<br>" +
+        "This command is similar to set command,<br>" +
+        "but add command set the data unless specified key is already exist.<br>" +
+        "Fistly, try add to exist key data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3" +
+        "<br>Please input below command and push Enter key.<br>> baz",
+
+        "Next is a data adding command.<br>" +
+        "This command is similar to set command,<br>" +
+        "but add command set the data unless specified key is already exist.<br>" +
+        "Fistly, try add to exist key data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3" +
+        "<br>Please input below command and push Enter key.<br>> baz" +
+        "<br>Next, try add to Non exist data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> add hoge 0 0 4",
+
+        "Next is a data adding command.<br>" +
+        "This command is similar to set command,<br>" +
+        "but add command set the data unless specified key is already exist.<br>" +
+        "Fistly, try add to exist key data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3" +
+        "<br>Please input below command and push Enter key.<br>> baz" +
+        "<br><br>Next, try add to Non exist data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> add hoge 0 0 4" + 
+        "<br>Please input below command and push Enter key.<br>> fuga",
+
+        "Let's confirm the stored data(of key name is hoge).<br>" +
+        "<br>Please input below command and push Enter key.<br>> get hoge",
+ 
+        "Next is a data deletion command.<br>" + 
+        "This command remove the data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> delete foo",
+
+        //DELETE & PUT(release)
+        "Next is a instance shutdown command.<br>" + 
+        "Fistly, check the responsible vnodes of this instance.<br>" +
+        "<br>Please input below command and push Enter key.<br>> stat primary|secondary",
+
+        "Next step, let's release the these responsible vnodes to other instances.<br>" +
+        "<br>Please input below command and push Enter key.<br>> release",
+
+        "release process may take a long time depending on the fail size or something,<br>" +
+        "but this is a tutorial, let's skip to end of this process.<br>" +
+        "<br>Please input below command and push Enter key.<br>> stat primary|secondary",
+
+        "release process release the all responsible vnodes,<br>" +
+        "so let's shutdown the this instance.<br>" +
+        "<br>Please input below command and push Enter key.<br>> shutdown_self",
+
+        "release process release the all responsible vnodes,<br>" +
+        "so let's shutdown the this instance.<br>" +
+        "<br>Please input below command and push Enter key.<br>> shutdown_self"+
+        "<br><br>Please input below command and push Enter key.<br>> yes",
+
+        "instance(localhost_10001) was down.<br>" +
+        "Let's check node status.<br>" +
+        "<br>Please input below command and push Enter key.<br>> nodelist",
+
+        //DELETE & PUT(recover)
+        "Next is a recovering redundancy Error command.<br>" + 
+        "Fistly, shutdown the instance without execute release.<br>" +
+        "<br>Please input below command and push Enter key.<br>> shutdown_self",
+
+        "Next is a recovering redundancy Error command.<br>" + 
+        "Fistly, shutdown the instance without execute release.<br>" +
+        "<br>Please input below command and push Enter key.<br>> shutdown_self" +
+        "<br><br>Please input below command and push Enter key.<br>> yes",
+
+        "instance(localhost_10002) was down.<br>" +
+        "Let's check node status.<br>" +
+        "<br>Please input below command and push Enter key.<br>> nodelist",
+
+        "We executed shutdown without release responsible vnodes,<br>" +
+        "so ROMA's redundancy was down.<br>" +
+        "You can check the count of redundancy down vnodes by stats command.<br>" +
+        "<br>Please input below command and push Enter key.<br>> stat short",
+      
+        "It is NOT good for ROMA,<br>" +
+        "so let's recover the data by use 'recover' command.<br>" +
+        "<br>Please input below command and push Enter key.<br>> recover",
+
+        "recover process may take a long time as also 'release' command,<br>" +
+        "so let's skip to end of this process.<br><br>" +
+        "After finising recover, short_vnodes will become 0." +
+        "<br><br>Please input below command and push Enter key.<br>> stat short",
+
+        //DELETE & PUT(auto recover)
+        //"We can set to execute recover automatically when redundancy will be down.<br>" +
+        //"set_auto_reocver can set this.<br>" +
+        //"<br>Please input below command and push Enter key.<br>> set_auto_recover true 600",
+
+        //"This argument means that activating auto recover function passed 600sec after redundancy down.<br>" +
+        //"Please confirm current status by stats command.<br>" +
+        //"<br>Please input below command and push Enter key.<br>> stat auto",
+
+        //balse
+        "Finally, let's shutdown the ROMA(means shutdown all instaces).<br>" +
+        "<br>Please input below command and push Enter key.<br>> balse",
+    ]
+}
+
+function getCommandResult() {
+    return [
+        'Please Push Enter Key',
+        //GET
+        '.'
+        + '<br>.'
+        + '<br>.'
+        + '<br>.'
+        + '<br>connection.accepted_connection_expire_time 0'
+        + '<br>connection.handler_instance_count 6'
+        + '<br>connection.pool_maxlength 5'
+        + '<br>connection.pool_expire_time 30'
+        + '<br>connection.EMpool_maxlength 15'
+        + '<br>connection.EMpool_expire_time 30'
+        + '<br>dns_caching false',
+
+        'stats.run_receive_a_vnode {}'
+        + '<br>routing.nodes.length 5'
+        + '<br>routing.nodes ["localhost_10001", "localhost_10002", "localhost_10003", "localhost_10004", "localhost_10005"]'
+        + '<br>routing.vnodes.length 512'
+        + '<br>routing.short_vnodes 0'
+        + '<br>routing.lost_vnodes 0'
+        + '<br>routing.version_of_nodes {"localhost_10001"=>66048, "localhost_10002"=>66048, "localhost_10003"=>66048, "localhost_10004"=>66048, "localhost_10005"=>66048}',
+
+        'localhost_10001 localhost_10002 localhost_10003 localhost_10004 localhost_10005',
+
+        //POST
+        ' ',
+        'STORED',
+
+        'VALUE foo 0 3'
+        + '<br>bar'
+        + '<br>END',
+
+        ' ',
+        'NOT_STORED',
+
+        '',
+        'STORED',
+
+        'VALUE hoge 0 4 '
+        + '<br>fuga'
+        + '<br>END',
+
+        'DELETED',
+
+        //DELETE & PUT(release)
+        'routing.primary 152'
+        + '<br>routing.secondary1 106'
+        + '<br>routing.secondary2 133',
+
+        'STARED',
+
+        'routing.primary 0'
+        + '<br>routing.secondary1 0'
+        + '<br>routing.secondary2 0',
+
+        '================================================================='
+        + '<br>CAUTION!!'
+        + '<br>        This command kill the instance!'
+        + '<br>        There is some possibility of occuring redundancy down!'
+        + '<br>================================================================='
+        + '<br>Are you sure to shutdown this instance?(yes/no)',
+
+        'BYE'
+        + 'Connection closed by foreign host.',
+
+        'localhost_10002 localhost_10003 localhost_10004 localhost_10005',
+
+        //DELETE & PUT(recover)
+        '================================================================='
+        + '<br>CAUTION!!'
+        + '<br>        This command kill the instance!'
+        + '<br>        There is some possibility of occuring redundancy down!'
+        + '<br>================================================================='
+        + '<br>Are you sure to shutdown this instance?(yes/no)',
+
+        'BYE'
+        + 'Connection closed by foreign host.',
+
+        'localhost_10003 localhost_10004 localhost_10005',
+
+        'routing.short_vnodes 391',
+       
+        '{"localhost_10003"=>"STARTED", "localhost_10004"=>"STARTED", "localhost_10005"=>"STARTED"}',
+
+        'routing.short_vnodes 0',
+
+
+        //DELETE & PUT(auto recover)
+        //'set_auto_recover true 600',
+        //'stat auto',
+
+        //balse
+        '{"localhost_10003"=>"BYE", "localhost_10004"=>"BYE", "localhost_10005"=>"BYE"}'
+        + '<br>Connection closed by foreign host.',
+    ]
+}
+
+//function showTutorialMessage(cmd) {
+//    if (cmd == window.sessionStorage.getItem(['nextCommand'])) {
+//        /* corrent command was pushed */
+//        clearHeader.bind(this)();
+//
+//        //sendAjax.bind(this)('GET', null, cmd, 'json'); /* todo*/
+//        sendRomaCommand.bind(this)(cmd, true)
+//
+//        React.findDOMNode(this.refs.command).placeholder = 'Good!! Please push Enter key to go next commands.';
+//
+//    } else if (cmd == '') {
+//        /* push enter key with brank */
+//        clearHeader.bind(this)();
+//        //React.findDOMNode(this.refs.result).value = '';
+//        this.setState({result: ''});
+//
+//        var nextCommand = $tutorialCommands.shift();
+//
+//        window.sessionStorage.setItem(['nextCommand'], nextCommand);
+//        this.setState({tutorialExplain: getExplain(nextCommand)});
+//        React.findDOMNode(this.refs.command).placeholder = nextCommand;
+//    } else {
+//       /* mistake command */
+//        var res = '> ' + cmd + '<br>Please input [' + window.sessionStorage.getItem(['nextCommand']) + '] command';
+//        this.setState({result: res});
+//    } 
+//
+//    if (nextCommand == 'set foo 0 0 3') {
+//        $('#side-bar > ul > li:nth-of-type(1)').css({'color':'gray'});
+//        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'red'});
+//    } else if (nextCommand == 'release') {
+//        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'gray'});
+//        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'red'});
+//    } else if (nextCommand == 'recover') {
+//        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'gray'});
+//        $('#side-bar > ul > li:nth-of-type(4)').css({'color':'red'});
+//    }
+//}
+//
+//function startTutorial() {
+//    $('#side-bar').css({'visibility':'visible'});
+//    $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
+//}
+
+
+
 
 function heardoc_main() {
     var heredoc = (function () {/*
@@ -561,8 +656,10 @@ var Console = React.createClass(
                 tutorialCommandList: getCommandList(),
                 tutorialCommandUsage: getCommandUsage(),
                 tutorialCommandExplanation: getCommandExplanation(),
+                tutorialCommandResult: getCommandResult(),
                 placeholder: 'Please input command',
                 explain: '',
+                nextCmd: '',
             };
         },
         componentWillReceiveProps(nextProps) {
@@ -574,26 +671,38 @@ var Console = React.createClass(
                     this.setState({res: response});
 
                 } else if (this.props.mode == 'tutorial') {
+                    window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
+
                     if (e.target.value == '') {
+
+                        this.setState({res: ''}); 
+                        this.state.tutorialCommandResult.shift();
+
                         var nextCmd = this.state.tutorialCommandList.shift();
+                        this.setState({nextCmd: nextCmd});
 
                         if (nextCmd) {
                             changePlaceHolder.bind(this)(nextCmd);
                             this.setState({cmd: this.state.tutorialCommandUsage.shift()});
                             this.setState({explain: this.state.tutorialCommandExplanation.shift()});
                         } else {
-                            console.log('empty!!');
+                            console.log('Finished');
                         }
 
                     } else {
-                        //var response = sendTutorialCommand.bind(this)(e.target.value);
-                        //if (response) {
-                        //    response += "<br><br>Good!! Let's go Next Command, please push Enter."
-                        //    this.setState({res: response});
-                        // } else {
-                        //     var retryRes = showResult.bind(this)('<br>please input ****** command<br>');
-                        //     this.setState({res: retryRes});
-                        // }
+                        var correctCmd = this.state.nextCmd;
+                        if (e.target.value == correctCmd) {
+                            //response = this.state.tutorialCommandResult.shift();
+                            response = '> '+ e.target.value+'<br><br>';
+                            response += this.state.tutorialCommandResult[0];
+                            response += "<br><br>Good!! Let's go Next Command, please push Enter."
+
+                            this.setState({res: response});
+                        } else {
+                            var retryRes = showResult.bind(this)('<br>please input [' + correctCmd + '] command<br>');
+                            this.setState({res: retryRes});
+                        }
+                        clearForm.bind(this)();
                     }
                 } 
             } 
@@ -635,7 +744,6 @@ var Console = React.createClass(
 
 
 
-//8(child)
 var FreeHeader = React.createClass(
     {
         getDefaultProps() {
@@ -698,11 +806,6 @@ var FreeHeader = React.createClass(
 
 var TutorialHeader = React.createClass(
     {
-        //getDefaultProps() {
-        //    return {
-        //        explain: "This mode is tutorial of ROMA basic usage.<br>This mode explain ROMA command one by one.<br><br>Let's start tutorial!!<br>Please push Enter Key ",
-        //    };
-        //},
         getInitialState() {
             return {
                 greetingAA: heardoc_tutorial(),
@@ -761,7 +864,6 @@ var FreeDisplay = React.createClass(
     {
         getInitialState() {
             return {
-                result: "",
                 response: '',
             };
         },
@@ -786,21 +888,20 @@ var TutorialDisplay = React.createClass(
     {
         getInitialState() {
             return {
-                result: "",
                 response: '',
             };
         },
         componentWillReceiveProps(nextProps) {
-            if (nextProps.response.lastIndexOf('BYE') == -1) {
-                this.setState({response: this.state.response + '<br>' + nextProps.response});
-            } else {
-                this.setState({response: nextProps.response});
-            }
+            //if (nextProps.response.lastIndexOf('BYE') == -1) {
+            //    this.setState({response: this.state.response + '<br>' + nextProps.response});
+            //} else {
+            //    this.setState({response: nextProps.response});
+            //}
         },
         render: function() {
             return (
                 <div id="responseArea">
-                  {this.state.response.split('<br>').map(lines)}
+                  {this.props.response.split('<br>').map(lines)}
                 </div>
             );
         }
