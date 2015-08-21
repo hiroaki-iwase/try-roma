@@ -291,11 +291,10 @@ function getCommandList() {
         'recover',
         'stat short',
         //DELETE & PUT(auto recover)
-        'set_auto_recover true 600',
-        'stat auto',
+        //'set_auto_recover true 600',
+        //'stat auto',
         //balse
         'balse',
-        //'set_expt baz 1',
     ]
 }
 
@@ -602,22 +601,8 @@ function getCommandResult() {
 //        this.setState({result: res});
 //    } 
 //
-//    if (nextCommand == 'set foo 0 0 3') {
-//        $('#side-bar > ul > li:nth-of-type(1)').css({'color':'gray'});
-//        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'red'});
-//    } else if (nextCommand == 'release') {
-//        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'gray'});
-//        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'red'});
-//    } else if (nextCommand == 'recover') {
-//        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'gray'});
-//        $('#side-bar > ul > li:nth-of-type(4)').css({'color':'red'});
-//    }
 //}
 //
-//function startTutorial() {
-//    $('#side-bar').css({'visibility':'visible'});
-//    $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
-//}
 
 
 
@@ -633,12 +618,125 @@ function heardoc_main() {
     return heredoc;
 }
 
+function changeSideBarColor(nextCommand) {
+    if (nextCommand == 'set foo 0 0 3') {
+        $('#side-bar > ul > li:nth-of-type(1)').css({'color':'gray'});
+        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'red'});
+    } else if (nextCommand == 'stat primary|secondary') {
+        $('#side-bar > ul > li:nth-of-type(2)').css({'color':'gray'});
+        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'red'});
+    } else if (nextCommand == 'recover') {
+        $('#side-bar > ul > li:nth-of-type(3)').css({'color':'gray'});
+        $('#side-bar > ul > li:nth-of-type(4)').css({'color':'red'});
+    } else if (nextCommand == 'balse') {
+        $('#side-bar > ul > li:nth-of-type(4)').css({'color':'gray'});
+        $('#side-bar > ul > li:nth-of-type(5)').css({'color':'red'});
+    }
+
+    if (nextCommand == 'stats') {
+        $('#stats').css({'color':'red'});
+    } else if (nextCommand == 'nodelist') {
+        $('#stats').css({'color':'gray'});
+        $('#nodelist').css({'color':'red'});
+    } else if (nextCommand == 'set foo 0 0 3') {
+        $('#nodelist').css({'color':'gray'});
+        $('#set').css({'color':'red'});
+    } else if (nextCommand == 'get foo') {
+        $('#set').css({'color':'gray'});
+        $('#get').css({'color':'red'});
+    } else if (nextCommand == 'add foo 0 0 3') {
+        $('#get').css({'color':'gray'});
+        $('#add').css({'color':'red'});
+    } else if (nextCommand == 'delete foo') {
+        $('#add').css({'color':'gray'});
+        $('#delete').css({'color':'red'});
+    } else if (nextCommand == 'stat primary|secondary') {
+        $('#delete').css({'color':'gray'});
+        $('#release').css({'color':'red'});
+    } else if (nextCommand == 'shutdown_self') {
+        $('#release').css({'color':'gray'});
+        $('#shutdown_self').css({'color':'red'});
+    } else if (nextCommand == 'recover') {
+        $('#shutdown_self').css({'color':'gray'});
+        $('#recover').css({'color':'red'});
+    } else if (nextCommand == 'balse') {
+        $('#recover').css({'color':'gray'});
+        $('#balse').css({'color':'red'});
+    }
+}
 
 
 /* =====================================================================================================================
  *  React Component
  * ===================================================================================================================== */
-//parent
+var SelectModeButton = React.createClass(
+    {
+        getInitialState() {
+            return{
+                mode: 'free',
+            };
+        },
+        selectMode(e) {
+            if (e.target.name == 'tutorial') {
+                $("#tutorial-button").prop("disabled", true);
+                $("#free-button").hide('slow', function(){$("#free-button").remove();});
+
+                $('#console-screen').animate({'margin-left':'220px', 'margin-right':'20px'}, 500);
+
+                $('#side-bar').css({'visibility':'visible'});
+                $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
+
+                this.setState({mode: 'tutorial'});
+
+            } else if (e.target.name == 'free') {
+                // todo css animation
+                $("#free-button").prop("disabled", true);
+                $("#tutorial-button").hide('slow', function(){$("#tutorial-button").remove();});
+                this.setState({mode: 'free'});
+            }
+        },
+        render: function() {
+            return (
+                <div>
+                  <div id='mode-button'>
+                    <center>
+                      <button id='tutorial-button' type="button" name="tutorial" onClick={this.selectMode}>
+                        Tutorial mode
+                      </button>
+                      <button id='free-button' type="button" name="free" onClick={this.selectMode}>
+                        Free mode
+                      </button>
+                    </center>
+                  </div>
+
+                  <Main mode={this.state.mode} />
+
+                </div>
+            );
+        }
+    }
+);
+
+var Main = React.createClass(
+    {
+        getDefaultProps() {
+            return {
+                mode: 'free',
+            };
+        },
+        render: function() {
+            return (
+                <div>
+                  {/*<SideBar mode={this.state.mode} />*/}
+
+                  <TutorialSideBar />
+                  <Console mode={this.props.mode} />
+                </div>
+            );
+        }
+    }
+);
+
 var Console = React.createClass(
     {
         getDefaultProps() {
@@ -680,6 +778,8 @@ var Console = React.createClass(
 
                         var nextCmd = this.state.tutorialCommandList.shift();
                         this.setState({nextCmd: nextCmd});
+
+                        changeSideBarColor(nextCmd);
 
                         if (nextCmd) {
                             changePlaceHolder.bind(this)(nextCmd);
@@ -774,10 +874,10 @@ var FreeHeader = React.createClass(
                     color: '#00cede',
                 },
                 greetingAA: {
-                    fontSize: '11px',
+                    fontSize: '13px',
                 },
                 greetingMsg: {
-                    fontSize: '20px',
+                    fontSize: '26px',
                 },
                 nonActive: {
                     color: 'red',
@@ -922,69 +1022,6 @@ var Title = React.createClass(
     }
 );
 
-var SelectModeButton = React.createClass(
-    {
-        getInitialState() {
-            return{
-                mode: 'free',
-            };
-        },
-        selectMode(e) {
-            if (e.target.name == 'tutorial') {
-console.log('selected tutorial mode!!')
-                $("#tutorial-button").prop("disabled", true);
-                $("#free-button").hide('slow', function(){$("#free-button").remove();});
-                $('#console-screen').animate({'margin-left':'220px', 'margin-right':'20px'}, 500);
-                //startTutorial.bind(this)();
-                this.setState({mode: 'tutorial'});
-
-            } else if (e.target.name == 'free') {
-                // todo css animation
-                $("#free-button").prop("disabled", true);
-                $("#tutorial-button").hide('slow', function(){$("#tutorial-button").remove();});
-                this.setState({mode: 'free'});
-            }
-        },
-        render: function() {
-            return (
-                <div>
-                  <div id='mode-button'>
-                    <center>
-                      <button id='tutorial-button' type="button" name="tutorial" onClick={this.selectMode}>
-                        Tutorial mode
-                      </button>
-                      <button id='free-button' type="button" name="free" onClick={this.selectMode}>
-                        Free mode
-                      </button>
-                    </center>
-                  </div>
-
-                  <Main mode={this.state.mode} />
-
-                </div>
-            );
-        }
-    }
-);
-
-var Main = React.createClass(
-    {
-        getDefaultProps() {
-            return {
-                mode: 'free',
-            };
-        },
-        render: function() {
-            return (
-                <div>
-                  {/*<SideBar mode={this.state.mode} />*/}
-                  <Console mode={this.props.mode} />
-                </div>
-            );
-        }
-    }
-);
-
 //2
 var TutorialSideBar = React.createClass(
     {
@@ -994,26 +1031,28 @@ var TutorialSideBar = React.createClass(
                   <ul>
                     <li>Check Status</li>
                     <ul className='tutorial-commands'>
-                      <li>stat</li>
-                      <li>nodelist</li>
+                      <li id='stats'>stat</li>
+                      <li id='nodelist'>nodelist</li>
                     </ul>
                     <li>Manage Data</li>
                     <ul className='tutorial-commands'>
-                      <li>set</li>
-                      <li>get</li>
-                      <li>delete</li>
-                      <li>add</li>
-                      <li>set_expt</li>
+                      <li id='set'>set</li>
+                      <li id='get'>get</li>
+                      <li id='add'>add</li>
+                      <li id='delete'>delete</li>
                     </ul>
                     <li>Instance shutdown</li>
                     <ul className='tutorial-commands'>
-                      <li>release</li>
-                      <li>shutdown_self</li>
+                      <li id='release'>release</li>
+                      <li id='shutdown_self'>shutdown_self</li>
                     </ul>
                     <li>Recover redundancy</li>
                     <ul className='tutorial-commands'>
-                      <li>recover</li>
-                      <li>set_auto_recover</li>
+                      <li id='recover'>recover</li>
+                    </ul>
+                    <li>STOP ROMA</li>
+                    <ul className='tutorial-commands'>
+                      <li id='balse'>balse</li>
                     </ul>
                   </ul>
                 </span>
