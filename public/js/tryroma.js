@@ -1,3 +1,6 @@
+/* =====================================================================================================================
+ *  Java Script
+ * ===================================================================================================================== */
 function changeStyleToHash(json) {
     hash_str = json.replace(/", "/g,'"=>"').replace(/\]\[/g,', ').replace(/\[/,'{').replace(/\]/,'}');
     return hash_str;
@@ -82,62 +85,73 @@ function checkSecondValue(cmd) {
     return res;
 }
 
+/* =====================================================================================================================
+ *  Free Mode Contents
+ * ===================================================================================================================== */
 
-//function getCommand(cmd) {
-//    var command = '';
-//    switch (true) {
-//        case /^stats$/.test(cmd) :
-//            command = "* stat|stats";
-//            break;
-//        case /^stats node$/.test(cmd) :
-//            command = "* stat|stats <regexp>";
-//            break;
-//        case /^nodelist$/.test(cmd) :
-//            command = "* nodelist";
-//            break;
-//        case /^set foo 0 0 3$/.test(cmd) :
-//            command = "* set <key> <flag> <exptime> <value size>\\n<value>";
-//            break;
-//        case /^bar$/.test(cmd) :
-//            command = "* set <key> <flag> <exptime> <value size>\\n<value>";
-//            break;
-//        case /^get foo$/.test(cmd) :
-//            command = "* get <key>";
-//            break;
-//        case /^add foo 0 0 3$/.test(cmd) :
-//            command = "* add <key> <flag> <exptime> <value size>\\n<value>";
-//            break;
-//        case /^baz$/.test(cmd) :
-//            command = "* add <key> <flag> <exptime> <value size>\\n<value>";
-//            break;
-//        case /^add hoge 0 0 4$/.test(cmd) :
-//            command = "* add <key> <flag> <exptime> <value size>\\n<value>";
-//            break;
-//        case /^fuga$/.test(cmd) :
-//            command = "* add <key> <flag> <exptime> <value size>\\n<value>";
-//            break;
-//        case /^get hoge$/.test(cmd) :
-//            command = "* add <key> <flag> <exptime> <value size>\\n<value>";
-//            break;
-//        case /^delete foo$/.test(cmd) :
-//            command = "* delete <key>";
-//            break;
-//        //case /^set_expt foo 1$/.test(cmd) :
-//        //    command = "* set_expt <key> <exptime>";
-//        //    break;
-//        case /^release$/.test(cmd) :
-//            explain = "<br>So please input below command and push Enter key.<br><br>> release"
-//            break;
-//    }
-//    return command;
-//}
+
+/* =====================================================================================================================
+ *  Tutorial Contents
+ * ===================================================================================================================== */
+
+function heardoc_tutorial() {
+    var heredoc = (function () {/*
+ _____     _           _     _    _____       _     
+|_   _|_ _| |_ ___ ___|_|___| |  |     |___ _| |___ 
+  | | | | |  _| . |  _| | .'| |  | | | | . | . | -_|
+  |_| |___|_| |___|_| |_|__,|_|  |_|_|_|___|___|___|
+    */}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
+
+    return heredoc;
+}
+
+function getCommandList() {
+    return [
+        //GET
+        'stats',
+        'stats node',
+        'nodelist',
+        //POST
+        'set foo 0 0 3',
+        'bar',
+        'get foo',
+        'add foo 0 0 3',
+        'baz',
+        'add hoge 0 0 4',
+        'fuga',
+        'get hoge',
+        'delete foo',
+        //DELETE & PUT(release)
+        'stat primary|secondary',
+        'release',
+        'stat primary|secondary',
+        'shutdown_self',
+        'yes',
+        'nodelist',
+        //DELETE & PUT(recover)
+        'shutdown_self',
+        'yes',
+        'nodelist',
+        'stat short',
+        'recover',
+        'stat short',
+        //DELETE & PUT(auto recover)
+        'set_auto_recover true 600',
+        'stat auto',
+        //balse
+        'balse',
+        //'set_expt baz 1',
+    ]
+}
 
 
 function getCommandUsage(cmd) {
     return [
+        //GET
         "* stat|stats",
         "* stat|stats <regexp>",
         "* nodelist",
+        //POST
         "* set <key> <flag> <exptime> <value size>\\n<value>",
         "* set <key> <flag> <exptime> <value size>\\n<value>",
         "* get <key>",
@@ -147,171 +161,166 @@ function getCommandUsage(cmd) {
         "* add <key> <flag> <exptime> <value size>\\n<value>",
         "* add <key> <flag> <exptime> <value size>\\n<value>",
         "* delete <key>",
+        //DELETE & PUT(release)
+        '* release',
+        '* release',
+        '* release',
+        '* shutdown_self',
+        '* shutdown_self',
+        '* shutdown_self',
+        //DELETE & PUT(recover)
+        '* recover',
+        '* recover',
+        '* recover',
+        '* recover',
+        '* recover',
+        '* recover',
+        //DELETE & PUT(auto recover)
+        '* set_auto_recover <true|flase> <sec>',
+        '* set_auto_recover <true|flase> <sec>',
+        //balse
+        '* balse',
     ]
 }
 
 
 function getCommandExplanation() {
     return [
+        //GET
         "Firstly Let's check ROMA's cluster status.<br>" +
         "This command will display all of the cluster status.<br>" + 
-        "<br>So please input below command and push Enter key.<br>> stats",
+        "<br>Please input below command and push Enter key.<br>> stats",
 
         "[stat|stats] command display the all of parameters,<br>" +
         "so it is hard to check specific one.<br>" + 
         "But you can use regular expression as a argument.<br>" + 
-        "<br>So please input below command and push Enter key.<br>> stats node",
+        "<br>Please input below command and push Enter key.<br>> stats node",
 
         "Next let's check current nodelist without using stats.<br>" + 
         "ROMA has the command which check the just alive nodelist.<br>" + 
-        "<br>So please input below command and push Enter key.<br>> nodelist",
+        "<br>Please input below command and push Enter key.<br>> nodelist",
+
+        //POST
+        "Next is a data store command.<br>" +
+        "this command store the data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> set foo 0 0 3",
 
         "Next is a data store command.<br>" +
         "this command store the data.<br>" +
-        "<br>So please input below command and push Enter key.<br>> set foo 0 0 3",
-
-        "Next is a data store command.<br>" +
-        "this command store the data.<br>" +
-        "<br>So please input below command and push Enter key.<br>> set foo 0 0 3<br>" +
-        "<br>So please input below command and push Enter key.<br>> bar",
+        "<br>Please input below command and push Enter key.<br>> set foo 0 0 3<br>" +
+        "<br>Please input below command and push Enter key.<br>> bar",
 
         "Next is a data getting command.<br>" +
         "This command search and display the data.<br>" +
-        "<br>So please input below command and push Enter key.<br>> get foo",
+        "<br>Please input below command and push Enter key.<br>> get foo",
 
         "Next is a data adding command.<br>" +
-        "This command is similar to set command,<br> " +
-        "but add command set the data unless specified key is already exist." +
+        "This command is similar to set command,<br>" +
+        "but add command set the data unless specified key is already exist.<br>" +
         "Fistly, try add to exist key data.<br>" +
-        "<br>So please input below command and push Enter key.<br>> add foo 0 0 3",
+        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3",
 
         "Next is a data adding command.<br>" +
-        "This command is similar to set command,<br> " +
-        "but add command set the data unless specified key is already exist." +
+        "This command is similar to set command,<br>" +
+        "but add command set the data unless specified key is already exist.<br>" +
         "Fistly, try add to exist key data.<br>" +
-        "<br>So please input below command and push Enter key.<br>> add foo 0 0 3" +
-        "<br>So please input below command and push Enter key.<br>> baz",
+        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3" +
+        "<br>Please input below command and push Enter key.<br>> baz",
 
         "Next is a data adding command.<br>" +
-        "This command is similar to set command,<br> " +
-        "but add command set the data unless specified key is already exist." +
+        "This command is similar to set command,<br>" +
+        "but add command set the data unless specified key is already exist.<br>" +
         "Fistly, try add to exist key data.<br>" +
-        "<br>So please input below command and push Enter key.<br>> add foo 0 0 3" +
-        "<br>So please input below command and push Enter key.<br>> baz" +
-        "<br>Next, tyr add to Non exist data<br>." +
-        "<br>So please input below command and push Enter key.<br>> add hoge 0 0 4",
+        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3" +
+        "<br>Please input below command and push Enter key.<br>> baz" +
+        "<br>Next, try add to Non exist data.<br>" +
+        "<br>Please input below command and push Enter key.<br>> add hoge 0 0 4",
 
         "Next is a data adding command.<br>" +
-        "This command is similar to set command,<br> " +
-        "but add command set the data unless specified key is already exist." +
+        "This command is similar to set command,<br>" +
+        "but add command set the data unless specified key is already exist.<br>" +
         "Fistly, try add to exist key data.<br>" +
-        "<br>So please input below command and push Enter key.<br>> add foo 0 0 3<>" +
-        "<br>So please input below command and push Enter key.<br>> baz" +
+        "<br>Please input below command and push Enter key.<br>> add foo 0 0 3" +
+        "<br>Please input below command and push Enter key.<br>> baz" +
         "<br><br>Next, try add to Non exist data.<br>" +
-        "<br>So please input below command and push Enter key.<br>> add hoge 0 0 4" + 
-        "<br>So please input below command and push Enter key.<br>> fuga",
+        "<br>Please input below command and push Enter key.<br>> add hoge 0 0 4" + 
+        "<br>Please input below command and push Enter key.<br>> fuga",
 
         "Let's confirm the stored data(of key name is hoge).<br>" +
-        "<br>So please input below command and push Enter key.<br>> get baz",
-
-         // delete
+        "<br>Please input below command and push Enter key.<br>> get baz",
+ 
         "Next is a data deletion command.<br>" + 
         "This command remove the data.<br>" +
-        "<br>So please input below command and push Enter key.<br>> delete foo",
-     //explain = "ROMA can set expired time.<br>When passed over expired time, data will be remove automatically.<br>Usage:<br>set_expt <key> <exptime><br>Setting rule is same of memcached.<br>If the value is 0 then the data will not be expired.<br>So please input below command and push Enter key.<br><br>> set_expt baz 1"
+        "<br>Please input below command and push Enter key.<br>> delete foo",
+
+        //DELETE & PUT(release)
+        "Next is a instance shutdown command.<br>" + 
+        "Fistly, check the responsible vnodes of this instance.<br>" +
+        "<br>Please input below command and push Enter key.<br>> stat primary|secondary",
+
+        "Next step, let's release the these responsible vnodes to other instances.<br>" +
+        "<br>Please input below command and push Enter key.<br>> release",
+
+        "release process may take a long time depending on the fail size or something,<br>" +
+        "but this is a tutorial, let's skip to end of this process.<br>" +
+        "<br>Please input below command and push Enter key.<br>> stat primary|secondary",
+
+        "release process release the all responsible vnodes,<br>" +
+        "so let's shutdown the this instance.<br>" +
+        "<br>Please input below command and push Enter key.<br>> shutdown_self",
+
+        "release process release the all responsible vnodes,<br>" +
+        "so let's shutdown the this instance.<br>" +
+        "<br>Please input below command and push Enter key.<br>> shutdown_self"+
+        "<br><br>Please input below command and push Enter key.<br>> yes",
+
+        "instance(localhost_10001) was down.<br>" +
+        "Let's check node status.<br>" +
+        "<br>Please input below command and push Enter key.<br>> nodelist",
+
+        //DELETE & PUT(recover)
+        "Next is a recovering redundancy Error command.<br>" + 
+        "Fistly, shutdown the instance without execute release.<br>" +
+        "<br>Please input below command and push Enter key.<br>> shutdown_self",
+
+        "Next is a recovering redundancy Error command.<br>" + 
+        "Fistly, shutdown the instance without execute release.<br>" +
+        "<br>Please input below command and push Enter key.<br>> shutdown_self" +
+        "<br><br>Please input below command and push Enter key.<br>> yes",
+
+        "instance(localhost_10002) was down.<br>" +
+        "Let's check node status.<br>" +
+        "<br>Please input below command and push Enter key.<br>> nodelist",
+
+        "We executed shutdown without release responsible vnodes,<br>" +
+        "so ROMA's redundancy was down.<br>" +
+        "You can check the count of redundancy down vnodes by stats command.<br>" +
+        "<br>Please input below command and push Enter key.<br>> stat short",
+      
+        "It is NOT good for ROMA,<br>" +
+        "so let's recover the data by use 'recover' command.<br>" +
+        "<br>Please input below command and push Enter key.<br>> recover",
+
+        "recover process may take a long time as also 'release' command,<br>" +
+        "so let's skip to end of this process.<br><br>" +
+        "After finising recover, short_vnodes will become 0." +
+        "<br><br>Please input below command and push Enter key.<br>> stat short",
+
+        //DELETE & PUT(auto recover)
+        "We can set to execute recover automatically when redundancy will be down.<br>" +
+        "set_auto_reocver can set this.<br>" +
+        "<br>Please input below command and push Enter key.<br>> set_auto_recover true 600",
+
+        "This argument means that activating auto recover function passed 600sec after redundancy down.<br>" +
+        "Please confirm current status by stats command.<br>" +
+        "<br>Please input below command and push Enter key.<br>> stat auto",
+
+        //balse
+        "Finally, let's shutdown the ROMA(means shutdown all instaces).<br>" +
+        "<br>Please input below command and push Enter key.<br>> balse",
     ]
 }
 
-//function getExplanation(cmd) {
-//    var explain = '';
-//    switch (true) {
-//        case /^stats$/.test(cmd) :
-//            explain = "Firstly Let's check ROMA's cluster status.<br>"
-//                    + "This command will display all of the cluster status.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> stats";
-//            break;
-//        case /^stats node$/.test(cmd) :
-//            explain = "[stat|stats] command display the all of parameters,<br>"
-//                    + "so it is hard to check specific one.<br>"
-//                    + "But you can use regular expression as a argument.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> stats node"
-//            break;
-//        case /^nodelist$/.test(cmd) :
-//            explain = "Next let's check current nodelist without using stats.<br>"
-//                    + "ROMA has the command which check the just alive nodelist.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> nodelist"
-//            break;
-//        case /^set foo 0 0 3$/.test(cmd) :
-//            explain = "Next is a data store command.<br>"
-//                    + "this command store the data.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> set foo 0 0 3"
-//            break;
-//        case /^bar$/.test(cmd) :
-//            explain = "Next is a data store command.<br>"
-//                    + "this command store the data.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> set foo 0 0 3<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> bar"
-//            break;
-//        case /^get foo$/.test(cmd) :
-//            explain = "Next is a data getting command.<br>"
-//                    + "This command search and display the data.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> get foo"
-//            break;
-//        case /^add foo 0 0 3$/.test(cmd) :
-//            explain = "Next is a data adding command.<br>"
-//                    + "This command is similar to set command,<br> "
-//                    + "but add command set the data unless specified key is already exist."
-//                    + "Fistly, try add to exist key data.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> add foo 0 0 3"
-//            break;
-//        case /^baz$/.test(cmd) :
-//            explain = "Next is a data adding command.<br>"
-//                    + "This command is similar to set command,<br> "
-//                    + "but add command set the data unless specified key is already exist."
-//                    + "Fistly, try add to exist key data.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> add foo 0 0 3"
-//                    + "<br>So please input below command and push Enter key.<br>> baz"
-//            break;
-//        case /^add hoge 0 0 4$/.test(cmd) :
-//            explain = "Next is a data adding command.<br>"
-//                    + "This command is similar to set command,<br> "
-//                    + "but add command set the data unless specified key is already exist."
-//                    + "Fistly, try add to exist key data.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> add foo 0 0 3"
-//                    + "<br>So please input below command and push Enter key.<br>> baz"
-//                    + "<br>Next, tyr add to Non exist data<br>."
-//                    + "<br>So please input below command and push Enter key.<br>> add hoge 0 0 4"
-//            break;
-//        case /^fuga$/.test(cmd) :
-//            explain = "Next is a data adding command.<br>"
-//                    + "This command is similar to set command,<br> "
-//                    + "but add command set the data unless specified key is already exist."
-//                    + "Fistly, try add to exist key data.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> add foo 0 0 3<>"
-//                    + "<br>So please input below command and push Enter key.<br>> baz"
-//                    + "<br><br>Next, try add to Non exist data.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> add hoge 0 0 4"
-//                    + "<br>So please input below command and push Enter key.<br>> fuga"
-//            break;
-//        case /^get hoge$/.test(cmd) :
-//            explain = "Let's confirm the stored data(of key name is hoge).<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> get baz"
-//            break;
-//        case /^delete foo$/.test(cmd) :
-//            explain = "Next is a data deletion command.<br>"
-//                    + "This command remove the data.<br>"
-//                    + "<br>So please input below command and push Enter key.<br>> delete foo"
-//            break;
-//
-//        case /^set_expt baz 1$/.test(cmd) :
-//            explain = "ROMA can set expired time.<br>When passed over expired time, data will be remove automatically.<br>Usage:<br>set_expt <key> <exptime><br>Setting rule is same of memcached.<br>If the value is 0 then the data will not be expired.<br>So please input below command and push Enter key.<br><br>> set_expt baz 1"
-//            break;
-//        case /^release$/.test(cmd) :
-//            explain = "<br>So please input below command and push Enter key.<br><br>> release"
-//            break;
-//    }
-//    return explain;
-//}
 
 //function showTutorialMessage(cmd) {
 //    if (cmd == window.sessionStorage.getItem(['nextCommand'])) {
@@ -529,46 +538,12 @@ function heardoc_main() {
     return heredoc;
 }
 
-function heardoc_tutorial() {
-    var heredoc = (function () {/*
- _____     _           _     _    _____       _     
-|_   _|_ _| |_ ___ ___|_|___| |  |     |___ _| |___ 
-  | | | | |  _| . |  _| | .'| |  | | | | . | . | -_|
-  |_| |___|_| |___|_| |_|__,|_|  |_|_|_|___|___|___|
-    */}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
-
-    return heredoc;
-}
-
-function getCommandList() {
-    return [
-        'stats', 
-        'stats node', 
-        'nodelist', 
-        'set foo 0 0 3',
-        'bar', 
-        'get foo',
-        'add foo 0 0 3',
-        'baz',
-        'add hoge 0 0 4',
-        'fuga',
-        'get hoge',
-        'delete foo',
-        //'set_expt baz 1',
-        //'get baz',
-        //'shutdown_self',
-        //'stat short'
-        //'recover',
-        //'stat short',
-        //'set_auto_recover'
-        //'release',
-        //'stat primary|secondary',
-        //'shutdown_self',
-    ]
-}
 
 
-//5(parent)
+/* =====================================================================================================================
+ *  React Component
+ * ===================================================================================================================== */
+//parent
 var Console = React.createClass(
     {
         getDefaultProps() {
@@ -602,13 +577,11 @@ var Console = React.createClass(
                     if (e.target.value == '') {
                         var nextCmd = this.state.tutorialCommandList.shift();
 
-                        if (this.state.tutorialCommandList.length != 0) {
+                        if (nextCmd) {
                             changePlaceHolder.bind(this)(nextCmd);
                             this.setState({cmd: this.state.tutorialCommandUsage.shift()});
-                            //this.setState({explain: getExplanation(nextCmd)});
                             this.setState({explain: this.state.tutorialCommandExplanation.shift()});
                         } else {
-                            // finish tutorial mode
                             console.log('empty!!');
                         }
 
