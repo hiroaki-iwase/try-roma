@@ -83,44 +83,229 @@ function checkSecondValue(cmd) {
 }
 
 
+//function getCommand(cmd) {
+//    var command = '';
+//    switch (true) {
+//        case /^stats$/.test(cmd) :
+//            command = "* stat|stats";
+//            break;
+//        case /^stats node$/.test(cmd) :
+//            command = "* stat|stats <regexp>";
+//            break;
+//        case /^nodelist$/.test(cmd) :
+//            command = "* nodelist";
+//            break;
+//        case /^set foo 0 0 3$/.test(cmd) :
+//            command = "* set <key> <flag> <exptime> <value size>\\n<value>";
+//            break;
+//        case /^bar$/.test(cmd) :
+//            command = "* set <key> <flag> <exptime> <value size>\\n<value>";
+//            break;
+//        case /^get foo$/.test(cmd) :
+//            command = "* get <key>";
+//            break;
+//        case /^add foo 0 0 3$/.test(cmd) :
+//            command = "* add <key> <flag> <exptime> <value size>\\n<value>";
+//            break;
+//        case /^baz$/.test(cmd) :
+//            command = "* add <key> <flag> <exptime> <value size>\\n<value>";
+//            break;
+//        case /^add hoge 0 0 4$/.test(cmd) :
+//            command = "* add <key> <flag> <exptime> <value size>\\n<value>";
+//            break;
+//        case /^fuga$/.test(cmd) :
+//            command = "* add <key> <flag> <exptime> <value size>\\n<value>";
+//            break;
+//        case /^get hoge$/.test(cmd) :
+//            command = "* add <key> <flag> <exptime> <value size>\\n<value>";
+//            break;
+//        case /^delete foo$/.test(cmd) :
+//            command = "* delete <key>";
+//            break;
+//        //case /^set_expt foo 1$/.test(cmd) :
+//        //    command = "* set_expt <key> <exptime>";
+//        //    break;
+//        case /^release$/.test(cmd) :
+//            explain = "<br>So please input below command and push Enter key.<br><br>> release"
+//            break;
+//    }
+//    return command;
+//}
 
 
+function getCommandUsage(cmd) {
+    return [
+        "* stat|stats",
+        "* stat|stats <regexp>",
+        "* nodelist",
+        "* set <key> <flag> <exptime> <value size>\\n<value>",
+        "* set <key> <flag> <exptime> <value size>\\n<value>",
+        "* get <key>",
+        "* add <key> <flag> <exptime> <value size>\\n<value>",
+        "* add <key> <flag> <exptime> <value size>\\n<value>",
+        "* add <key> <flag> <exptime> <value size>\\n<value>",
+        "* add <key> <flag> <exptime> <value size>\\n<value>",
+        "* add <key> <flag> <exptime> <value size>\\n<value>",
+        "* delete <key>",
+    ]
+}
 
-//function getExplain(cmd) {
+
+function getCommandExplanation() {
+    return [
+        "Firstly Let's check ROMA's cluster status.<br>" +
+        "This command will display all of the cluster status.<br>" + 
+        "<br>So please input below command and push Enter key.<br>> stats",
+
+        "[stat|stats] command display the all of parameters,<br>" +
+        "so it is hard to check specific one.<br>" + 
+        "But you can use regular expression as a argument.<br>" + 
+        "<br>So please input below command and push Enter key.<br>> stats node",
+
+        "Next let's check current nodelist without using stats.<br>" + 
+        "ROMA has the command which check the just alive nodelist.<br>" + 
+        "<br>So please input below command and push Enter key.<br>> nodelist",
+
+        "Next is a data store command.<br>" +
+        "this command store the data.<br>" +
+        "<br>So please input below command and push Enter key.<br>> set foo 0 0 3",
+
+        "Next is a data store command.<br>" +
+        "this command store the data.<br>" +
+        "<br>So please input below command and push Enter key.<br>> set foo 0 0 3<br>" +
+        "<br>So please input below command and push Enter key.<br>> bar",
+
+        "Next is a data getting command.<br>" +
+        "This command search and display the data.<br>" +
+        "<br>So please input below command and push Enter key.<br>> get foo",
+
+        "Next is a data adding command.<br>" +
+        "This command is similar to set command,<br> " +
+        "but add command set the data unless specified key is already exist." +
+        "Fistly, try add to exist key data.<br>" +
+        "<br>So please input below command and push Enter key.<br>> add foo 0 0 3",
+
+        "Next is a data adding command.<br>" +
+        "This command is similar to set command,<br> " +
+        "but add command set the data unless specified key is already exist." +
+        "Fistly, try add to exist key data.<br>" +
+        "<br>So please input below command and push Enter key.<br>> add foo 0 0 3" +
+        "<br>So please input below command and push Enter key.<br>> baz",
+
+        "Next is a data adding command.<br>" +
+        "This command is similar to set command,<br> " +
+        "but add command set the data unless specified key is already exist." +
+        "Fistly, try add to exist key data.<br>" +
+        "<br>So please input below command and push Enter key.<br>> add foo 0 0 3" +
+        "<br>So please input below command and push Enter key.<br>> baz" +
+        "<br>Next, tyr add to Non exist data<br>." +
+        "<br>So please input below command and push Enter key.<br>> add hoge 0 0 4",
+
+        "Next is a data adding command.<br>" +
+        "This command is similar to set command,<br> " +
+        "but add command set the data unless specified key is already exist." +
+        "Fistly, try add to exist key data.<br>" +
+        "<br>So please input below command and push Enter key.<br>> add foo 0 0 3<>" +
+        "<br>So please input below command and push Enter key.<br>> baz" +
+        "<br><br>Next, try add to Non exist data.<br>" +
+        "<br>So please input below command and push Enter key.<br>> add hoge 0 0 4" + 
+        "<br>So please input below command and push Enter key.<br>> fuga",
+
+        "Let's confirm the stored data(of key name is hoge).<br>" +
+        "<br>So please input below command and push Enter key.<br>> get baz",
+
+         // delete
+        "Next is a data deletion command.<br>" + 
+        "This command remove the data.<br>" +
+        "<br>So please input below command and push Enter key.<br>> delete foo",
+     //explain = "ROMA can set expired time.<br>When passed over expired time, data will be remove automatically.<br>Usage:<br>set_expt <key> <exptime><br>Setting rule is same of memcached.<br>If the value is 0 then the data will not be expired.<br>So please input below command and push Enter key.<br><br>> set_expt baz 1"
+    ]
+}
+
+//function getExplanation(cmd) {
 //    var explain = '';
 //    switch (true) {
 //        case /^stats$/.test(cmd) :
-//            explain = "Firstly Let's check ROMA's cluster status.<br>[stats] command will display all of cluster status.<br>So please input below command and push Enter key.<br><br>> stats"
+//            explain = "Firstly Let's check ROMA's cluster status.<br>"
+//                    + "This command will display all of the cluster status.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> stats";
 //            break;
 //        case /^stats node$/.test(cmd) :
-//            explain = "[stats] command display the all of parameters, so it is hard to check specific one.<br>But you can use regular expression as a argument.<br>So please input below command and push Enter key.<br><br>> stats node"
+//            explain = "[stat|stats] command display the all of parameters,<br>"
+//                    + "so it is hard to check specific one.<br>"
+//                    + "But you can use regular expression as a argument.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> stats node"
 //            break;
 //        case /^nodelist$/.test(cmd) :
-//            explain = "Next let's check current nodelist without using stats command.<br>ROMA has the command which check the just alive nodelist. <br>So please input below command and push Enter key.<br><br>> nodelist"
+//            explain = "Next let's check current nodelist without using stats.<br>"
+//                    + "ROMA has the command which check the just alive nodelist.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> nodelist"
 //            break;
-//
 //        case /^set foo 0 0 3$/.test(cmd) :
-//            explain = 'todo';
-//            //explain = "Next is a data store command.<br>[set] command store the data.<br>Usage:<br>set <key> <flags> <exptime> <bytes><br><value><br><br>So please input below command and push Enter key.<br><br>> set foo 0 0 3"
+//            explain = "Next is a data store command.<br>"
+//                    + "this command store the data.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> set foo 0 0 3"
+//            break;
+//        case /^bar$/.test(cmd) :
+//            explain = "Next is a data store command.<br>"
+//                    + "this command store the data.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> set foo 0 0 3<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> bar"
 //            break;
 //        case /^get foo$/.test(cmd) :
-//            explain = "Next is a data getting command.<br>[get] command search and display the data.<br>Usage:<br>get <key><br>So please input below command and push Enter key.<br><br>> get foo"
+//            explain = "Next is a data getting command.<br>"
+//                    + "This command search and display the data.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> get foo"
+//            break;
+//        case /^add foo 0 0 3$/.test(cmd) :
+//            explain = "Next is a data adding command.<br>"
+//                    + "This command is similar to set command,<br> "
+//                    + "but add command set the data unless specified key is already exist."
+//                    + "Fistly, try add to exist key data.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> add foo 0 0 3"
+//            break;
+//        case /^baz$/.test(cmd) :
+//            explain = "Next is a data adding command.<br>"
+//                    + "This command is similar to set command,<br> "
+//                    + "but add command set the data unless specified key is already exist."
+//                    + "Fistly, try add to exist key data.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> add foo 0 0 3"
+//                    + "<br>So please input below command and push Enter key.<br>> baz"
+//            break;
+//        case /^add hoge 0 0 4$/.test(cmd) :
+//            explain = "Next is a data adding command.<br>"
+//                    + "This command is similar to set command,<br> "
+//                    + "but add command set the data unless specified key is already exist."
+//                    + "Fistly, try add to exist key data.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> add foo 0 0 3"
+//                    + "<br>So please input below command and push Enter key.<br>> baz"
+//                    + "<br>Next, tyr add to Non exist data<br>."
+//                    + "<br>So please input below command and push Enter key.<br>> add hoge 0 0 4"
+//            break;
+//        case /^fuga$/.test(cmd) :
+//            explain = "Next is a data adding command.<br>"
+//                    + "This command is similar to set command,<br> "
+//                    + "but add command set the data unless specified key is already exist."
+//                    + "Fistly, try add to exist key data.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> add foo 0 0 3<>"
+//                    + "<br>So please input below command and push Enter key.<br>> baz"
+//                    + "<br><br>Next, try add to Non exist data.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> add hoge 0 0 4"
+//                    + "<br>So please input below command and push Enter key.<br>> fuga"
+//            break;
+//        case /^get hoge$/.test(cmd) :
+//            explain = "Let's confirm the stored data(of key name is hoge).<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> get baz"
 //            break;
 //        case /^delete foo$/.test(cmd) :
-//            explain = "Next is a data deletion command.<br>[delete] command remove the data.<br>Usage:<br>delete <key><br>So please input below command and push Enter key.<br><br>> delete foo"
+//            explain = "Next is a data deletion command.<br>"
+//                    + "This command remove the data.<br>"
+//                    + "<br>So please input below command and push Enter key.<br>> delete foo"
 //            break;
-//        case /^add baz 0 0 4$/.test(cmd) :
-//            //todo
-//            explain = 'hogehoge';
-//            //explain = "Let's confirm whether data(of key name is foo) was removed correctly or Not.<br>So please input below command and push Enter key.<br><br>> get foo"
-//            break;
-//        case /^get baz$/.test(cmd) :
-//            explain = "Let's confirm the stored data(of key name is baz).<br>So please input below command and push Enter key.<br><br>> get baz"
-//            break;
+//
 //        case /^set_expt baz 1$/.test(cmd) :
 //            explain = "ROMA can set expired time.<br>When passed over expired time, data will be remove automatically.<br>Usage:<br>set_expt <key> <exptime><br>Setting rule is same of memcached.<br>If the value is 0 then the data will not be expired.<br>So please input below command and push Enter key.<br><br>> set_expt baz 1"
 //            break;
-//
 //        case /^release$/.test(cmd) :
 //            explain = "<br>So please input below command and push Enter key.<br><br>> release"
 //            break;
@@ -170,40 +355,6 @@ function checkSecondValue(cmd) {
 //function startTutorial() {
 //    $('#side-bar').css({'visibility':'visible'});
 //    $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
-//    $tutorialCommands = [
-//        'stats', 
-//        'stats node', 
-//        'nodelist', 
-//        'set foo 0 0 3',
-//        'bar', 
-//        'get foo',
-//        'delete foo',
-//        'add baz 0 0 3',
-//        'baz',
-//        'get baz',
-//        'set_expt baz 1',
-//        'get baz',
-//        'release',
-//        'stat primary|secondary',
-//        'shutdown_self',
-//        'shutdown_self',
-//        'recover',
-//        'stat short',
-//        'set_auto_recover'
-//    ]
-//
-///*
-//    React.findDOMNode(this.refs.command).placeholder = nextCommand;
-//    
-//*/
-//}
-//
-//function checkTutorialMode() {
-//    if (window.sessionStorage.getItem(['tutorialFlag'])) {
-//        return true;
-//    } else {
-//        return false;
-//    }
 //}
 
 
@@ -351,86 +502,6 @@ function sendPureCommand(cmd) {
         //}
 }
 
-
-//5(parent)
-var Console = React.createClass(
-    {
-        getDefaultProps() {
-            return {
-                ENTER: 13,
-                mode: "free",
-            };
-        },
-        getInitialState() {
-            return {
-                res: "",
-                downNodeMsg: "",
-                aliveNodeMsg: "",
-                nodeList: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
-                placeholder: 'Please input command',
-                explain: '',
-            };
-        },
-        componentWillReceiveProps(nextProps) {
-        },
-        sendCommand(e) {
-            if(e.keyCode == this.props.ENTER){
-                if (this.props.mode == 'free') {
-                    var response = sendPureCommand.bind(this)(e.target.value);
-                    this.setState({res: response});
-
-                } else if (this.props.mode == 'tutorial') {
-                    if (e.target.value == '') {
-                        // go next command
-                        this.setState({explain: getExplanation()});
-                        changePlaceHolder.(getNextCommand);
-
-                    } else {
-                        var response = sendTutorialCommand.bind(this)(e.target.value);
-                        if (response) {
-                            response += "<br><br>Good!! Let's go Next Command, please push Enter."
-                            this.setState({res: response});
-                         } else {
-                             var retryRes = showResult.bind(this)('<br>please input ****** command<br>');
-                             this.setState({res: retryRes});
-                         }
-                    }
-                } 
-            } 
-        },
-        render: function() {
-            var nodeMsg = {
-                nonActive: this.state.downNodeMsg,
-                active: this.state.aliveNodeMsg,
-            };
-            var whichModeHeader;
-            if (this.props.mode == 'free') {
-                whichModeHeader = <FreeHeader nodeMsg={nodeMsg} />;
-            } else if (this.props.mode == 'tutorial') {
-                whichModeHeader = <TutorialHeader explain={this.state.explain}/>;
-            }
-            var whichModeDisplay;
-            if (this.props.mode == 'free') {
-                whichModeDisplay = <FreeDisplay response={this.state.res} />;
-            } else if (this.props.mode == 'tutorial') {
-                whichModeDisplay = <TutorialDisplay response={this.state.res} />;
-            }
-            return (
-              <div id="console-screen">
-
-                {whichModeHeader}
-                {whichModeDisplay}
-
-                <div id='inputArea'>
-                  <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder={this.state.placeholder} onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
-                </div>
-              </div>
-            );
-        }
-    }
-);
-
-
 function lines(line){
     if (line) {
         return (<p className='no-margin'>{line}</p>);
@@ -447,7 +518,7 @@ function clearHeader(){
     this.setState({greenMsg: ''})
 }
 
-function heardoc() {
+function heardoc_main() {
     var heredoc = (function () {/*
  _ _ _       _  _                          _    _           _____  _____  __ __    _____  _____  _____  _____ 
 | | | | ___ | || | ___  ___  _____  ___   | |_ | |_  ___   |_   _|| __  ||  |  |  | __  ||     ||     ||  _  |
@@ -458,12 +529,145 @@ function heardoc() {
     return heredoc;
 }
 
+function heardoc_tutorial() {
+    var heredoc = (function () {/*
+ _____     _           _     _    _____       _     
+|_   _|_ _| |_ ___ ___|_|___| |  |     |___ _| |___ 
+  | | | | |  _| . |  _| | .'| |  | | | | . | . | -_|
+  |_| |___|_| |___|_| |_|__,|_|  |_|_|_|___|___|___|
+    */}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
+
+    return heredoc;
+}
+
+function getCommandList() {
+    return [
+        'stats', 
+        'stats node', 
+        'nodelist', 
+        'set foo 0 0 3',
+        'bar', 
+        'get foo',
+        'add foo 0 0 3',
+        'baz',
+        'add hoge 0 0 4',
+        'fuga',
+        'get hoge',
+        'delete foo',
+        //'set_expt baz 1',
+        //'get baz',
+        //'shutdown_self',
+        //'stat short'
+        //'recover',
+        //'stat short',
+        //'set_auto_recover'
+        //'release',
+        //'stat primary|secondary',
+        //'shutdown_self',
+    ]
+}
+
+
+//5(parent)
+var Console = React.createClass(
+    {
+        getDefaultProps() {
+            return {
+                ENTER: 13,
+                mode: "free",
+            };
+        },
+        getInitialState() {
+            return {
+                res: "",
+                downNodeMsg: "",
+                aliveNodeMsg: "",
+                nodeList: ['localhost_10001', 'localhost_10002', 'localhost_10003', 'localhost_10004', 'localhost_10005'],
+                tutorialCommandList: getCommandList(),
+                tutorialCommandUsage: getCommandUsage(),
+                tutorialCommandExplanation: getCommandExplanation(),
+                placeholder: 'Please input command',
+                explain: '',
+            };
+        },
+        componentWillReceiveProps(nextProps) {
+        },
+        sendCommand(e) {
+            if(e.keyCode == this.props.ENTER){
+                if (this.props.mode == 'free') {
+                    var response = sendPureCommand.bind(this)(e.target.value);
+                    this.setState({res: response});
+
+                } else if (this.props.mode == 'tutorial') {
+                    if (e.target.value == '') {
+                        var nextCmd = this.state.tutorialCommandList.shift();
+
+                        if (this.state.tutorialCommandList.length != 0) {
+                            changePlaceHolder.bind(this)(nextCmd);
+                            this.setState({cmd: this.state.tutorialCommandUsage.shift()});
+                            //this.setState({explain: getExplanation(nextCmd)});
+                            this.setState({explain: this.state.tutorialCommandExplanation.shift()});
+                        } else {
+                            // finish tutorial mode
+                            console.log('empty!!');
+                        }
+
+                    } else {
+                        //var response = sendTutorialCommand.bind(this)(e.target.value);
+                        //if (response) {
+                        //    response += "<br><br>Good!! Let's go Next Command, please push Enter."
+                        //    this.setState({res: response});
+                        // } else {
+                        //     var retryRes = showResult.bind(this)('<br>please input ****** command<br>');
+                        //     this.setState({res: retryRes});
+                        // }
+                    }
+                } 
+            } 
+        },
+        render: function() {
+            var nodeMsg = {
+                nonActive: this.state.downNodeMsg,
+                active: this.state.aliveNodeMsg,
+            };
+
+            var whichModeHeader;
+            if (this.props.mode == 'free') {
+                whichModeHeader = <FreeHeader nodeMsg={nodeMsg} />;
+            } else if (this.props.mode == 'tutorial') {
+                whichModeHeader = <TutorialHeader cmd={this.state.cmd} explain={this.state.explain}/>;
+            }
+
+            var whichModeDisplay;
+            if (this.props.mode == 'free') {
+                whichModeDisplay = <FreeDisplay response={this.state.res} />;
+            } else if (this.props.mode == 'tutorial') {
+                whichModeDisplay = <TutorialDisplay response={this.state.res} />;
+            }
+
+            return (
+              <div id="console-screen">
+
+                {whichModeHeader}
+                {whichModeDisplay}
+
+                <div id='inputArea'>
+                  <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder={this.state.placeholder} onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
+                </div>
+              </div>
+            );
+        }
+    }
+);
+
+
+
 //8(child)
 var FreeHeader = React.createClass(
     {
         getDefaultProps() {
             return {
-                greetingAA: heardoc(),
+                greetingAA: heardoc_main(),
                 greetingMessage: 'Please feel free to execute ROMA command!!',
             };
         },
@@ -528,22 +732,50 @@ var TutorialHeader = React.createClass(
         //},
         getInitialState() {
             return {
-                explain: "This mode is tutorial of ROMA basic usage.<br>This mode explain ROMA command one by one.<br><br>Let's start tutorial!!<br>Please push Enter Key ",
+                greetingAA: heardoc_tutorial(),
+                greetingMessage: "This mode is tutorial of ROMA basic usage.<br>This mode explain ROMA command one by one.<br><br>Let's start tutorial!!<br>Please push Enter Key ",
+                cmd: '',
+                explain: '',
             };
         },
         componentWillReceiveProps(nextProps) {
+            clearHeader.bind(this)();
             this.setState({explain: nextProps.explain});
+            this.setState({cmd: nextProps.cmd});
         },
         render: function() {
             var style = {
-                tutorial: {
-                    fontSize: '30px',
+                greeting: {
                     color: '#00cede',
+                },
+                greetingAA: {
+                    fontSize: '15px',
+                },
+                greetingMsg: {
+                    fontSize: '25px',
+                },
+                explain: {
+                    color: 'lime',
+                },
+                tutorialCmd: {
+                    fontSize: '30px',
+                    textDecoration: 'underline',
+                },
+                tutorialMsg: {
+                    fontSize: '25px',
+                    marginLeft: '25px',
                 },
             };
             return (
                 <div>
-                  <div style={style.tutorial}>{this.state.explain.split('<br>').map(lines)}</div>
+                  <div style={style.greeting}>
+                    <div style={style.greetingAA}>{this.state.greetingAA}</div>
+                    <div style={style.greetingMsg}>{this.state.greetingMessage.split('<br>').map(lines)}</div>
+                  </div>
+                  <div style={style.explain}>
+                    <div style={style.tutorialCmd}>{this.state.cmd}</div>
+                    <div style={style.tutorialMsg}>{this.state.explain.split('<br>').map(lines)}</div>
+                  </div>
                 </div>
             );
         }
