@@ -161,6 +161,7 @@ var Console = React.createClass(
                         this.setState({nextCmd: nextCmd});
 
                         changeSideBarColor(nextCmd);
+                        nextCmd = removeDigit(nextCmd)
                         if (nextCmd) {
                             changePlaceHolder.bind(this)(nextCmd);
                             this.setState({cmd: this.state.tutorialCommandUsage.shift()});

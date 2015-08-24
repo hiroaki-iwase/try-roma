@@ -18,7 +18,7 @@ function getCommandList() {
         //GET
         'stats',
         'stats node',
-        'nodelist',
+        'nodelist1',
         //POST
         'set foo 0 0 3',
         'bar',
@@ -37,7 +37,7 @@ function getCommandList() {
         'yes',
         'nodelist',
         //DELETE & PUT(recover)
-        'shutdown_self',
+        'shutdown_self1',
         'yes',
         'nodelist',
         'stat short',
@@ -322,7 +322,7 @@ function changeSideBarColor(nextCommand) {
 
     if (nextCommand == 'stats') {
         $('#stats').css({'color':'red'});
-    } else if (nextCommand == 'nodelist') {
+    } else if (nextCommand == 'nodelist1') {
         $('#stats').css({'color':'gray'});
         $('#nodelist').css({'color':'red'});
     } else if (nextCommand == 'set foo 0 0 3') {
@@ -343,11 +343,15 @@ function changeSideBarColor(nextCommand) {
     } else if (nextCommand == 'shutdown_self') {
         $('#release').css({'color':'gray'});
         $('#shutdown_self').css({'color':'red'});
-    } else if (nextCommand == 'recover') {
+    } else if (nextCommand == 'shutdown_self1') {
         $('#shutdown_self').css({'color':'gray'});
         $('#recover').css({'color':'red'});
     } else if (nextCommand == 'balse') {
         $('#recover').css({'color':'gray'});
         $('#balse').css({'color':'red'});
     }
+}
+
+function removeDigit(str) {
+    return str.replace(/1/g,'');
 }

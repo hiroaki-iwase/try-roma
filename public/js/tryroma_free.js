@@ -125,6 +125,20 @@ function sendRomaCommand(cmd, tutorialMode) {
             var res = showResult.bind(this)('<br>Argument Error<br>');
             action = null;
         }
+    } else if (/^(release|recover|set_lost_action|set_auto_recover|set_log_level)/.test(cmd)) {
+        var action = 'PUT';
+        if (/^(release|recover)$/.test(cmd)) {
+            data = {command: RegExp.$1};
+        } else if (/^(set_lost_action)\s(.+)$/.test(cmd)) {
+            data = {command: RegExp.$1, level: RegExp.$2, lost: RegExp.$2};
+        } else if (/^(set_auto_recover)\s([a-z]+)\s*([0-9]*)$/.test(cmd)) {
+            data = {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3};
+        } else if (/^(set_log_level)\s([a-z]+)$/.test(cmd)) {
+            data = {command: RegExp.$1, level: RegExp.$2};
+        } else {
+            var res = showResult.bind(this)('<br>Argument Error<br>');
+            action = null;
+        }
     } else if (/^(set|add|replace|append|prepend|cas|set_expt|incr|decr|delete)/.test(cmd)) {
         if (/^(set|add|replace|append|prepend)\s([a-z0-9]+)\s0\s([0-9]+)\s([0-9]+)$/.test(cmd)) {
             window.sessionStorage.setItem(['requireNext'],[true]);
@@ -147,20 +161,6 @@ function sendRomaCommand(cmd, tutorialMode) {
         } else if (/^(delete)\s([a-z0-9]+)$/.test(cmd)) {
             var action = 'POST';
             data = { command: RegExp.$1, key: RegExp.$2 };
-        } else {
-            var res = showResult.bind(this)('<br>Argument Error<br>');
-            action = null;
-        }
-    } else if (/^(release|recover|set_lost_action|set_auto_recover|set_log_level)/.test(cmd)) {
-        var action = 'PUT';
-        if (/^(release|recover)$/.test(cmd)) {
-            data = {command: RegExp.$1};
-        } else if (/^(set_lost_action)\s(.+)$/.test(cmd)) {
-            data = {command: RegExp.$1, level: RegExp.$2, lost: RegExp.$2};
-        } else if (/^(set_auto_recover)\s([a-z]+)\s*([0-9]*)$/.test(cmd)) {
-            data = {command: RegExp.$1, bool: RegExp.$2, sec: RegExp.$3};
-        } else if (/^(set_log_level)\s([a-z]+)$/.test(cmd)) {
-            data = {command: RegExp.$1, level: RegExp.$2};
         } else {
             var res = showResult.bind(this)('<br>Argument Error<br>');
             action = null;
