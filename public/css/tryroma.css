@@ -47,7 +47,7 @@ button#free-button {
   Tutorial Side Bar
  =========================================
 */
-#side-bar {
+.side-bar {
   position: absolute;
   top: 180px;
   visibility: hidden;
@@ -56,7 +56,7 @@ button#free-button {
 }
 
 
-#side-bar > ul > li {
+.side-bar > ul > li {
   list-style: none;
   margin-left: -20px;
 }

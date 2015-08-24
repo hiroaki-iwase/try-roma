@@ -28,14 +28,12 @@ var SelectModeButton = React.createClass(
         },
         selectMode(e) {
             if (e.target.name == 'tutorial') {
+                $('#console-screen').animate({'margin-left':'220px', 'margin-right':'20px'}, 500);
+                $('.side-bar').css({'visibility':'visible'});
+                $('.side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
+
                 $("#tutorial-button").prop("disabled", true);
                 $("#free-button").hide('slow', function(){$("#free-button").remove();});
-
-                $('#console-screen').animate({'margin-left':'220px', 'margin-right':'20px'}, 500);
-
-                $('#side-bar').css({'visibility':'visible'});
-                $('#side-bar > ul > li:nth-of-type(1)').css({'color':'red'});
-
                 this.setState({mode: 'tutorial'});
 
             } else if (e.target.name == 'free') {
@@ -68,17 +66,11 @@ var SelectModeButton = React.createClass(
 
 var Main = React.createClass(
     {
-        getDefaultProps() {
-            return {
-                //mode: 'free',
-            };
-        },
         render: function() {
             return (
                 <div>
-                  {/*<SideBar mode={this.state.mode} />*/}
+                  <TutorialSideBar mode={this.props.mode} />
 
-                  <TutorialSideBar />
                   <Console mode={this.props.mode} />
                 </div>
             );
@@ -90,7 +82,7 @@ var TutorialSideBar = React.createClass(
     {
         render: function() {
             return (
-                <span id='side-bar'>
+                <span className='side-bar'>
                   <ul>
                     <li>Check Status</li>
                     <ul className='tutorial-commands'>
