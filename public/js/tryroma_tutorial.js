@@ -43,6 +43,9 @@ function getCommandList() {
         'stat short',
         'recover',
         'stat short',
+        //DELETE & PUT(auto recover)
+        'set_auto_recover true 600',
+        'stat auto',
         //BALSE
         'balse',
         'Finished!!',
@@ -80,6 +83,9 @@ function getCommandUsage(cmd) {
         '* recover',
         '* recover',
         '* recover',
+        //DELETE & PUT(set_auto_recover)
+        '* set_auto_recover <true|flase> <sec>',
+        '* set_auto_recover <true|flase> <sec>',
         //BALSE
         '* balse <reason>',
         'Tutorial has finished!!',
@@ -203,6 +209,15 @@ function getCommandExplanation() {
         "After finising recover, short_vnodes will become 0." +
         "<br><br>Please input below command and push Enter key.<br>> stat short",
 
+        //DELETE & PUT(auto recover)
+        "We can set to execute recover automatically when redundancy will be down.<br>" +
+        "set_auto_reocver can set this.<br>" +
+        "<br>Please input below command and push Enter key.<br>> set_auto_recover true 600",
+
+        "This argument means that activating auto recover function passed 600sec after redundancy down.<br>" +
+        "Please confirm current status by stats command.<br>" +
+        "<br>Please input below command and push Enter key.<br>> stat auto",
+
         //balse
         "Finally, let's shutdown the ROMA(means shutdown all instaces).<br>" +
         "<br>Please input below command and push Enter key.<br>> balse",
@@ -297,6 +312,13 @@ function getCommandResult() {
 
         'routing.short_vnodes 0',
 
+        //DELETE & PUT(auto recover)
+        '{"localhost_10003"=>"STORED", "localhost_10004"=>"STORED", "localhost_10005"=>"STORED"}',
+
+        'routing.auto_recover true'
+        + 'routing.auto_recover_status waiting'
+        + 'routing.auto_recover_time 600',
+
         //balse
         '{"localhost_10003"=>"BYE", "localhost_10004"=>"BYE", "localhost_10005"=>"BYE"}'
         + '<br>Connection closed by foreign host.',
@@ -346,8 +368,11 @@ function changeSideBarColor(nextCommand) {
     } else if (nextCommand == 'shutdown_self1') {
         $('#shutdown_self').css({'color':'gray'});
         $('#recover').css({'color':'red'});
-    } else if (nextCommand == 'balse') {
+    } else if (nextCommand == 'set_auto_recover true 600') {
         $('#recover').css({'color':'gray'});
+        $('#set_auto_recover').css({'color':'red'});
+    } else if (nextCommand == 'balse') {
+        $('#set_auto_recover').css({'color':'gray'});
         $('#balse').css({'color':'red'});
     }
 }

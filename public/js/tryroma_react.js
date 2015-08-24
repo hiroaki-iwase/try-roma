@@ -104,6 +104,7 @@ var TutorialSideBar = React.createClass(
                     <li>Recover redundancy</li>
                     <ul className='tutorial-commands'>
                       <li id='recover'>recover</li>
+                      <li id='set_auto_recover'>set_auto_recover</li>
                     </ul>
                     <li>STOP ROMA</li>
                     <ul className='tutorial-commands'>
