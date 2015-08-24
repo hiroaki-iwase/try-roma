@@ -3,6 +3,10 @@
  * ===================================================================================================================== */
 var Title = React.createClass(
     {
+        componentWillMount() {
+            window.sessionStorage.removeItem(['requireNext']);
+            window.sessionStorage.removeItem(['lastcmd']);
+        },
         render: function() {
             return (
                 <div id='title'>
@@ -19,7 +23,7 @@ var SelectModeButton = React.createClass(
     {
         getInitialState() {
             return{
-                mode: 'free',
+                mode: null,
             };
         },
         selectMode(e) {
@@ -35,7 +39,6 @@ var SelectModeButton = React.createClass(
                 this.setState({mode: 'tutorial'});
 
             } else if (e.target.name == 'free') {
-                // todo css animation
                 $("#free-button").prop("disabled", true);
                 $("#tutorial-button").hide('slow', function(){$("#tutorial-button").remove();});
                 this.setState({mode: 'free'});
@@ -67,7 +70,7 @@ var Main = React.createClass(
     {
         getDefaultProps() {
             return {
-                mode: 'free',
+                //mode: 'free',
             };
         },
         render: function() {
@@ -127,7 +130,7 @@ var Console = React.createClass(
         getDefaultProps() {
             return {
                 ENTER: 13,
-                mode: "free",
+                placeholder: 'please select mode',
             };
         },
         getInitialState() {
@@ -140,12 +143,13 @@ var Console = React.createClass(
                 tutorialCommandUsage: getCommandUsage(),
                 tutorialCommandExplanation: getCommandExplanation(),
                 tutorialCommandResult: getCommandResult(),
-                placeholder: 'Please input command',
+                placeholder: this.props.placeholder,
                 explain: '',
                 nextCmd: '',
             };
         },
         componentWillReceiveProps(nextProps) {
+            this.setState({placeholder: 'Please input command'}) 
         },
         sendCommand(e) {
             if(e.keyCode == this.props.ENTER){
@@ -165,11 +169,14 @@ var Console = React.createClass(
                         this.setState({nextCmd: nextCmd});
 
                         changeSideBarColor(nextCmd);
-
                         if (nextCmd) {
                             changePlaceHolder.bind(this)(nextCmd);
                             this.setState({cmd: this.state.tutorialCommandUsage.shift()});
                             this.setState({explain: this.state.tutorialCommandExplanation.shift()});
+                            if (nextCmd == 'Finished!!') {
+                                $("#inputBox").prop("disabled", true);
+                                this.setState({nextGuidance: ''})
+                            }
                         } else {
                             console.log('Finished');
                         }
@@ -180,9 +187,10 @@ var Console = React.createClass(
                             //response = this.state.tutorialCommandResult.shift();
                             response = '> '+ e.target.value+'<br><br>';
                             response += this.state.tutorialCommandResult[0];
-                            response += "<br><br>Good!! Let's go Next Command, please push Enter."
+                            nextGuidance = "<br><br>Good!! Let's go Next Command, please push Enter."
 
                             this.setState({res: response});
+                            this.setState({nextGuidance: nextGuidance});
                         } else {
                             var retryRes = showResult.bind(this)('<br>please input [' + correctCmd + '] command<br>');
                             this.setState({res: retryRes});
@@ -203,13 +211,15 @@ var Console = React.createClass(
                 whichModeHeader = <FreeHeader nodeMsg={nodeMsg} />;
             } else if (this.props.mode == 'tutorial') {
                 whichModeHeader = <TutorialHeader cmd={this.state.cmd} explain={this.state.explain}/>;
+            } else if (this.props.mode == null) {
+                whichModeHeader = <FirstHeader />;
             }
 
             var whichModeDisplay;
             if (this.props.mode == 'free') {
                 whichModeDisplay = <FreeResult response={this.state.res} />;
             } else if (this.props.mode == 'tutorial') {
-                whichModeDisplay = <TutorialResult response={this.state.res} />;
+                whichModeDisplay = <TutorialResult response={this.state.res} nextGuidance={this.state.nextGuidance}/>;
             }
 
             return (
@@ -227,11 +237,42 @@ var Console = React.createClass(
     }
 );
 
-var FreeHeader = React.createClass(
+var FirstHeader = React.createClass(
     {
         getDefaultProps() {
             return {
                 greetingAA: heardoc_main(),
+                greetingMessage: 'Please select mode!',
+            };
+        },
+        render: function() {
+            var style = {
+                greeting: {
+                    color: '#00cede',
+                },
+                greetingAA: {
+                    fontSize: '13px',
+                },
+                greetingMsg: {
+                    fontSize: '26px',
+                },
+            };
+            return (
+                <div style={style.greeting}>
+                  <div style={style.greetingAA}>{this.props.greetingAA}</div>
+                  <div style={style.greetingMsg}>{this.props.greetingMessage}</div>
+                </div>
+            );
+        }
+    }
+);
+
+
+var FreeHeader = React.createClass(
+    {
+        getDefaultProps() {
+            return {
+                greetingAA: heardoc_free(),
                 greetingMessage: 'Please feel free to execute ROMA command!!',
             };
         },
@@ -239,9 +280,6 @@ var FreeHeader = React.createClass(
             return {
                 greetingAA: this.props.greetingAA,
                 greetingMessage: this.props.greetingMessage,
-
-                //tutorialExplain: '',
-
                 redMsg: '',
                 greenMsg: '',
             };
@@ -257,7 +295,7 @@ var FreeHeader = React.createClass(
                     color: '#00cede',
                 },
                 greetingAA: {
-                    fontSize: '13px',
+                    fontSize: '20px',
                 },
                 greetingMsg: {
                     fontSize: '26px',
@@ -370,22 +408,26 @@ var FreeResult = React.createClass(
 
 var TutorialResult = React.createClass(
     {
+        getDefaultProps() {
+            return {
+                nextGuidance: '',
+            }
+        },
         getInitialState() {
             return {
                 response: '',
             };
         },
-        componentWillReceiveProps(nextProps) {
-            //if (nextProps.response.lastIndexOf('BYE') == -1) {
-            //    this.setState({response: this.state.response + '<br>' + nextProps.response});
-            //} else {
-            //    this.setState({response: nextProps.response});
-            //}
-        },
         render: function() {
+            var style = {
+                next: {
+                    color: 'lime',
+                },
+            };
             return (
                 <div id="responseArea">
                   {this.props.response.split('<br>').map(lines)}
+                  <div style={style.next}>{this.props.nextGuidance.split('<br>').map(lines)}</div>
                 </div>
             );
         }

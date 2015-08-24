@@ -1,6 +1,17 @@
 /* =====================================================================================================================
  *  Free Mode Methods
  * ===================================================================================================================== */
+function heardoc_free() {
+    var heredoc = (function () {/*
+ _____                _____ _____ ____  _____ 
+|   __|___ ___ ___   |     |     |    \|   __|
+|   __|  _| -_| -_|  | | | |  |  |  |  |   __|
+|__|  |_| |___|___|  |_|_|_|_____|____/|_____|
+    */}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
+
+    return heredoc;
+}
+
 function changeStyleToHash(json) {
     hash_str = json.replace(/", "/g,'"=>"').replace(/\]\[/g,', ').replace(/\[/,'{').replace(/\]/,'}');
     return hash_str;
@@ -179,34 +190,21 @@ function sendRomaCommand(cmd, tutorialMode) {
 
 }
 
-
 function sendPureCommand(cmd) {
+    this.setState({downNodeMsg: ''})
+    this.setState({aliveNodeMsg: ''})
 
-        //if (window.sessionStorage.getItem(['tutorialFlag'])) {
-        //    // tutorial mode
-        //    window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
-        //    showTutorialMessage.bind(this)(e.target.value);
-        //} else {
-            // free mode
+    if (window.sessionStorage.getItem(['requireNext'])) {
+        var res = checkSecondValue.bind(this)(cmd);
+        React.findDOMNode(this.refs.command).placeholder = 'please input command';
+        return res;
+    } else if (cmd == '!!') {
+        var res = sendRomaCommand.bind(this)(window.sessionStorage.getItem(['lastcmd']));
+        return res;
+    } else {
+        window.sessionStorage.setItem(['lastcmd'],[cmd]);
 
-
-
-            this.setState({downNodeMsg: ''})
-            this.setState({aliveNodeMsg: ''})
-
-            if (window.sessionStorage.getItem(['requireNext'])) {
-                var res = checkSecondValue.bind(this)(cmd);
-                React.findDOMNode(this.refs.command).placeholder = 'please input command';
-                return res;
-            } else if (cmd == '!!') {
-                var res = sendRomaCommand.bind(this)(window.sessionStorage.getItem(['lastcmd']));
-                return res;
-            } else {
-                window.sessionStorage.setItem(['lastcmd'],[cmd]);
-
-                var res = sendRomaCommand.bind(this)(cmd);
-                return res;
-            }
-
-        //}
+        var res = sendRomaCommand.bind(this)(cmd);
+        return res;
+    }
 }

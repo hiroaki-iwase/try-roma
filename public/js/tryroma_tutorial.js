@@ -43,11 +43,9 @@ function getCommandList() {
         'stat short',
         'recover',
         'stat short',
-        //DELETE & PUT(auto recover)
-        //'set_auto_recover true 600',
-        //'stat auto',
-        //balse
+        //BALSE
         'balse',
+        'Finished!!',
     ]
 }
 
@@ -82,11 +80,9 @@ function getCommandUsage(cmd) {
         '* recover',
         '* recover',
         '* recover',
-        //DELETE & PUT(auto recover)
-        //'* set_auto_recover <true|flase> <sec>',
-        //'* set_auto_recover <true|flase> <sec>',
-        //balse
-        '* balse',
+        //BALSE
+        '* balse <reason>',
+        'Tutorial has finished!!',
     ]
 }
 
@@ -207,18 +203,11 @@ function getCommandExplanation() {
         "After finising recover, short_vnodes will become 0." +
         "<br><br>Please input below command and push Enter key.<br>> stat short",
 
-        //DELETE & PUT(auto recover)
-        //"We can set to execute recover automatically when redundancy will be down.<br>" +
-        //"set_auto_reocver can set this.<br>" +
-        //"<br>Please input below command and push Enter key.<br>> set_auto_recover true 600",
-
-        //"This argument means that activating auto recover function passed 600sec after redundancy down.<br>" +
-        //"Please confirm current status by stats command.<br>" +
-        //"<br>Please input below command and push Enter key.<br>> stat auto",
-
         //balse
         "Finally, let's shutdown the ROMA(means shutdown all instaces).<br>" +
         "<br>Please input below command and push Enter key.<br>> balse",
+
+        "Free mode support more command. <br>Please reload and try Free mode!!",
     ]
 }
 
@@ -229,8 +218,6 @@ function getCommandResult() {
         '.'
         + '<br>.'
         + '<br>.'
-        + '<br>.'
-        + '<br>connection.accepted_connection_expire_time 0'
         + '<br>connection.handler_instance_count 6'
         + '<br>connection.pool_maxlength 5'
         + '<br>connection.pool_expire_time 30'
@@ -310,48 +297,13 @@ function getCommandResult() {
 
         'routing.short_vnodes 0',
 
-
-        //DELETE & PUT(auto recover)
-        //'set_auto_recover true 600',
-        //'stat auto',
-
         //balse
         '{"localhost_10003"=>"BYE", "localhost_10004"=>"BYE", "localhost_10005"=>"BYE"}'
         + '<br>Connection closed by foreign host.',
+
+        '',
     ]
 }
-
-//function showTutorialMessage(cmd) {
-//    if (cmd == window.sessionStorage.getItem(['nextCommand'])) {
-//        /* corrent command was pushed */
-//        clearHeader.bind(this)();
-//
-//        //sendAjax.bind(this)('GET', null, cmd, 'json'); /* todo*/
-//        sendRomaCommand.bind(this)(cmd, true)
-//
-//        React.findDOMNode(this.refs.command).placeholder = 'Good!! Please push Enter key to go next commands.';
-//
-//    } else if (cmd == '') {
-//        /* push enter key with brank */
-//        clearHeader.bind(this)();
-//        //React.findDOMNode(this.refs.result).value = '';
-//        this.setState({result: ''});
-//
-//        var nextCommand = $tutorialCommands.shift();
-//
-//        window.sessionStorage.setItem(['nextCommand'], nextCommand);
-//        this.setState({tutorialExplain: getExplain(nextCommand)});
-//        React.findDOMNode(this.refs.command).placeholder = nextCommand;
-//    } else {
-//       /* mistake command */
-//        var res = '> ' + cmd + '<br>Please input [' + window.sessionStorage.getItem(['nextCommand']) + '] command';
-//        this.setState({result: res});
-//    } 
-//
-//}
-//
-
-
 
 function changeSideBarColor(nextCommand) {
     if (nextCommand == 'set foo 0 0 3') {
