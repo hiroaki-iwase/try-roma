@@ -39,11 +39,6 @@ end
 
 # debug 
 get '/' do
-  session[:stats]        = Roma::Stats.new
-  session[:storage]      = Roma::Storage.new    
-  session[:routing]      = Roma::Routing.new    
-  session[:connection]   = Roma::Connection.new 
-  session[:others]       = Roma::Others.new     
   erb :tryroma
 end
 
