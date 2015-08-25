@@ -55,7 +55,6 @@ button#free-button {
   color: gray;
 }
 
-
 .side-bar > ul > li {
   list-style: none;
   margin-left: -20px;
@@ -94,8 +93,6 @@ ul.tutorial-commands {
   color: #A0C5E8;
   font-size: 20px;
   width: 100%;
-  /*height: 580px;*/
-  /*overflow: auto;*/
   word-wrap:break-word;
 }
 
