@@ -117,7 +117,6 @@ var TutorialSideBar = React.createClass(
     }
 );
 
-
 var Input = React.createClass(
     {
         getDefaultProps() {
@@ -162,39 +161,26 @@ var Input = React.createClass(
 
                     // forward to next command
                     if (e.target.value == '') {
+                        forwardNextCmd.bind(this)();
                         this.setState({res: ''}); 
-                        this.state.tutorialCommandResult.shift();
-
-                        var nextCmd = this.state.tutorialCommandList.shift();
-                        this.setState({nextCmd: nextCmd});
-
-                        changeSideBarColor(nextCmd);
-                        nextCmd = removeDigit(nextCmd)
-                        if (nextCmd) {
-                            changePlaceHolder.bind(this)(nextCmd);
-                            this.setState({cmd: this.state.tutorialCommandUsage.shift()});
-                            this.setState({explain: this.state.tutorialCommandExplanation.shift()});
-                            this.setState({nextGuidance: ''});
-                            if (nextCmd == 'Finished!!') {
-                                $("#inputBox").prop("disabled", true);
-                                this.setState({nextGuidance: ''})
-                            }
-                        //} else {
-                        //    console.log('Finished');
-                        }
-
                     } else {
                         var correctCmd = this.state.nextCmd;
                         var correctCmd = removeDigit(correctCmd)
                         // correct command
                         if (e.target.value == correctCmd) {
+
                             response = '> '+ e.target.value+'<br><br>';
                             response += this.state.tutorialCommandResult[0];
-                            nextGuidance = "<br>Good!! Let's go Next Command, please push Enter."
-
-                            changePlaceHolder.bind(this)('Please Push Enter to go Next Command.');
                             this.setState({res: response});
-                            this.setState({nextGuidance: nextGuidance});
+                            if (/^(set|add|shutdown_self|balse)/.test(correctCmd)) {
+                                forwardNextCmd.bind(this)();
+
+                            } else {
+                                //this.setState({res: response});
+                                nextGuidance = "<br>Good!! Let's go Next Command, please push Enter."
+                                changePlaceHolder.bind(this)('Please Push Enter to go Next Command.');
+                                this.setState({nextGuidance: nextGuidance});
+                            }
 
                         // incorrect command
                         } else {

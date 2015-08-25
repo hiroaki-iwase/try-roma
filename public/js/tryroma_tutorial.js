@@ -48,6 +48,7 @@ function getCommandList() {
         'stat auto',
         //BALSE
         'balse',
+        'yes',
         'Finished!!',
     ]
 }
@@ -87,6 +88,7 @@ function getCommandUsage(cmd) {
         '* set_auto_recover <true|flase> <sec>',
         '* set_auto_recover <true|flase> <sec>',
         //BALSE
+        '* balse <reason>',
         '* balse <reason>',
         'Tutorial has finished!!',
     ]
@@ -222,6 +224,10 @@ function getCommandExplanation() {
         "Finally, let's shutdown the ROMA(means shutdown all instaces).<br>" +
         "<br>Please input below command and push Enter key.<br>> balse",
 
+        "Finally, let's shutdown the ROMA(means shutdown all instaces).<br>" +
+        "<br>Please input below command and push Enter key.<br>> balse" +
+        "<br>Please input below command and push Enter key.<br>> yes",
+
         "Free mode support more command. <br>Please reload and try Free mode!!",
     ]
 }
@@ -289,7 +295,7 @@ function getCommandResult() {
         + '<br>Are you sure to shutdown this instance?(yes/no)',
 
         'BYE'
-        + 'Connection closed by foreign host.',
+        + '<br>Connection closed by foreign host.',
 
         'localhost_10002 localhost_10003 localhost_10004 localhost_10005',
 
@@ -302,7 +308,7 @@ function getCommandResult() {
         + '<br>Are you sure to shutdown this instance?(yes/no)',
 
         'BYE'
-        + 'Connection closed by foreign host.',
+        + '<br>Connection closed by foreign host.',
 
         'localhost_10003 localhost_10004 localhost_10005',
 
@@ -320,6 +326,7 @@ function getCommandResult() {
         + '<br>routing.auto_recover_time 600',
 
         //balse
+        'Are you sure?(yes/no)',
         '{"localhost_10003"=>"BYE", "localhost_10004"=>"BYE", "localhost_10005"=>"BYE"}'
         + '<br>Connection closed by foreign host.',
 
@@ -374,6 +381,27 @@ function changeSideBarColor(nextCommand) {
     } else if (nextCommand == 'balse') {
         $('#set_auto_recover').css({'color':'gray'});
         $('#balse').css({'color':'red'});
+    }
+}
+
+function forwardNextCmd() {
+    this.state.tutorialCommandResult.shift();
+
+    var nextCmd = this.state.tutorialCommandList.shift();
+    this.setState({nextCmd: nextCmd});
+
+    changeSideBarColor(nextCmd);
+    nextCmd = removeDigit(nextCmd);
+
+    if (nextCmd) {
+        changePlaceHolder.bind(this)(nextCmd);
+        this.setState({cmd: this.state.tutorialCommandUsage.shift()});
+        this.setState({explain: this.state.tutorialCommandExplanation.shift()});
+        this.setState({nextGuidance: ''});
+
+        if (nextCmd == 'Finished!!') {
+            $("#inputBox").prop("disabled", true);
+        }
     }
 }
 
