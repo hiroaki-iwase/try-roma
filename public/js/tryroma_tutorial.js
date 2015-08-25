@@ -316,8 +316,8 @@ function getCommandResult() {
         '{"localhost_10003"=>"STORED", "localhost_10004"=>"STORED", "localhost_10005"=>"STORED"}',
 
         'routing.auto_recover true'
-        + 'routing.auto_recover_status waiting'
-        + 'routing.auto_recover_time 600',
+        + '<br>routing.auto_recover_status waiting'
+        + '<br>routing.auto_recover_time 600',
 
         //balse
         '{"localhost_10003"=>"BYE", "localhost_10004"=>"BYE", "localhost_10005"=>"BYE"}'

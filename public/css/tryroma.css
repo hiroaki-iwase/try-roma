@@ -94,7 +94,7 @@ ul.tutorial-commands {
   color: #A0C5E8;
   font-size: 20px;
   width: 100%;
-  height：580px;
+  /*height: 580px;*/
   /*overflow: auto;*/
   word-wrap:break-word;
 }

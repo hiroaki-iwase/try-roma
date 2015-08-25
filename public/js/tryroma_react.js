@@ -71,7 +71,7 @@ var Main = React.createClass(
                 <div>
                   <TutorialSideBar mode={this.props.mode} />
 
-                  <Console mode={this.props.mode} />
+                  <Input mode={this.props.mode} />
                 </div>
             );
         }
@@ -118,7 +118,7 @@ var TutorialSideBar = React.createClass(
 );
 
 
-var Console = React.createClass(
+var Input = React.createClass(
     {
         getDefaultProps() {
             return {
@@ -141,20 +141,27 @@ var Console = React.createClass(
                 nextCmd: '',
             };
         },
+        componentDidMount() {
+            $("#inputBox").prop("disabled", true);
+        },
         componentWillReceiveProps(nextProps) {
-            this.setState({placeholder: 'Please input command'}) 
+            this.setState({placeholder: 'Please input command'});
+            $("#inputBox").prop("disabled", false);
+            this.refs.command.getDOMNode().focus();
         },
         sendCommand(e) {
             if(e.keyCode == this.props.ENTER){
+                // Free mode
                 if (this.props.mode == 'free') {
                     var response = sendPureCommand.bind(this)(e.target.value);
                     this.setState({res: response});
 
+                // Tutorial Mode
                 } else if (this.props.mode == 'tutorial') {
                     window.sessionStorage.setItem(['lastcmd'],[e.target.value]);
 
+                    // forward to next command
                     if (e.target.value == '') {
-
                         this.setState({res: ''}); 
                         this.state.tutorialCommandResult.shift();
 
@@ -167,27 +174,33 @@ var Console = React.createClass(
                             changePlaceHolder.bind(this)(nextCmd);
                             this.setState({cmd: this.state.tutorialCommandUsage.shift()});
                             this.setState({explain: this.state.tutorialCommandExplanation.shift()});
+                            this.setState({nextGuidance: ''});
                             if (nextCmd == 'Finished!!') {
                                 $("#inputBox").prop("disabled", true);
                                 this.setState({nextGuidance: ''})
                             }
-                        } else {
-                            console.log('Finished');
+                        //} else {
+                        //    console.log('Finished');
                         }
 
                     } else {
                         var correctCmd = this.state.nextCmd;
+                        var correctCmd = removeDigit(correctCmd)
+                        // correct command
                         if (e.target.value == correctCmd) {
-                            //response = this.state.tutorialCommandResult.shift();
                             response = '> '+ e.target.value+'<br><br>';
                             response += this.state.tutorialCommandResult[0];
-                            nextGuidance = "<br><br>Good!! Let's go Next Command, please push Enter."
+                            nextGuidance = "<br>Good!! Let's go Next Command, please push Enter."
 
+                            changePlaceHolder.bind(this)('Please Push Enter to go Next Command.');
                             this.setState({res: response});
                             this.setState({nextGuidance: nextGuidance});
+
+                        // incorrect command
                         } else {
                             var retryRes = showResult.bind(this)('<br>please input [' + correctCmd + '] command<br>');
                             this.setState({res: retryRes});
+                            this.setState({nextGuidance: ''});
                         }
                         clearForm.bind(this)();
                     }
@@ -223,7 +236,7 @@ var Console = React.createClass(
                 {whichModeDisplay}
 
                 <div id='inputArea'>
-                  <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder={this.state.placeholder} onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" autoFocus={focus} /></p>
+                  <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder={this.state.placeholder} onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" /></p>
                 </div>
               </div>
             );
@@ -352,7 +365,7 @@ var TutorialHeader = React.createClass(
                     color: 'lime',
                 },
                 tutorialCmd: {
-                    fontSize: '30px',
+                    fontSize: '28px',
                     textDecoration: 'underline',
                 },
                 tutorialMsg: {
