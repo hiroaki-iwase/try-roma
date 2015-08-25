@@ -39,12 +39,12 @@ end
 
 # debug 
 get '/' do
-  erb :stats
+  erb :tryroma
 end
 
 ###[GET]============================================================================================================
 # stat/stats [regexp]
-get %r{/stat[s]?/?(.*)?} do |regexp|
+get %r{/stat[s]{0,1}/?(.*)?} do |regexp|
   all_list = session[:version].get_stat\
            .merge(session[:config].get_stat)\
            .merge(session[:stats].get_stat)\
@@ -111,7 +111,6 @@ delete '/' do
         end
       elsif confirm.empty? && confirm != 'nothing'
         @res = res
-        #@res = res.concat("<br>(TryRomaAPI : if you wanna execute, please send request with 'yes' or 'no' in the :confimation parameters.)") unless cmd == 'rbalse'
       else
         @res = 'Connection closed by foreign host.'
       end
@@ -122,7 +121,6 @@ delete '/' do
     raise TryRomaAPIArgumentError.new(params[:command])
   end
 
-  #erb :stats
   @res
 end
 
@@ -195,7 +193,6 @@ post '/' do
     @res = "NOT_FOUND" if cmd =~ /^(delete|incr|decr|cas)$/
   end
 
-  #erb :stats
   @res
 end
 
@@ -243,7 +240,6 @@ put '/' do
               logger.info "secondary2: #{session[:routing].secondary2}"
             end
             break if !run_pri && !run_sec1 && !run_sec2
-
             sleep 2
           }
          
@@ -259,7 +255,6 @@ put '/' do
       @res = "release:Sufficient nodes do not found."
     end
 
-    #erb :stats
     return @res
 
   when 'recover'
@@ -299,7 +294,6 @@ put '/' do
       @res = make_response_of_nodelist('STARTED')
     end
 
-    #erb :stats
     @res
 
   when 'set_auto_recover'
@@ -315,8 +309,6 @@ put '/' do
     session[:routing].auto_recover = bool.to_bool
     @res = make_response_of_nodelist('STORED')
 
-    #erb :stats
-    #@res.to_json
     @res
 
   when 'set_lost_action'
@@ -334,7 +326,6 @@ put '/' do
       end
     end
 
-    #erb :stats
     @res
 
   when 'set_log_level'
@@ -348,7 +339,6 @@ put '/' do
       raise TryRomaAPIArgumentError.new('CLIENT_ERROR no match log-level string')
     end
 
-    #erb :stats
     @res
 
   else
