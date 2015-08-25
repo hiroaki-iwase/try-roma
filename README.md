@@ -39,11 +39,9 @@ You can try to use below ROMA commands.
 
 Usage of each commands, please refer to the [ROMA HP](http://roma-kvs.org/commands.html).
 
-- - -
 ## Tutorial Mode
 This mode explain the ROMA basic commands as a interactive.
 
-- - -
 ## Requirement
 - React (0.13.3)
 - jquery (2.1.4)
@@ -52,8 +50,8 @@ This mode explain the ROMA basic commands as a interactive.
 - thin (1.6.3)
 - ruby (2.1.2)
 
-## CI
+## CI tool
 - TravisCI
 
 - - -
-Contributions, improvements, comments and suggestions welcome. 
+Contributions, improvements, comments and suggestions are welcome. 
