@@ -46,10 +46,7 @@ This mode explain the ROMA basic commands as a interactive.
 - sinatra (1.4.6)
 - ruby (2.1.2)
 
-## CI tool
-- TravisCI
-
-## Development, Test library
+## Development library
 - JSXTransformer (0.13.3)
 - thin (1.6.3)
 
@@ -59,9 +56,11 @@ This mode explain the ROMA basic commands as a interactive.
     $ bundle install
     $ RACK_ENV=production rackup config.ru
 
+<br>
+<br>
 - - -
-Contributions, improvements, comments and suggestions are welcome.
-Our HP below.
-ROMA HP :[http://roma-kvs.org/](http://roma-kvs.org/)
-ROMA HP(Virtual Console) : [http://roma-kvs.org/tryroma/](http://roma-kvs.org/tryroma/)
+Contributions, improvements, comments and suggestions are welcome.  
+Our HP below.  
+ROMA HP :[http://roma-kvs.org/](http://roma-kvs.org/)  
+ROMA HP(Virtual Console) : [http://roma-kvs.org/tryroma/](http://roma-kvs.org/tryroma/)  
 
