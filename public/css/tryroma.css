@@ -4,24 +4,6 @@ body {
 
 /*
  =========================================
-  Title
- =========================================
-*/
-/*
-#title {
-  font-size: 60px;
-  color: red;
-}
-
-img#title-image {
-  width: 60px;
-  position: relative;
-  top: 19px;
-}
-*/
-
-/*
- =========================================
   Select Mode Button
  =========================================
 */
@@ -51,7 +33,6 @@ button#free-button {
 */
 .side-bar {
   position: absolute;
-  top: 180px;
   visibility: hidden;
   font-weight: 700;
   color: gray;

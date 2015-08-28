@@ -7,7 +7,3 @@ gem 'json'
 group :development do
   gem 'thin'
 end
-
-group :test do
-  gem 'rspec'
-end
