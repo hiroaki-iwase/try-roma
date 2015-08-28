@@ -464,7 +464,7 @@ var FooterInfo = React.createClass(
                 <div style={style.endMessage}>
                   <center>
                     <p className='no-margin'>This site was inspired by Try Redis.</p>
-                    <p className='no-margin'>The source code to Try ROMA is available on <a href='https://github.com/hiroaki-iwase/try-roma'>GitHub</a>.</p>
+                    <p className='no-margin'>The source code to Try ROMA is available on <a href='https://github.com/roma/try-roma'>GitHub</a>.</p>
                   </center>
                 </div>
             );

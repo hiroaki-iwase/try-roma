@@ -51,7 +51,6 @@ button#free-button {
 */
 .side-bar {
   position: absolute;
-  top: 180px;
   visibility: hidden;
   font-weight: 700;
   color: gray;

@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/hiroaki-iwase/try-roma.svg?branch=travis)](https://travis-ci.org/hiroaki-iwase/try-roma)
-
 # Try ROMA
 virtual console of ROMA
 
@@ -54,7 +52,6 @@ This mode explain the ROMA basic commands as a interactive.
 ## Development, Test library
 - JSXTransformer (0.13.3)
 - thin (1.6.3)
-- rspec (3.3.0)
 
 - - -
 Contributions, improvements, comments and suggestions are welcome.
