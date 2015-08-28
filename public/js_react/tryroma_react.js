@@ -2,7 +2,7 @@
  *  React Component
  * ===================================================================================================================== */
 var Title = React.createClass(
-    {displayName: "Title",
+    {
         componentWillMount() {
             window.sessionStorage.removeItem(['requireNext']);
             window.sessionStorage.removeItem(['lastcmd']);
@@ -25,18 +25,18 @@ var Title = React.createClass(
                 },
             };
             return (
-                React.createElement("div", {style: style.title}, 
-                  React.createElement("center", {style: style.center}, 
-                    "Try R", React.createElement("img", {src: "../img/ROMA.png", id: "title-image", style: style.logo}), " MA"
-                  )
-                )
+                <div style={style.title}>
+                  <center style={style.center}>
+                    Try R<img src="../img/ROMA.png" id='title-image' style={style.logo} />&emsp;MA
+                  </center>
+                </div>
             );
         }
     }
 );
 
 var SelectModeButton = React.createClass(
-    {displayName: "SelectModeButton",
+    {
         getInitialState() {
             return{
                 mode: null,
@@ -60,81 +60,81 @@ var SelectModeButton = React.createClass(
         },
         render: function() {
             return (
-                React.createElement("div", null, 
-                  React.createElement("div", {id: "mode-button"}, 
-                    React.createElement("center", null, 
-                      React.createElement("button", {id: "tutorial-button", type: "button", name: "tutorial", onClick: this.selectMode}, 
-                        "Tutorial mode"
-                      ), 
-                      React.createElement("button", {id: "free-button", type: "button", name: "free", onClick: this.selectMode}, 
-                        "Free mode"
-                      )
-                    )
-                  ), 
+                <div>
+                  <div id='mode-button'>
+                    <center>
+                      <button id='tutorial-button' type="button" name="tutorial" onClick={this.selectMode}>
+                        Tutorial mode
+                      </button>
+                      <button id='free-button' type="button" name="free" onClick={this.selectMode}>
+                        Free mode
+                      </button>
+                    </center>
+                  </div>
 
-                  React.createElement(Main, {mode: this.state.mode})
+                  <Main mode={this.state.mode} />
 
-                )
+                </div>
             );
         }
     }
 );
 
 var Main = React.createClass(
-    {displayName: "Main",
+    {
         render: function() {
             return (
-                React.createElement("div", null, 
-                  React.createElement(TutorialSideBar, {mode: this.props.mode}), 
+                <div>
+                  <TutorialSideBar mode={this.props.mode} />
 
-                  React.createElement(Input, {mode: this.props.mode})
-                )
+                  <Input mode={this.props.mode} />
+                </div>
             );
         }
     }
 );
 
 var TutorialSideBar = React.createClass(
-    {displayName: "TutorialSideBar",
+    {
         render: function() {
             return (
-                React.createElement("span", {className: "side-bar"}, 
-                  React.createElement("ul", null, 
-                    React.createElement("li", null, "Check Status"), 
-                    React.createElement("ul", {className: "tutorial-commands"}, 
-                      React.createElement("li", {id: "stats"}, "stat"), 
-                      React.createElement("li", {id: "nodelist"}, "nodelist")
-                    ), 
-                    React.createElement("li", null, "Manage Data"), 
-                    React.createElement("ul", {className: "tutorial-commands"}, 
-                      React.createElement("li", {id: "set"}, "set"), 
-                      React.createElement("li", {id: "get"}, "get"), 
-                      React.createElement("li", {id: "add"}, "add"), 
-                      React.createElement("li", {id: "delete"}, "delete")
-                    ), 
-                    React.createElement("li", null, "Instance shutdown"), 
-                    React.createElement("ul", {className: "tutorial-commands"}, 
-                      React.createElement("li", {id: "release"}, "release"), 
-                      React.createElement("li", {id: "shutdown_self"}, "shutdown_self")
-                    ), 
-                    React.createElement("li", null, "Recover redundancy"), 
-                    React.createElement("ul", {className: "tutorial-commands"}, 
-                      React.createElement("li", {id: "recover"}, "recover"), 
-                      React.createElement("li", {id: "set_auto_recover"}, "set_auto_recover")
-                    ), 
-                    React.createElement("li", null, "STOP ROMA"), 
-                    React.createElement("ul", {className: "tutorial-commands"}, 
-                      React.createElement("li", {id: "balse"}, "balse")
-                    )
-                  )
-                )
+                <span className='side-bar'>
+                  <ul>
+                    <li>Check Status</li>
+                    <ul className='tutorial-commands'>
+                      <li id='stats'>stat</li>
+                      <li id='nodelist'>nodelist</li>
+                    </ul>
+                    <li>Manage Data</li>
+                    <ul className='tutorial-commands'>
+                      <li id='set'>set</li>
+                      <li id='get'>get</li>
+                      <li id='add'>add</li>
+                      <li id='delete'>delete</li>
+                    </ul>
+                    <li>Instance shutdown</li>
+                    <ul className='tutorial-commands'>
+                      <li id='release'>release</li>
+                      <li id='shutdown_self'>shutdown_self</li>
+                    </ul>
+                    <li>Recover redundancy</li>
+                    <ul className='tutorial-commands'>
+                      <li id='recover'>recover</li>
+                      <li id='set_auto_recover'>set_auto_recover</li>
+                    </ul>
+                    <li>STOP ROMA</li>
+                    <ul className='tutorial-commands'>
+                      <li id='balse'>balse</li>
+                    </ul>
+                  </ul>
+                </span>
             );
         }
     }
 );
 
 var Input = React.createClass(
-    {displayName: "Input",
+    {
         getDefaultProps() {
             return {
                 ENTER: 13,
@@ -217,18 +217,18 @@ var Input = React.createClass(
 
             var whichModeHeader;
             if (this.props.mode == 'free') {
-                whichModeHeader = React.createElement(FreeHeader, {nodeMsg: nodeMsg});
+                whichModeHeader = <FreeHeader nodeMsg={nodeMsg} />;
             } else if (this.props.mode == 'tutorial') {
-                whichModeHeader = React.createElement(TutorialHeader, {cmd: this.state.cmd, explain: this.state.explain});
+                whichModeHeader = <TutorialHeader cmd={this.state.cmd} explain={this.state.explain}/>;
             } else if (this.props.mode == null) {
-                whichModeHeader = React.createElement(FirstHeader, null);
+                whichModeHeader = <FirstHeader />;
             }
 
             var whichModeDisplay;
             if (this.props.mode == 'free') {
-                whichModeDisplay = React.createElement(FreeResult, {response: this.state.res});
+                whichModeDisplay = <FreeResult response={this.state.res} />;
             } else if (this.props.mode == 'tutorial') {
-                whichModeDisplay = React.createElement(TutorialResult, {response: this.state.res, nextGuidance: this.state.nextGuidance});
+                whichModeDisplay = <TutorialResult response={this.state.res} nextGuidance={this.state.nextGuidance}/>;
             }
 
             var style = {
@@ -238,22 +238,22 @@ var Input = React.createClass(
                 },
             };
             return (
-              React.createElement("div", {id: "console-screen"}, 
+              <div id="console-screen">
 
-                whichModeHeader, 
-                whichModeDisplay, 
+                {whichModeHeader}
+                {whichModeDisplay}
 
-                React.createElement("div", {id: "inputArea"}, 
-                  React.createElement("p", {className: "no-margin"}, React.createElement("span", {style: style.gt}, ">"), " ", React.createElement("input", {id: "inputBox", type: "text", placeholder: this.state.placeholder, onChange: this.changeText, onKeyDown: this.sendCommand, ref: "command"}))
-                )
-              )
+                <div id='inputArea'>
+                  <p className='no-margin'><span style={style.gt}>&gt;</span> <input id='inputBox' type="text" placeholder={this.state.placeholder} onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" /></p>
+                </div>
+              </div>
             );
         }
     }
 );
 
 var FirstHeader = React.createClass(
-    {displayName: "FirstHeader",
+    {
         getDefaultProps() {
             return {
                 greetingAA: heardoc_main(),
@@ -274,10 +274,10 @@ var FirstHeader = React.createClass(
                 },
             };
             return (
-                React.createElement("div", {style: style.greeting}, 
-                  React.createElement("div", {style: style.greetingAA}, this.props.greetingAA), 
-                  React.createElement("div", {style: style.greetingMsg}, this.props.greetingMessage)
-                )
+                <div style={style.greeting}>
+                  <div style={style.greetingAA}>{this.props.greetingAA}</div>
+                  <div style={style.greetingMsg}>{this.props.greetingMessage}</div>
+                </div>
             );
         }
     }
@@ -285,7 +285,7 @@ var FirstHeader = React.createClass(
 
 
 var FreeHeader = React.createClass(
-    {displayName: "FreeHeader",
+    {
         getDefaultProps() {
             return {
                 greetingAA: heardoc_free(),
@@ -327,23 +327,23 @@ var FreeHeader = React.createClass(
                 },
             };
             return (
-                React.createElement("div", null, 
-                  React.createElement("div", {style: style.greeting}, 
-                    React.createElement("div", {style: style.greetingAA}, this.state.greetingAA), 
-                    React.createElement("div", {style: style.greetingMsg}, this.state.greetingMessage)
-                  ), 
-                  React.createElement("div", null, 
-                    React.createElement("div", {style: style.nonActive}, this.state.redMsg.split('<br>').map(lines)), 
-                    React.createElement("div", {style: style.active}, this.state.greenMsg.split('<br>').map(lines))
-                  )
-                )
+                <div>
+                  <div style={style.greeting}>
+                    <div style={style.greetingAA}>{this.state.greetingAA}</div>
+                    <div style={style.greetingMsg}>{this.state.greetingMessage}</div>
+                  </div>
+                  <div>
+                    <div style={style.nonActive}>{this.state.redMsg.split('<br>').map(lines)}</div>
+                    <div style={style.active}>{this.state.greenMsg.split('<br>').map(lines)}</div>
+                  </div>
+                </div>
             );
         }
     }
 );
 
 var TutorialHeader = React.createClass(
-    {displayName: "TutorialHeader",
+    {
         getInitialState() {
             return {
                 greetingAA: heardoc_tutorial(),
@@ -385,23 +385,23 @@ var TutorialHeader = React.createClass(
                 },
             };
             return (
-                React.createElement("div", {style: style.headerArea}, 
-                  React.createElement("div", {style: style.greeting}, 
-                    React.createElement("div", {style: style.greetingAA}, this.state.greetingAA), 
-                    React.createElement("div", {style: style.greetingMsg}, this.state.greetingMessage.split('<br>').map(lines))
-                  ), 
-                  React.createElement("div", {style: style.explain}, 
-                    React.createElement("div", {style: style.tutorialCmd}, this.state.cmd), 
-                    React.createElement("div", {style: style.tutorialMsg}, this.state.explain.split('<br>').map(lines))
-                  )
-                )
+                <div style={style.headerArea}>
+                  <div style={style.greeting}>
+                    <div style={style.greetingAA}>{this.state.greetingAA}</div>
+                    <div style={style.greetingMsg}>{this.state.greetingMessage.split('<br>').map(lines)}</div>
+                  </div>
+                  <div style={style.explain}>
+                    <div style={style.tutorialCmd}>{this.state.cmd}</div>
+                    <div style={style.tutorialMsg}>{this.state.explain.split('<br>').map(lines)}</div>
+                  </div>
+                </div>
             );
         }
     }
 );
 
 var FreeResult = React.createClass(
-    {displayName: "FreeResult",
+    {
         getInitialState() {
             return {
                 response: '',
@@ -416,16 +416,16 @@ var FreeResult = React.createClass(
         },
         render: function() {
             return (
-                React.createElement("div", {id: "responseArea"}, 
-                  this.state.response.split('<br>').map(lines)
-                )
+                <div id="responseArea">
+                  {this.state.response.split('<br>').map(lines)}
+                </div>
             );
         }
     }
 );
 
 var TutorialResult = React.createClass(
-    {displayName: "TutorialResult",
+    {
         getDefaultProps() {
             return {
                 nextGuidance: '',
@@ -443,17 +443,17 @@ var TutorialResult = React.createClass(
                 },
             };
             return (
-                React.createElement("div", {id: "responseArea"}, 
-                  this.props.response.split('<br>').map(lines), 
-                  React.createElement("div", {style: style.next}, this.props.nextGuidance.split('<br>').map(lines))
-                )
+                <div id="responseArea">
+                  {this.props.response.split('<br>').map(lines)}
+                  <div style={style.next}>{this.props.nextGuidance.split('<br>').map(lines)}</div>
+                </div>
             );
         }
     }
 );
 
 var FooterInfo = React.createClass(
-    {displayName: "FooterInfo",
+    {
         render: function() {
             var style = {
                 endMessage: {
@@ -461,12 +461,12 @@ var FooterInfo = React.createClass(
                 },
             };
             return (
-                React.createElement("div", {style: style.endMessage}, 
-                  React.createElement("center", null, 
-                    React.createElement("p", {className: "no-margin"}, "This site was inspired by Try Redis."), 
-                    React.createElement("p", {className: "no-margin"}, "The source code to Try ROMA is available on ", React.createElement("a", {href: "https://github.com/roma/try-roma"}, "GitHub"), ".")
-                  )
-                )
+                <div style={style.endMessage}>
+                  <center>
+                    <p className='no-margin'>This site was inspired by Try Redis.</p>
+                    <p className='no-margin'>The source code to Try ROMA is available on <a href='https://github.com/roma/try-roma'>GitHub</a>.</p>
+                  </center>
+                </div>
             );
         }
     }
@@ -475,18 +475,18 @@ var FooterInfo = React.createClass(
 
 // root component
 var TryRoma = React.createClass(
-    {displayName: "TryRoma",
+    {
         render: function() {
             return (
-                React.createElement("div", null, 
-                  React.createElement(Title, null), 
-                  React.createElement(SelectModeButton, null), 
-                  React.createElement(FooterInfo, null)
-                )
+                <div>
+                  <Title />
+                  <SelectModeButton />
+                  <FooterInfo />
+                </div>
             );
         }
     }
 );
 
-React.render(React.createElement(TryRoma, null), document.getElementById("reactArea"));
+React.render(<TryRoma />, document.getElementById("reactArea"));
 

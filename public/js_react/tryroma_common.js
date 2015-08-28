@@ -33,9 +33,9 @@ function changePlaceHolder(str) {
 
 function lines(line){
     if (line) {
-        return (React.createElement("p", {className: "no-margin"}, line));
+        return (<p className='no-margin'>{line}</p>);
     } else {
-        return (React.createElement("p", {className: "no-margin"}, " "));
+        return (<p className='no-margin'>&nbsp;</p>);
     }
 }
 

@@ -49,6 +49,8 @@ This mode explain the ROMA basic commands as a interactive.
 ## Development library
 - JSXTransformer (0.13.3)
 - thin (1.6.3)
+- npm (1.4.9)
+- react-tools (0.13.3)
 
 ## How to use in your environment
     $ git clone https://github.com/roma/try-roma.git
