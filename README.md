@@ -37,7 +37,7 @@ You can try to use below ROMA commands.
 - set_auto_recover
 - set_log_level
 
-Usage of each commands, please refer to the [ROMA HP](http://roma-kvs.org/commands.html).
+Usage of each commands, please refer to the [ROMA HP(commands)](http://roma-kvs.org/commands.html).
 
 ## Tutorial Mode
 This mode explain the ROMA basic commands as a interactive.
@@ -45,13 +45,20 @@ This mode explain the ROMA basic commands as a interactive.
 ## Requirement
 - React (0.13.3)
 - jquery (2.1.4)
-- JSXTransformer (0.13.3)
 - sinatra (1.4.6)
-- thin (1.6.3)
 - ruby (2.1.2)
 
 ## CI tool
 - TravisCI
 
+## Development, Test library
+- JSXTransformer (0.13.3)
+- thin (1.6.3)
+- rspec (3.3.0)
+
 - - -
-Contributions, improvements, comments and suggestions are welcome. 
+Contributions, improvements, comments and suggestions are welcome.
+Our HP below.
+ROMA HP :[http://roma-kvs.org/](http://roma-kvs.org/)
+ROMA HP(Virtual Console) : [http://roma-kvs.org/tryroma/](http://roma-kvs.org/tryroma/)
+
