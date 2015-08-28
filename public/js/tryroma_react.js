@@ -8,10 +8,26 @@ var Title = React.createClass(
             window.sessionStorage.removeItem(['lastcmd']);
         },
         render: function() {
+            var style = {
+                title: {
+                    fontFamily: 'courier',
+                    fontSize: '60px',
+                    fontWeight: 'bold',
+                    color: 'red',
+                },
+                center: {
+                    position: 'relative',
+                },
+                logo: {
+                     width: '60px',
+                     position: 'absolute',
+                     top: '5px',
+                },
+            };
             return (
-                <div id='title'>
-                  <center>
-                    Try R<img src="../img/ROMA.png" id='title-image'/>MA
+                <div style={style.title}>
+                  <center style={style.center}>
+                    Try R<img src="../img/ROMA.png" id='title-image' style={style.logo} />&emsp;MA
                   </center>
                 </div>
             );
@@ -215,6 +231,12 @@ var Input = React.createClass(
                 whichModeDisplay = <TutorialResult response={this.state.res} nextGuidance={this.state.nextGuidance}/>;
             }
 
+            var style = {
+                gt: {
+                    fontFamily: 'courier',
+                    fontSize: '20px',
+                },
+            };
             return (
               <div id="console-screen">
 
@@ -222,7 +244,7 @@ var Input = React.createClass(
                 {whichModeDisplay}
 
                 <div id='inputArea'>
-                  <p className='no-margin'>&gt; <input id='inputBox' type="text" placeholder={this.state.placeholder} onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" /></p>
+                  <p className='no-margin'><span style={style.gt}>&gt;</span> <input id='inputBox' type="text" placeholder={this.state.placeholder} onChange={this.changeText} onKeyDown={this.sendCommand} ref="command" /></p>
                 </div>
               </div>
             );
@@ -244,7 +266,8 @@ var FirstHeader = React.createClass(
                     color: '#00cede',
                 },
                 greetingAA: {
-                    fontSize: '13px',
+                    fontSize: '12px',
+                    fontFamily: 'courier'
                 },
                 greetingMsg: {
                     fontSize: '26px',
@@ -289,6 +312,7 @@ var FreeHeader = React.createClass(
                 },
                 greetingAA: {
                     fontSize: '20px',
+                    fontFamily: 'courier'
                 },
                 greetingMsg: {
                     fontSize: '26px',
@@ -342,7 +366,8 @@ var TutorialHeader = React.createClass(
                     color: '#00cede',
                 },
                 greetingAA: {
-                    fontSize: '15px',
+                    fontSize: '20px',
+                    fontFamily: 'courier',
                 },
                 greetingMsg: {
                     fontSize: '25px',
@@ -430,8 +455,13 @@ var TutorialResult = React.createClass(
 var FooterInfo = React.createClass(
     {
         render: function() {
+            var style = {
+                endMessage: {
+                    marginBottom: '25px',
+                },
+            };
             return (
-                <div>
+                <div style={style.endMessage}>
                   <center>
                     <p className='no-margin'>This site was inspired by Try Redis.</p>
                     <p className='no-margin'>The source code to Try ROMA is available on <a href='https://github.com/hiroaki-iwase/try-roma'>GitHub</a>.</p>
