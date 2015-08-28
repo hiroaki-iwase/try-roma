@@ -53,6 +53,12 @@ This mode explain the ROMA basic commands as a interactive.
 - JSXTransformer (0.13.3)
 - thin (1.6.3)
 
+## How to use in your environment
+    $ git clone https://github.com/roma/try-roma.git
+    $ cd try-roma
+    $ bundle install
+    $ RACK_ENV=production rackup config.ru
+
 - - -
 Contributions, improvements, comments and suggestions are welcome.
 Our HP below.

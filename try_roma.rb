@@ -37,7 +37,6 @@ after do
   end
 end
 
-# debug 
 get '/' do
   erb :tryroma
 end

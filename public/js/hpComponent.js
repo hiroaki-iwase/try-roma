@@ -21,7 +21,6 @@ var Head = React.createClass(
     }
 );
 
-
 var TopNavBar = React.createClass(
     {
         render:function(){
@@ -110,7 +109,6 @@ var TopNavBar = React.createClass(
         }
     }
 );
-
 
 var FooterBar = React.createClass(
     {
